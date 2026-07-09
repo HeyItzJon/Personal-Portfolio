@@ -271,11 +271,18 @@ section { padding: 100px 0; }
   color: #fff;
   text-align: center;
   padding: 32px;
+  overflow: hidden;
 }
 .carousel-slide img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
+}
+.carousel-slide::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.55), transparent 55%);
+  pointer-events: none;
 }
 .slide-label {
   position: relative; z-index: 1;
@@ -508,9 +515,12 @@ section { padding: 100px 0; }
   padding: 10px 18px;
   border-radius: var(--r-full);
   transition: background 0.2s, transform 0.2s;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 .contact-links a:hover { background: rgba(255,255,255,0.18); transform: translateX(-3px); }
+.contact-links svg { width: 17px; height: 17px; flex-shrink: 0; fill: currentColor; }
 
 /* ---- Footer ---- */
 footer {
@@ -694,18 +704,22 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="carousel reveal" id="aboutCarousel">
         <div class="carousel-track" id="carouselTrack">
           <div class="carousel-slide grad-1">
+            <!-- <img src="assets/images/about-1.jpg" alt="Hand-soldering the RGBW bike lighting board"> -->
             <span class="slide-tag">📷 Photo slot 1</span>
             <span class="slide-label">Hand-soldering the RGBW bike lighting board</span>
           </div>
           <div class="carousel-slide grad-2">
+            <!-- <img src="assets/images/about-2.jpg" alt="MOSFET vehicle lighting — night test"> -->
             <span class="slide-tag">📷 Photo slot 2</span>
             <span class="slide-label">MOSFET vehicle lighting — night test</span>
           </div>
           <div class="carousel-slide grad-3">
+            <!-- <img src="assets/images/about-3.jpg" alt="Go-kart frame, mid-build"> -->
             <span class="slide-tag">📷 Photo slot 3</span>
             <span class="slide-label">Go-kart frame, mid-build</span>
           </div>
           <div class="carousel-slide grad-4">
+            <!-- <img src="assets/images/about-4.jpg" alt="On deck — where the discipline started"> -->
             <span class="slide-tag">📷 Photo slot 4</span>
             <span class="slide-label">On deck — where the discipline started</span>
           </div>
@@ -728,7 +742,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="pcarousel-track" id="projTrack">
 
           <a class="project-card" data-route="pcb" data-idx="0">
-            <div class="project-thumb grad-1"><span class="thumb-label">PCB Design</span></div>
+            <div class="project-thumb grad-1">
+              <!-- <img src="assets/images/project-pcb-cover.jpg" alt="Modular Bicycle Lighting System"> -->
+              <span class="thumb-label">PCB Design</span>
+            </div>
             <div class="project-body">
               <div class="project-ref">PRJ-01</div>
               <h3>Modular Bicycle Lighting System</h3>
@@ -741,7 +758,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </a>
 
           <a class="project-card" data-route="mosfet" data-idx="1">
-            <div class="project-thumb grad-2"><span class="thumb-label">Power Electronics</span></div>
+            <div class="project-thumb grad-2">
+              <!-- <img src="assets/images/project-mosfet-cover.jpg" alt="MOSFET x Off-Road System"> -->
+              <span class="thumb-label">Power Electronics</span>
+            </div>
             <div class="project-body">
               <div class="project-ref">PRJ-02</div>
               <h3>MOSFET x Off-Road System </h3>
@@ -754,7 +774,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </a>
 
           <a class="project-card" data-route="gokart" data-idx="2">
-            <div class="project-thumb grad-3"><span class="thumb-label">Electromechanical</span></div>
+            <div class="project-thumb grad-3">
+              <!-- <img src="assets/images/project-gokart-cover.jpg" alt="Electric Go-Kart"> -->
+              <span class="thumb-label">Electromechanical</span>
+            </div>
             <div class="project-body">
               <div class="project-ref">PRJ-03</div>
               <h3>Electric Go-Kart</h3>
@@ -767,7 +790,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </a>
 
           <a class="project-card" data-route="rcplane" data-idx="3">
-            <div class="project-thumb grad-4"><span class="thumb-label">Avionics</span></div>
+            <div class="project-thumb grad-4">
+              <!-- <img src="assets/images/project-rcplane-cover.jpg" alt="Twin-Engine RC Aircraft"> -->
+              <span class="thumb-label">Avionics</span>
+            </div>
             <div class="project-body">
               <div class="project-ref">PRJ-04</div>
               <h3>Twin-Engine RC Aircraft</h3>
@@ -780,7 +806,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </a>
 
           <a class="project-card" data-route="aiagent" data-idx="4">
-            <div class="project-thumb grad-5"><span class="thumb-label">Software &amp; AI</span></div>
+            <div class="project-thumb grad-5">
+              <!-- <img src="assets/images/project-aiagent-cover.jpg" alt="Custom AI Agent Setup"> -->
+              <span class="thumb-label">Software &amp; AI</span>
+            </div>
             <div class="project-body">
               <div class="project-ref">PRJ-05</div>
               <h3>Custom AI Agent Setup</h3>
@@ -841,9 +870,18 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </div>
         </div>
         <div class="contact-links">
-          <a href="mailto:jon.m.bourget@gmail.com">✉️ jon.m.bourget@gmail.com</a>
-          <a href="https://linkedin.com/in/jonathan-bourget" target="_blank">💼 LinkedIn ↗</a>
-          <a href="assets/resume/Jonathan_Bourget_Resume.pdf" target="_blank">📄 Download Resume ↗</a>
+          <a href="mailto:jon.m.bourget@gmail.com">
+            <svg viewBox="0 0 24 24"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h15A2.5 2.5 0 0 1 22 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 18.5v-13Zm2.2.3 7.3 6.1a.8.8 0 0 0 1 0l7.3-6.1a.6.6 0 0 0-.4-1H4.6a.6.6 0 0 0-.4 1ZM4 8.1v10.4c0 .3.2.5.5.5h15c.3 0 .5-.2.5-.5V8.1l-7.1 5.9a2.8 2.8 0 0 1-3.6 0L4 8.1Z"/></svg>
+            jon.m.bourget@gmail.com
+          </a>
+          <a href="https://linkedin.com/in/jonathan-bourget" target="_blank">
+            <svg viewBox="0 0 24 24"><path d="M6.94 5a2 2 0 1 1-4-.02 2 2 0 0 1 4 .02ZM7 8.48H3V21h4V8.48Zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-3.96 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.68-2.91V8.48Z"/></svg>
+            LinkedIn ↗
+          </a>
+          <a href="assets/resume/Jonathan_Bourget_Resume.pdf" target="_blank">
+            <svg viewBox="0 0 24 24"><path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1ZM5 19a1 1 0 0 0 1 1h12a1 1 0 1 0 0-2H6a1 1 0 0 0-1 1Z"/></svg>
+            Download Resume ↗
+          </a>
         </div>
       </div>
     </div>
@@ -876,11 +914,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I started rough — raw wires and generic component boxes — to prove out the concept before committing to a PCB. Over a few iterations I added and then stripped out extra functionality, like chimes and signal clicks, once I decided they weren't worth the added complexity.</p>
       <div class="figure-grid">
         <figure class="figure">
-          <div class="figure-img grad-1"><span>📷 prototype-v1.jpg</span></div>
+          <div class="figure-img grad-1">
+          <!-- <img src="assets/images/prototype-v1.jpg" alt="prototype v1"> -->
+          <span>📷 prototype-v1.jpg</span></div>
           <figcaption class="figure-cap">Fig. 1 — Layout V1, first prototype</figcaption>
         </figure>
         <figure class="figure">
-          <div class="figure-img grad-2"><span>📷 prototype-v2.jpg</span></div>
+          <div class="figure-img grad-2">
+          <!-- <img src="assets/images/prototype-v2.jpg" alt="prototype v2"> -->
+          <span>📷 prototype-v2.jpg</span></div>
           <figcaption class="figure-cap">Fig. 2 — Layout V2, compact circuit</figcaption>
         </figure>
       </div>
@@ -889,11 +931,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I laid out the board in EasyEDA to support the control module (an Arduino Nano) with all connections placed for practical final assembly, based on the circuit I'd proven out during prototyping. Getting there meant learning the design interface from scratch and researching best practices for via placement and hole tolerances — including cross-checking component pin diameters with a precision caliper at home to avoid costly fabrication mistakes.</p>
       <div class="figure-grid">
         <figure class="figure">
-          <div class="figure-img grad-3"><span>📷 pcb-raw.jpg</span></div>
+          <div class="figure-img grad-3">
+          <!-- <img src="assets/images/pcb-raw.jpg" alt="pcb raw"> -->
+          <span>📷 pcb-raw.jpg</span></div>
           <figcaption class="figure-cap">Fig. 3 — Raw PCB as received</figcaption>
         </figure>
         <figure class="figure">
-          <div class="figure-img grad-4"><span>📷 pcb-populated.jpg</span></div>
+          <div class="figure-img grad-4">
+          <!-- <img src="assets/images/pcb-populated.jpg" alt="pcb populated"> -->
+          <span>📷 pcb-populated.jpg</span></div>
           <figcaption class="figure-cap">Fig. 4 — Components being added</figcaption>
         </figure>
       </div>
@@ -902,11 +948,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>Final assembly involved soldering Adafruit NeoPixel strips onto the board for the outer pixel ring, then testing in stages. The first pass simulated the physical switches with keystrokes on an Arduino-connected laptop; the second added the real switches and ran the system exactly as it would be used on the bike.</p>
       <div class="figure-grid">
         <figure class="figure">
-          <div class="figure-img grad-1"><span>📷 assembly-test.jpg</span></div>
+          <div class="figure-img grad-1">
+          <!-- <img src="assets/images/assembly-test.jpg" alt="assembly test"> -->
+          <span>📷 assembly-test.jpg</span></div>
           <figcaption class="figure-cap">Fig. 5 — Mostly complete testing assembly</figcaption>
         </figure>
         <figure class="figure">
-          <div class="figure-img grad-2"><span>📷 final-circuit.jpg</span></div>
+          <div class="figure-img grad-2">
+          <!-- <img src="assets/images/final-circuit.jpg" alt="final circuit"> -->
+          <span>📷 final-circuit.jpg</span></div>
           <figcaption class="figure-cap">Fig. 6 — Final circuit assembly on PCB</figcaption>
         </figure>
       </div>
@@ -916,7 +966,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>The original goal was a design simple and scalable enough to sell at a competitive price. I never got to market — cost and manufacturing time held it back — but the final build came close to being production-ready.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-3"><span>📷 casings.jpg</span></div>
+          <div class="figure-img grad-3">
+          <!-- <img src="assets/images/casings.jpg" alt="casings"> -->
+          <span>📷 casings.jpg</span></div>
           <figcaption class="figure-cap">Fig. 7 — Different casing designs (front, rear, compact)</figcaption>
         </figure>
       </div>
@@ -959,7 +1011,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I started with a hand-drawn circuit sketch based on my research into MOSFET behavior and Arduino pin control, which became the template for the breadboard build that followed.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-1"><span>📷 hand-sketch.jpg</span></div>
+          <div class="figure-img grad-1">
+          <!-- <img src="assets/images/hand-sketch.jpg" alt="hand sketch"> -->
+          <span>📷 hand-sketch.jpg</span></div>
           <figcaption class="figure-cap">Fig. 1 — Hand-drawn sketch of wiring and plan</figcaption>
         </figure>
       </div>
@@ -968,7 +1022,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I assembled the design on a breadboard and tested it with a modular power supply first, to rule out overloading or heat-dissipation issues before anything went near the car. Since automotive interiors can swing from -35°C to 40°C in worst-case conditions, thermal margin mattered as much as getting the logic right.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-2"><span>📷 installed-lights.jpg</span></div>
+          <div class="figure-img grad-2">
+          <!-- <img src="assets/images/installed-lights.jpg" alt="installed lights"> -->
+          <span>📷 installed-lights.jpg</span></div>
           <figcaption class="figure-cap">Fig. 2 — Final install, static yellow mode</figcaption>
         </figure>
       </div>
@@ -1012,7 +1068,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>We first mocked up the frame in cut wood beams to validate size and maneuverability as a simple braced rectangular box. Once the concept checked out, we rebuilt it from rounded square-section steel and sheet metal flooring — a real challenge with the limited tooling we had, even with careful measurement going in.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-3"><span>📷 frame-assembly.jpg</span></div>
+          <div class="figure-img grad-3">
+          <!-- <img src="assets/images/frame-assembly.jpg" alt="frame assembly"> -->
+          <span>📷 frame-assembly.jpg</span></div>
           <figcaption class="figure-cap">Fig. 1 — Mostly assembled frame (with a repurposed kid's bike wheel standing in as the steering wheel during testing)</figcaption>
         </figure>
       </div>
@@ -1021,11 +1079,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>Four 12V lead-acid batteries, wired in series, fed a 1.6kW-rated motor controller — a motor more commonly used for garage doors or electric outboard motors, but well suited here thanks to its mounting plate and torque rating. We chose a gear ratio for low-speed pickup and rough terrain, multiplying torque nearly tenfold, which meant the real challenge became keeping the motor running near its max RPM and current rating for sustained cruising. Chain tensioning and bracket flex under acceleration were constant issues to work through.</p>
       <div class="figure-grid">
         <figure class="figure">
-          <div class="figure-img grad-4"><span>📷 battery-pack.jpg</span></div>
+          <div class="figure-img grad-4">
+          <!-- <img src="assets/images/battery-pack.jpg" alt="battery pack"> -->
+          <span>📷 battery-pack.jpg</span></div>
           <figcaption class="figure-cap">Fig. 2 — Assembled battery pack</figcaption>
         </figure>
         <figure class="figure">
-          <div class="figure-img grad-1"><span>📷 motor-assembly.jpg</span></div>
+          <div class="figure-img grad-1">
+          <!-- <img src="assets/images/motor-assembly.jpg" alt="motor assembly"> -->
+          <span>📷 motor-assembly.jpg</span></div>
           <figcaption class="figure-cap">Fig. 3 — Motor assembly</figcaption>
         </figure>
       </div>
@@ -1035,7 +1097,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>With the electronics tuned and power delivery optimized, my friend hit 49 km/h in a straight-line test on paved road — solid for a build carrying a 200+ lb driver. Under normal stop-and-go use, the 15 Ah battery pack gave us 3–5 hours of runtime. We looked into regenerative braking, but the extra three-phase battery control hardware would have blown well past our budget.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-2"><span>📷 final-gokart.jpg</span></div>
+          <div class="figure-img grad-2">
+          <!-- <img src="assets/images/final-gokart.jpg" alt="final gokart"> -->
+          <span>📷 final-gokart.jpg</span></div>
           <figcaption class="figure-cap">Fig. 4 — Final construction</figcaption>
         </figure>
       </div>
@@ -1078,11 +1142,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>The control system is built around a custom STM32-based flight controller. For the radio link, I selected an ExpressLRS stack — a RadioMaster Pocket transmitter paired with an RP4TD receiver — chosen for its low latency and long-range reliability. Navigation comes from a Matek M10Q-5883 GPS/compass module.</p>
       <div class="figure-grid">
         <figure class="figure">
-          <div class="figure-img grad-1"><span>📷 avionics-stack.jpg</span></div>
+          <div class="figure-img grad-1">
+          <!-- <img src="assets/images/avionics-stack.jpg" alt="avionics stack"> -->
+          <span>📷 avionics-stack.jpg</span></div>
           <figcaption class="figure-cap">Fig. 1 — Avionics component stack</figcaption>
         </figure>
         <figure class="figure">
-          <div class="figure-img grad-4"><span>📷 wiring-layout.jpg</span></div>
+          <div class="figure-img grad-4">
+          <!-- <img src="assets/images/wiring-layout.jpg" alt="wiring layout"> -->
+          <span>📷 wiring-layout.jpg</span></div>
           <figcaption class="figure-cap">Fig. 2 — Wiring and power distribution layout</figcaption>
         </figure>
       </div>
@@ -1091,7 +1159,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>Beyond component selection, I maintain the project's bill of materials and prepared reference documentation for the mechanical sub-team covering fuselage archetypes and motor configuration options — keeping the electrical and mechanical designs aligned as the build progresses.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-3"><span>📷 airframe-progress.jpg</span></div>
+          <div class="figure-img grad-3">
+          <!-- <img src="assets/images/airframe-progress.jpg" alt="airframe progress"> -->
+          <span>📷 airframe-progress.jpg</span></div>
           <figcaption class="figure-cap">Fig. 3 — Airframe build in progress</figcaption>
         </figure>
       </div>
@@ -1132,11 +1202,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="figure-grid">
         <figure class="figure">
-          <div class="figure-img grad-5"><span>📷 agent-diagram.jpg</span></div>
+          <div class="figure-img grad-5">
+          <!-- <img src="assets/images/agent-diagram.jpg" alt="agent diagram"> -->
+          <span>📷 agent-diagram.jpg</span></div>
           <figcaption class="figure-cap">Fig. 1 — System architecture</figcaption>
         </figure>
         <figure class="figure">
-          <div class="figure-img grad-2"><span>📷 agent-demo.jpg</span></div>
+          <div class="figure-img grad-2">
+          <!-- <img src="assets/images/agent-demo.jpg" alt="agent demo"> -->
+          <span>📷 agent-demo.jpg</span></div>
           <figcaption class="figure-cap">Fig. 2 — Agent in action</figcaption>
         </figure>
       </div>
