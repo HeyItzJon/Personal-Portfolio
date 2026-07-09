@@ -567,12 +567,13 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .figure-grid.single { grid-template-columns: 1fr; }
 .figure { border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-md); background: #fff; }
 .figure-img {
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/4;
   display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 13px; font-weight: 600;
   text-align: center; padding: 20px;
   position: relative;
 }
+.figure-img.wide { aspect-ratio: 4/3; }
 .figure-img img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -960,7 +961,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>The original goal was a design simple and scalable enough to sell at a competitive price. I never got to market — cost and manufacturing time held it back — but the final build came close to being production-ready.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-3">
+          <div class="figure-img grad-3 wide">
           <img src="assets/images/casings.jpg" alt="casings"></div>
           <figcaption class="figure-cap">Fig. 7 — Different casing designs (front, rear, compact)</figcaption>
         </figure>
