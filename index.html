@@ -49,6 +49,9 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .pin-section { height: auto !important; margin-top: 0 !important; }
+  .pin-sticky { position: static !important; height: auto !important; }
+  .pin-layer { position: static !important; opacity: 1 !important; transform: none !important; padding: 80px var(--pad) !important; }
 }
 
 body {
@@ -194,22 +197,44 @@ h1, h2, h3 {
 .btn-outline { background: #fff; border: 1.5px solid var(--line-strong); color: var(--ink); }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
 
-/* ---- Hero ---- */
-.hero { padding: 104px 0 90px; position: relative; overflow: hidden; }
+/* ---- Hero / scroll crossfade ---- */
+.pin-section { position: relative; height: 130vh; }
+.pin-sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.pin-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 var(--pad);
+  will-change: opacity, transform;
+}
+.pin-hero { z-index: 2; }
+.pin-intro { z-index: 1; opacity: 0; }
+.pin-inner { max-width: 800px; margin: 0 auto; }
 .hero-glow {
-  position: absolute; top: -220px; right: -160px;
-  width: 640px; height: 640px;
-  background: radial-gradient(circle, rgba(2,132,199,0.15), rgba(6,182,212,0.07) 55%, transparent 75%);
+  position: absolute; top: -260px; right: -200px;
+  width: 780px; height: 780px;
+  background: radial-gradient(circle, rgba(2,132,199,0.28), rgba(6,182,212,0.13) 55%, transparent 75%);
   pointer-events: none;
 }
 .hero-glow-2 {
-  position: absolute; bottom: -260px; left: -200px;
-  width: 560px; height: 560px;
-  background: radial-gradient(circle, rgba(6,182,212,0.10), transparent 70%);
+  position: absolute; bottom: -360px; left: -280px;
+  width: 900px; height: 900px;
+  background: radial-gradient(circle, rgba(6,182,212,0.24), rgba(2,132,199,0.10) 55%, transparent 75%);
   pointer-events: none;
 }
 .hero-inner { position: relative; z-index: 1; text-align: center; max-width: 800px; margin: 0 auto; }
-.hero h1 { font-size: clamp(42px, 7vw, 74px); line-height: 1.06; }
+.pin-hero h1 { font-size: clamp(52px, 10vw, 104px); line-height: 1.04; }
 .grad-text {
   background: var(--grad);
   -webkit-background-clip: text;
@@ -217,6 +242,37 @@ h1, h2, h3 {
   color: transparent;
 }
 .hero-sub { margin: 26px auto 0; font-size: 19px; color: var(--muted); max-width: 52ch; }
+
+.intro-statement-text {
+  max-width: 46ch;
+  margin: 0 auto;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(24px, 3.6vw, 36px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.intro-line { display: block; }
+.intro-line-2 { margin-top: 14px; }
+.intro-boxes {
+  margin: 44px auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  max-width: 480px;
+}
+.intro-box {
+  background: #fff;
+  padding: 22px 16px;
+  text-align: center;
+}
+.intro-box strong { display: block; font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+.intro-box span { font-size: 13px; color: var(--muted); }
 .hero-actions { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .hero-stats {
   margin: 72px auto 0;
@@ -675,30 +731,39 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      ================================================================ -->
 <main class="page active" id="page-home">
 
-  <header class="hero" id="home">
-    <div class="hero-glow" aria-hidden="true"></div>
-    <div class="hero-glow-2" aria-hidden="true"></div>
-    <div class="wrap hero-inner">
-      <div class="eyebrow">🟢 Open to Co-op Opportunities — Spring/Summer 2027</div>
-      <h1>Hi, I'm Jonathan.<br>I build <span class="grad-text">hardware</span> that has to actually work.</h1>
-      <p class="hero-sub">Electrical Engineering student at Carleton University. I design PCBs, write firmware, and take projects from a hand sketch to a working, weatherproof final build.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" data-route="home" data-scroll="projects">View My Projects</a>
-        <a class="btn btn-outline" data-route="home" data-scroll="contact">Get in Touch</a>
+  <section class="pin-section" id="home">
+    <div class="pin-sticky">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-glow-2" aria-hidden="true"></div>
+
+      <div class="pin-layer pin-hero" id="pinHero">
+        <div class="pin-inner">
+          <div class="eyebrow">🟢 Open to Co-op Opportunities — Spring/Summer 2027</div>
+          <h1>Hi, I'm <span class="grad-text">Jonathan</span>.</h1>
+          <div class="hero-actions">
+            <a class="btn btn-primary" data-route="home" data-scroll="projects">View My Projects</a>
+            <a class="btn btn-outline" data-route="home" data-scroll="contact">Get in Touch</a>
+          </div>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><strong>3rd Year</strong><span>BEng Electrical, Co-op</span></div>
-        <div class="hero-stat"><strong>10.05 / 12</strong><span>Cumulative GPA</span></div>
-        <div class="hero-stat"><strong>Ottawa, ON</strong><span>Open to relocation</span></div>
+
+      <div class="pin-layer pin-intro" id="pinIntro">
+        <div class="pin-inner">
+          <p class="intro-statement-text"><span class="intro-line">I'm a <span class="grad-text">3rd-year Electrical Engineering</span> student at Carleton University.</span><span class="intro-line intro-line-2">Always building, testing, and fixing.</span></p>
+          <div class="intro-boxes">
+            <div class="intro-box"><strong>Ottawa, ON</strong><span>Open to relocation</span></div>
+            <div class="intro-box"><strong>Bilingual</strong><span>English &amp; French</span></div>
+          </div>
+        </div>
       </div>
     </div>
-  </header>
+  </section>
 
   <section id="about">
     <div class="wrap about-grid">
       <div class="about-copy reveal">
         <div class="eyebrow">About Me</div>
-        <h2>From the pool deck to the workbench</h2>
+        <h2>A bit about my interests</h2>
         <p>Before I was building circuits, I was a certified lifeguard, swim instructor, and first aid instructor with the City of Ottawa, and a volunteer coach for competitive speed skaters. Those roles taught me the same lesson twice: stay calm under pressure, document everything properly, and take responsibility when it counts.</p>
         <p>That mindset carries into how I approach engineering. I like taking an idea from a rough sketch to something that actually works. Most of my projects come down to the same cycle: build it, test it until it breaks (I like that part more than I probably should), figure out why, and fix it properly. I am always curious to learn about new technology and have recently developed an interest for AI implementation and use cases, which I am hoping to incorporate into some of my future projects.</p>
         <p>I'm always open to co-op opportunities, conversations with other engineers, or just learning how things actually work and get done in the real-world.</p>
@@ -715,8 +780,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <span class="slide-tag">Pic2</span>
           </div>
           <div class="carousel-slide grad-3">
-            <img src="assets/images/about-3.JPEG" alt="Roof Lignting Project">
-            <span class="slide-tag">Roof Lignting Project</span>
+            <img src="assets/images/about-3.JPEG" alt="Roof Lighting Project">
+            <span class="slide-tag">Roof Lighting Project</span>
           </div>
         </div>
         <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">‹</button>
@@ -742,11 +807,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <span class="thumb-label">PCB Design</span>
             </div>
             <div class="project-body">
-              <div class="project-ref">PRJ-01</div>
+              <div class="project-ref">PROJ-001</div>
               <h3>Modular Bicycle Lighting System</h3>
-              <p>A custom PCB for a programmable RGBW lighting system — from hand-wired prototype to a soldered final board in a weatherproof 3D-printed housing.</p>
+              <p>Designed and built a weatherproof RGBW lighting system for bicycles.</p>
               <div class="project-tags">
-                <span class="tag">EasyEDA</span><span class="tag">C++ / Arduino</span><span class="tag">CAD + 3D Print</span>
+                <span class="tag">EasyEDA</span><span class="tag">PCB Design</span><span class="tag">C++ / Arduino</span><span class="tag">Soldering</span><span class="tag">CAD + 3D Print</span>
               </div>
               <div class="project-cta">View Project →</div>
             </div>
@@ -758,11 +823,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <span class="thumb-label">Power Electronics</span>
             </div>
             <div class="project-body">
-              <div class="project-ref">PRJ-02</div>
+              <div class="project-ref">PROJ-002</div>
               <h3>MOSFET x Off-Road System </h3>
-              <p>High-power LED integration into a vehicle's fusebox using MOSFETs as microcontroller-driven switches — sketch to breadboard to permanent install.</p>
+              <p>Integrated high-power LED lighting into a vehicle using MOSFET switching.</p>
               <div class="project-tags">
-                <span class="tag">C++ / Arduino</span><span class="tag">MOSFETs</span><span class="tag">Automotive Electronics</span>
+                <span class="tag">C++ / Arduino</span><span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
               </div>
               <div class="project-cta">View Project →</div>
             </div>
@@ -774,11 +839,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <span class="thumb-label">Electromechanical</span>
             </div>
             <div class="project-body">
-              <div class="project-ref">PRJ-03</div>
+              <div class="project-ref">PROJ-003</div>
               <h3>Electric Go-Kart</h3>
-              <p>A welded steel-frame go-kart powered by a 1.6kW motor system, reaching 49 km/h through iterative electrical and mechanical tuning.</p>
+              <p>Built a 1.6kW electric go-kart from a welded steel frame.</p>
               <div class="project-tags">
-                <span class="tag">Three-Phase Systems</span><span class="tag">Welding</span><span class="tag">Mechanical Design</span>
+                <span class="tag">Three-Phase Systems</span><span class="tag">Motor Control</span><span class="tag">Welding</span><span class="tag">Fabrication</span><span class="tag">Mechanical Design</span>
               </div>
               <div class="project-cta">View Project →</div>
             </div>
@@ -790,11 +855,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <span class="thumb-label">Avionics</span>
             </div>
             <div class="project-body">
-              <div class="project-ref">PRJ-04</div>
+              <div class="project-ref">PROJ-004</div>
               <h3>Twin-Engine RC Aircraft</h3>
-              <p>Avionics lead on a P-38 Lightning twin-engine RC build — flight controller, radio link, GPS, and power distribution for a student design team.</p>
+              <p>Leading avionics for a twin-engine RC aircraft build.</p>
               <div class="project-tags">
-                <span class="tag">STM32</span><span class="tag">ELRS</span><span class="tag">Avionics</span>
+                <span class="tag">STM32</span><span class="tag">ELRS</span><span class="tag">Flight Controllers</span><span class="tag">GPS / Navigation</span><span class="tag">Avionics</span>
               </div>
               <div class="project-cta">View Project →</div>
             </div>
@@ -806,11 +871,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <span class="thumb-label">Software &amp; AI</span>
             </div>
             <div class="project-body">
-              <div class="project-ref">PRJ-05</div>
+              <div class="project-ref">PROJ-005</div>
               <h3>Custom AI Agent Setup</h3>
-              <p>Installed and personalized a full-system Hermes agent to help with everyday tasks, automate my life and learn about machine learning and LLM's — details coming soon. This page is scaffolded and ready for the full write-up.</p>
+              <p>Set up a personal AI agent to automate everyday tasks.</p>
               <div class="project-tags">
-                <span class="tag">AI / LLM / Token Mechanics</span><span class="tag">Automation</span><span class="tag">APIs</span><span class="tag">Powershell Applications</span>
+                <span class="tag">AI / LLM</span><span class="tag">Token Mechanics</span><span class="tag">Automation</span><span class="tag">APIs</span><span class="tag">Powershell</span>
               </div>
               <div class="project-cta">View Project →</div>
             </div>
@@ -859,7 +924,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div>
           <div class="eyebrow" style="background:rgba(255,255,255,0.1); color:#fff;">Contact</div>
           <h2>Let's build something.</h2>
-          <p>I'm currently looking for a 2027 Summer co-op placement. Always happy to talk about a project, a role, or just electronics and finance in general.</p>
+          <p>I'm currently looking for a 2027 Summer co-op placement. Always happy to talk about a project, a role, or just electronics and technology in general.</p>
           <div style="margin-top:28px;">
             <a href="mailto:jon.m.bourget@gmail.com" class="btn btn-primary">Email Me</a>
           </div>
@@ -869,7 +934,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <svg viewBox="0 0 24 24"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h15A2.5 2.5 0 0 1 22 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 18.5v-13Zm2.2.3 7.3 6.1a.8.8 0 0 0 1 0l7.3-6.1a.6.6 0 0 0-.4-1H4.6a.6.6 0 0 0-.4 1ZM4 8.1v10.4c0 .3.2.5.5.5h15c.3 0 .5-.2.5-.5V8.1l-7.1 5.9a2.8 2.8 0 0 1-3.6 0L4 8.1Z"/></svg>
             jon.m.bourget@gmail.com
           </a>
-          <a href="https://linkedin.com/in/jonathan-bourget" target="_blank">
+          <a href="https://www.linkedin.com/in/jonathan-bourget-8a4038255" target="_blank">
             <svg viewBox="0 0 24 24"><path d="M6.94 5a2 2 0 1 1-4-.02 2 2 0 0 1 4 .02ZM7 8.48H3V21h4V8.48Zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-3.96 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.68-2.91V8.48Z"/></svg>
             LinkedIn ↗
           </a>
@@ -891,11 +956,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PRJ-01 · PCB Design</div>
+      <div class="eyebrow">PROJ-001 · PCB Design</div>
       <h1>Modular Bicycle Lighting System</h1>
       <div class="detail-meta">
-        <div><strong>EasyEDA</strong>PCB Software</div>
-        <div><strong>Arduino Nano</strong>Control Module</div>
         <div><strong>2022</strong>Timeline</div>
         <div><strong>Solo Project</strong>Role</div>
       </div>
@@ -976,11 +1039,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PRJ-02 · Power Electronics</div>
+      <div class="eyebrow">PROJ-002 · Power Electronics</div>
       <h1>MOSFET/Arduino Integration for Vehicle Lighting</h1>
       <div class="detail-meta">
-        <div><strong>C++ / Arduino</strong>Control Logic</div>
-        <div><strong>MOSFETs</strong>Switching</div>
         <div><strong>2025</strong>Timeline</div>
         <div><strong>Solo Project</strong>Role</div>
       </div>
@@ -1031,11 +1092,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PRJ-03 · Electromechanical</div>
+      <div class="eyebrow">PROJ-003 · Electromechanical</div>
       <h1>Electric Go-Kart</h1>
       <div class="detail-meta">
-        <div><strong>1.6kW Motor</strong>Power System</div>
-        <div><strong>49 km/h</strong>Top Speed</div>
         <div><strong>2019</strong>Timeline</div>
         <div><strong>2-Person Team</strong>Role</div>
       </div>
@@ -1101,13 +1160,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PRJ-04 · Avionics</div>
+      <div class="eyebrow">PROJ-004 · Avionics</div>
       <h1>Twin-Engine RC Aircraft — P-38 Lightning</h1>
       <div class="detail-meta">
-        <div><strong>Avionics Lead</strong>Role</div>
-        <div><strong>STM32</strong>Flight Controller</div>
-        <div><strong>ExpressLRS</strong>Radio Link</div>
         <div><strong>Ongoing</strong>Timeline</div>
+        <div><strong>Avionics Lead</strong>Role</div>
       </div>
     </header>
 
@@ -1160,11 +1217,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PRJ-05 · Software &amp; AI</div>
+      <div class="eyebrow">PROJ-005 · Software &amp; AI</div>
       <h1>AI Agent Setup</h1>
       <div class="detail-meta">
-        <div><strong>AI / LLM</strong>Domain</div>
-        <div><strong>Python</strong>Tooling</div>
         <div><strong>2026</strong>Timeline</div>
         <div><strong>Solo Project</strong>Role</div>
       </div>
@@ -1198,7 +1253,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <footer>
   <div class="wrap">
     <span>© 2026 Jonathan Bourget</span>
-    <span>Ottawa, ON — Carleton University</span>
   </div>
 </footer>
 
@@ -1405,6 +1459,99 @@ function initReveals(scope) {
     el.style.transitionDelay = Math.min(i % 4, 3) * 0.08 + 's';
     revealObserver.observe(el);
   });
+}
+
+/* ============================================================
+   PINNED HERO CROSSFADE
+   ============================================================ */
+const pinSection = document.getElementById('home');
+const pinSticky = document.querySelector('.pin-sticky');
+const pinHero = document.getElementById('pinHero');
+const pinIntro = document.getElementById('pinIntro');
+const navEl = document.querySelector('.nav');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (pinSection && pinSticky && pinHero && pinIntro && !prefersReducedMotion) {
+  let ticking = false;
+  let navHeight = 72;
+  let stickyHeight = 0;
+  let pinStart = 0;   // document scrollY where pinning begins
+  let pinEnd = 0;     // document scrollY where pinning ends
+
+  function syncLayout() {
+    navHeight = navEl ? navEl.getBoundingClientRect().height : 72;
+    stickyHeight = window.innerHeight - navHeight;
+    const animationRange = window.innerHeight * 0.55;
+    pinSection.style.height = (stickyHeight + animationRange) + 'px';
+
+    // Absolute document position of the section's top, independent of current scroll
+    const scrollY = window.scrollY || window.pageYOffset;
+    const sectionDocTop = pinSection.getBoundingClientRect().top + scrollY;
+    pinStart = sectionDocTop - navHeight;
+    pinEnd = pinStart + animationRange;
+
+    pinSticky.style.width = '100%';
+    pinSticky.style.height = stickyHeight + 'px';
+  }
+
+  function updatePin() {
+    ticking = false;
+    const scrollY = window.scrollY || window.pageYOffset;
+
+    if (scrollY < pinEnd) {
+      pinSticky.style.position = 'fixed';
+      pinSticky.style.top = navHeight + 'px';
+      pinSticky.style.left = '0';
+    } else {
+      // Past the animation range: lock at the bottom of the section so
+      // the page can continue scrolling with no visual jump.
+      pinSticky.style.position = 'absolute';
+      pinSticky.style.top = (pinSection.offsetHeight - stickyHeight) + 'px';
+      pinSticky.style.left = '0';
+    }
+
+    let progress = (scrollY - pinStart) / (pinEnd - pinStart || 1);
+    progress = Math.max(0, Math.min(1, progress));
+
+    // Phase structure: hold hero -> crossfade -> hold intro -> release
+    // 0.00-0.12  hero fully static (locked)
+    // 0.12-0.45  hero fades + lifts out
+    // 0.30-0.60  intro fades + settles in
+    // 0.60-1.00  intro fully static (locked) until unpin
+    const heroP = Math.max(0, Math.min(1, (progress - 0.12) / 0.33));
+    const heroOpacity = 1 - heroP;
+    const heroY = -heroP * 50;
+
+    const introP = Math.max(0, Math.min(1, (progress - 0.30) / 0.30));
+    const introOpacity = introP;
+    const introY = (1 - introP) * 50;
+
+    pinHero.style.opacity = heroOpacity;
+    pinHero.style.transform = 'translateY(' + heroY + 'px)';
+    pinHero.style.pointerEvents = heroOpacity < 0.05 ? 'none' : 'auto';
+
+    pinIntro.style.opacity = introOpacity;
+    pinIntro.style.transform = 'translateY(' + introY + 'px)';
+    pinIntro.style.pointerEvents = introOpacity < 0.05 ? 'none' : 'auto';
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(updatePin);
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', () => { syncLayout(); onScroll(); });
+  syncLayout();
+  updatePin();
+  requestAnimationFrame(() => { syncLayout(); updatePin(); });
+  window.addEventListener('load', () => { syncLayout(); updatePin(); });
+  setTimeout(() => { syncLayout(); updatePin(); }, 300);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => { syncLayout(); updatePin(); });
+  }
 }
 
 /* ============================================================
