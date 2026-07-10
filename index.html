@@ -243,7 +243,7 @@ section { padding: 100px 0; }
 /* ---- About ---- */
 .about-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 0.9fr 1.15fr;
   gap: 64px;
   align-items: center;
 }
@@ -257,7 +257,7 @@ section { padding: 100px 0; }
   border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
-  aspect-ratio: 4 / 3.2;
+  aspect-ratio: 4 / 3.4;
   background: var(--ink);
 }
 .carousel-track { display: flex; height: 100%; transition: transform 0.55s var(--ease); }
@@ -574,6 +574,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   position: relative;
 }
 .figure-img.wide { aspect-ratio: 4/3; }
+.figure-img.xwide { aspect-ratio: 16/9; }
+.figure-img.tall { aspect-ratio: 9/16; max-width: 340px; margin: 0 auto; }
 .figure-img img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -715,10 +717,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           <div class="carousel-slide grad-3">
             <img src="assets/images/about-3.JPEG" alt="Roof Lignting Project">
             <span class="slide-tag">Roof Lignting Project</span>
-          </div>
-          <div class="carousel-slide grad-4">
-            <img src="assets/images/about-4.JPEG" alt="Pic 4">
-            <span class="slide-tag">Pic 4</span>
           </div>
         </div>
         <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">‹</button>
@@ -939,16 +937,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <h2>Assembly &amp; Testing</h2>
       <p>Final assembly involved soldering Adafruit NeoPixel strips onto the board for the outer pixel ring, then testing in stages. The first pass simulated the physical switches with keystrokes on an Arduino-connected laptop; the second added the real switches and ran the system exactly as it would be used on the bike.</p>
-      <div class="figure-grid">
+      <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-1">
-          <img src="assets/images/assembly-test.JPEG" alt="assembly test"></div>
-          <figcaption class="figure-cap">Fig. 5 — Mostly complete testing assembly</figcaption>
-        </figure>
-        <figure class="figure">
-          <div class="figure-img grad-2">
+          <div class="figure-img grad-2 wide">
           <img src="assets/images/final-circuit.JPEG" alt="final circuit"></div>
-          <figcaption class="figure-cap">Fig. 6 — Final circuit assembly on PCB</figcaption>
+          <figcaption class="figure-cap">Fig. 5 — Final circuit assembly on PCB</figcaption>
         </figure>
       </div>
 
@@ -959,7 +952,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <figure class="figure">
           <div class="figure-img grad-3 wide">
           <img src="assets/images/casings.JPEG" alt="casings"></div>
-          <figcaption class="figure-cap">Fig. 7 — Different casing designs (front, rear, compact)</figcaption>
+          <figcaption class="figure-cap">Fig. 6 — Different casing designs (front, rear, compact)</figcaption>
         </figure>
       </div>
 
@@ -1001,7 +994,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I started with a hand-drawn circuit sketch based on my research into MOSFET behavior and Arduino pin control, which became the template for the breadboard build that followed.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-1">
+          <div class="figure-img grad-1 xwide">
           <img src="assets/images/hand-sketch.JPG" alt="hand sketch"></div>
           <figcaption class="figure-cap">Fig. 1 — Hand-drawn sketch of wiring and plan</figcaption>
         </figure>
@@ -1011,7 +1004,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I assembled the design on a breadboard and tested it with a modular power supply first, to rule out overloading or heat-dissipation issues before anything went near the car. Since automotive interiors can swing from -35°C to 40°C in worst-case conditions, thermal margin mattered as much as getting the logic right.</p>
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-2">
+          <div class="figure-img grad-2 wide">
           <img src="assets/images/installed-lights.JPEG" alt="installed lights"></div>
           <figcaption class="figure-cap">Fig. 2 — Final install, static yellow mode</figcaption>
         </figure>
@@ -1181,16 +1174,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <h2>Overview</h2>
       <p>Full write-up coming soon — this page is scaffolded and ready for the project story, architecture details, and results.</p>
 
-      <div class="figure-grid">
+      <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-5">
-          <img src="assets/images/agent-diagram.JPEG" alt="agent diagram"></div>
-          <figcaption class="figure-cap">Fig. 1 — System architecture</figcaption>
-        </figure>
-        <figure class="figure">
-          <div class="figure-img grad-2">
+          <div class="figure-img grad-2 tall">
           <img src="assets/images/agent-demo.png" alt="agent demo"></div>
-          <figcaption class="figure-cap">Fig. 2 — Agent in action</figcaption>
+          <figcaption class="figure-cap">Fig. 1 — Agent in action</figcaption>
         </figure>
       </div>
 
