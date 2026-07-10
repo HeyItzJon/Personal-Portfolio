@@ -102,7 +102,9 @@ h1, h2, h3 {
   padding: 7px 16px;
   border-radius: var(--r-full);
   margin-bottom: 20px;
+  white-space: nowrap;
 }
+.eyebrow-short { display: none; }
 
 /* ---- Nav ---- */
 .nav {
@@ -685,6 +687,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 @media (max-width: 700px) {
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
+  .eyebrow-full { display: none; }
+  .eyebrow-short { display: inline; }
   .nav-burger { display: flex; }
   .nav-links {
     display: flex;
@@ -740,7 +744,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="pin-layer pin-hero" id="pinHero">
         <div class="pin-inner">
-          <div class="eyebrow">🟢 Open to Co-op Opportunities — Spring/Summer 2027</div>
+          <div class="eyebrow">
+            <span class="eyebrow-full">🟢 Open to Co-op Opportunities — Spring/Summer 2027</span>
+            <span class="eyebrow-short">Open to Co-op — Summer 2027</span>
+          </div>
           <h1>Hi, I'm <span class="grad-text">Jonathan</span>.</h1>
           <div class="hero-actions">
             <a class="btn btn-primary" data-route="home" data-scroll="projects">View My Projects</a>
@@ -751,7 +758,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="pin-layer pin-intro" id="pinIntro">
         <div class="pin-inner">
-          <p class="intro-statement-text"><span class="intro-line">I'm a <span class="grad-text">3rd-year Electrical Engineering</span> student at Carleton University.</span><span class="intro-line intro-line-2">Always building, testing, and fixing.</span></p>
+          <p class="intro-statement-text"><span class="intro-line">I'm a <span class="grad-text">3rd-year Electrical Engineering</span> student at Carleton University.</span></p>
           <div class="intro-boxes">
             <div class="intro-box"><strong>Ottawa, ON</strong><span>Open to relocation</span></div>
             <div class="intro-box"><strong>Bilingual</strong><span>English &amp; French</span></div>
