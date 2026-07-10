@@ -301,7 +301,7 @@ section { padding: 100px 0; }
 /* ---- About ---- */
 .about-grid {
   display: grid;
-  grid-template-columns: 0.9fr 1.15fr;
+  grid-template-columns: 0.82fr 1.25fr;
   gap: 64px;
   align-items: center;
 }
@@ -331,7 +331,8 @@ section { padding: 100px 0; }
   padding: 32px;
   overflow: hidden;
 }
-.carousel-slide img {
+.carousel-slide img,
+.carousel-slide video {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
@@ -1325,13 +1326,12 @@ const carouselEl = document.getElementById('aboutCarousel');
 if (track && dotsWrap) {
   const slides = Array.from(track.children);
   let current = 0;
-  let autoplayTimer = null;
 
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.setAttribute('aria-label', 'Go to photo ' + (i + 1));
     if (i === 0) dot.classList.add('active');
-    dot.addEventListener('click', () => { goTo(i); restartAutoplay(); });
+    dot.addEventListener('click', () => { goTo(i); });
     dotsWrap.appendChild(dot);
   });
   const dots = Array.from(dotsWrap.children);
@@ -1344,21 +1344,14 @@ if (track && dotsWrap) {
   const next = () => goTo(current + 1);
   const prev = () => goTo(current - 1);
 
-  document.getElementById('carouselNext').addEventListener('click', () => { next(); restartAutoplay(); });
-  document.getElementById('carouselPrev').addEventListener('click', () => { prev(); restartAutoplay(); });
-
-  function startAutoplay() { autoplayTimer = setInterval(next, 5000); }
-  function restartAutoplay() { clearInterval(autoplayTimer); startAutoplay(); }
-
-  startAutoplay();
-  carouselEl.addEventListener('mouseenter', () => clearInterval(autoplayTimer));
-  carouselEl.addEventListener('mouseleave', startAutoplay);
+  document.getElementById('carouselNext').addEventListener('click', () => { next(); });
+  document.getElementById('carouselPrev').addEventListener('click', () => { prev(); });
 
   let touchStartX = 0;
   track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
   track.addEventListener('touchend', e => {
     const diff = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(diff) > 40) { diff < 0 ? next() : prev(); restartAutoplay(); }
+    if (Math.abs(diff) > 40) { diff < 0 ? next() : prev(); }
   }, { passive: true });
 }
 
