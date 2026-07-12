@@ -570,6 +570,15 @@ section { padding: 100px 0; }
   width: 100%; height: 100%;
   object-fit: cover;
 }
+.interest-thumb video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+}
+.interest-card:hover .interest-thumb video { opacity: 1; }
 .interest-body { padding: 20px 22px 24px; }
 .interest-body h3 { font-size: 17px; margin-bottom: 8px; }
 .interest-body p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.5; }
@@ -952,7 +961,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="interests-grid">
         <div class="interest-card reveal">
           <div class="interest-thumb grad-2">
-            <img src="assets/images/interest-robotics.png" alt="Cutting-edge robotics">
+            <img src="assets/images/interest-robotics.jpg" alt="Cutting-edge robotics">
+            <video src="assets/images/interest-robotics.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
             <h3>Cutting-Edge Robotics</h3>
@@ -961,7 +971,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
         <div class="interest-card reveal">
           <div class="interest-thumb grad-4">
-            <img src="assets/images/interest-rf.png" alt="RF and space communications">
+            <img src="assets/images/interest-rf.jpg" alt="RF and space communications">
+            <video src="assets/images/interest-rf.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
             <h3>RF &amp; Space Communications</h3>
@@ -970,7 +981,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
         <div class="interest-card reveal">
           <div class="interest-thumb grad-5">
-            <img src="assets/images/interest-ai.png" alt="AI and AGI datacenter">
+            <img src="assets/images/interest-ai.jpg" alt="AI and AGI datacenter">
+            <video src="assets/images/interest-ai.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
             <h3>AI &amp; the Road to AGI</h3>
@@ -1490,6 +1502,22 @@ function initReveals(scope) {
     revealObserver.observe(el);
   });
 }
+
+/* ============================================================
+   INTEREST CARD HOVER VIDEOS
+   ============================================================ */
+document.querySelectorAll('.interest-card').forEach(card => {
+  const video = card.querySelector('video');
+  if (!video) return;
+
+  card.addEventListener('mouseenter', () => {
+    video.currentTime = 0;
+    video.play().catch(() => {});
+  });
+  card.addEventListener('mouseleave', () => {
+    video.pause();
+  });
+});
 
 /* ============================================================
    PINNED HERO CROSSFADE
