@@ -976,7 +976,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="interest-card reveal">
           <div class="interest-thumb grad-2">
             <img src="assets/images/interest-robotics.jpg" alt="Cutting-edge robotics">
-            <video src="assets/images/interest-robotics.mp4" muted loop playsinline preload="none"></video>
+            <video src="assets/images/interest-robotics.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
             <h3>Cutting-Edge Robotics</h3>
@@ -986,7 +986,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="interest-card reveal">
           <div class="interest-thumb grad-4">
             <img src="assets/images/interest-rf.jpg" alt="RF and space communications">
-            <video src="assets/images/interest-rf.mp4" muted loop playsinline preload="none"></video>
+            <video src="assets/images/interest-rf.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
             <h3>RF &amp; Space Communications</h3>
@@ -996,7 +996,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="interest-card reveal">
           <div class="interest-thumb grad-5">
             <img src="assets/images/interest-ai.jpg" alt="AI and AGI datacenter">
-            <video src="assets/images/interest-ai.mp4" muted loop playsinline preload="none"></video>
+            <video src="assets/images/interest-ai.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
             <h3>AI &amp; the Road to AGI</h3>
@@ -1554,7 +1554,8 @@ if (pinSection && pinSticky && pinHero && pinIntro && !prefersReducedMotion) {
   function syncLayout() {
     navHeight = navEl ? navEl.getBoundingClientRect().height : 72;
     stickyHeight = window.innerHeight - navHeight;
-    const animationRange = window.innerHeight * 0.55;
+    const isMobile = window.innerWidth <= 700;
+    const animationRange = window.innerHeight * (isMobile ? 0.32 : 0.55);
     pinSection.style.height = (stickyHeight + animationRange) + 'px';
 
     // Absolute document position of the section's top, independent of current scroll
