@@ -98,8 +98,8 @@ h1, h2, h3 {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--accent);
-  background: var(--accent-soft);
+  color: var(--tc1, var(--accent));
+  background: var(--tsoft, var(--accent-soft));
   padding: 7px 16px;
   border-radius: var(--r-full);
   margin-bottom: 20px;
@@ -465,6 +465,13 @@ section { padding: 100px 0; }
 .pcarousel-dots button.active { background: var(--grad); width: 26px; border-radius: var(--r-full); }
 
 /* Project card base (shared) */
+/* ---- Project color themes ---- */
+.theme-blue   { --tc1: #0284C7; --tc2: #38BDF8; --tglow: rgba(2,132,199,0.38);  --tsoft: rgba(2,132,199,0.08); }
+.theme-red    { --tc1: #DC2626; --tc2: #F87171; --tglow: rgba(220,38,38,0.38); --tsoft: rgba(220,38,38,0.08); }
+.theme-green  { --tc1: #16A34A; --tc2: #4ADE80; --tglow: rgba(22,163,74,0.38); --tsoft: rgba(22,163,74,0.08); }
+.theme-amber  { --tc1: #D97706; --tc2: #FBBF24; --tglow: rgba(217,119,6,0.38); --tsoft: rgba(217,119,6,0.08); }
+.theme-purple { --tc1: #7C3AED; --tc2: #C084FC; --tglow: rgba(124,58,237,0.38); --tsoft: rgba(124,58,237,0.08); }
+
 .project-card {
   border-radius: var(--r-lg);
   text-decoration: none;
@@ -473,11 +480,16 @@ section { padding: 100px 0; }
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-md);
-  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  border: 2px solid transparent;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
   overflow: hidden;
   cursor: pointer;
 }
-.project-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 44px var(--tglow, rgba(18,20,26,0.16));
+  border-color: var(--tc1, var(--line-strong));
+}
 .project-thumb {
   aspect-ratio: 4/3;
   position: relative;
@@ -486,6 +498,7 @@ section { padding: 100px 0; }
   color: #fff;
   padding: 20px;
   overflow: hidden;
+  background: linear-gradient(135deg, var(--tc1, var(--accent)), var(--tc2, var(--accent-2)));
 }
 .project-thumb img {
   position: absolute; inset: 0;
@@ -508,7 +521,7 @@ section { padding: 100px 0; }
   border-radius: var(--r-full);
 }
 .project-body { padding: 26px; flex: 1; display: flex; flex-direction: column; }
-.project-ref { font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+.project-ref { font-size: 12.5px; font-weight: 700; color: var(--tc1, var(--accent)); margin-bottom: 10px; }
 .project-body h3 { font-size: 20px; margin-bottom: 10px; }
 .project-body p { color: var(--muted); font-size: 14.5px; margin: 0; flex: 1; }
 .project-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
@@ -522,7 +535,7 @@ section { padding: 100px 0; }
 .project-cta {
   margin-top: 20px;
   font-weight: 600; font-size: 14px;
-  color: var(--accent);
+  color: var(--tc1, var(--accent));
   display: flex; align-items: center; gap: 6px;
   transition: gap 0.2s;
 }
@@ -639,7 +652,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   border: none;
   font-family: var(--font-body);
 }
-.back-link:hover { color: var(--accent); gap: 10px; }
+.back-link:hover { color: var(--tc1, var(--accent)); gap: 10px; }
 .detail-hero h1 { font-size: clamp(32px, 5vw, 50px); max-width: 22ch; }
 .detail-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 32px; }
 .detail-meta div {
@@ -679,10 +692,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 .takeaway-box {
   margin-top: 52px;
-  background: var(--accent-soft);
+  background: var(--tsoft, var(--accent-soft));
   padding: 28px 32px;
   border-radius: var(--r-md);
-  border-left: 4px solid var(--accent);
+  border-left: 4px solid var(--tc1, var(--accent));
 }
 .takeaway-box h2 { margin-top: 0; }
 
@@ -704,7 +717,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   padding: 12px 22px;
   border-radius: var(--r-full);
 }
-.detail-nav a:hover { color: var(--accent); }
+.detail-nav a:hover { color: var(--tc1, var(--accent)); }
 
 /* ---- Scroll reveal ---- */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
@@ -845,8 +858,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="pcarousel" id="projCarousel">
         <div class="pcarousel-track" id="projTrack">
 
-          <a class="project-card" data-route="pcb" data-idx="0">
-            <div class="project-thumb grad-1">
+          <a class="project-card theme-blue" data-route="pcb" data-idx="0">
+            <div class="project-thumb">
               <img src="assets/images/project-pcb-cover.JPEG" alt="Modular Bicycle Lighting System">
             </div>
             <div class="project-body">
@@ -860,8 +873,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
           </a>
 
-         <a class="project-card" data-route="gokart" data-idx="1">
-            <div class="project-thumb grad-3">
+         <a class="project-card theme-red" data-route="gokart" data-idx="1">
+            <div class="project-thumb">
               <img src="assets/images/project-gokart-cover.JPG" alt="Electric Go-Kart">
             </div>
             <div class="project-body">
@@ -875,8 +888,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
           </a>
 
-         <a class="project-card" data-route="rcplane" data-idx="2">
-            <div class="project-thumb grad-4">
+         <a class="project-card theme-green" data-route="rcplane" data-idx="2">
+            <div class="project-thumb">
               <img src="assets/images/project-rcplane-cover.JPEG" alt="C-130 Autonomous RC Drone">
             </div>
             <div class="project-body">
@@ -890,8 +903,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
           </a>
            
-          <a class="project-card" data-route="mosfet" data-idx="3">
-            <div class="project-thumb grad-2">
+          <a class="project-card theme-amber" data-route="mosfet" data-idx="3">
+            <div class="project-thumb">
               <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
             </div>
             <div class="project-body">
@@ -905,8 +918,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
           </a>
 
-          <a class="project-card" data-route="aiagent" data-idx="4">
-            <div class="project-thumb grad-5">
+          <a class="project-card theme-purple" data-route="aiagent" data-idx="4">
+            <div class="project-thumb">
               <img src="assets/images/project-aiagent-cover.png" alt="Custom AI Agent Secretary">
             </div>
             <div class="project-body">
@@ -1028,7 +1041,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <!-- ================================================================
      PAGE: PCB LIGHTING PROJECT
      ================================================================ -->
-<main class="page" id="page-pcb">
+<main class="page theme-blue" id="page-pcb">
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1111,7 +1124,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <!-- ================================================================
      PAGE: MOSFET PROJECT
      ================================================================ -->
-<main class="page" id="page-mosfet">
+<main class="page theme-amber" id="page-mosfet">
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1164,7 +1177,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <!-- ================================================================
      PAGE: GO-KART PROJECT
      ================================================================ -->
-<main class="page" id="page-gokart">
+<main class="page theme-red" id="page-gokart">
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1232,7 +1245,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <!-- ================================================================
      PAGE: RC AIRPLANE PROJECT
      ================================================================ -->
-<main class="page" id="page-rcplane">
+<main class="page theme-green" id="page-rcplane">
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1264,7 +1277,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <!-- ================================================================
      PAGE: AI AGENT PROJECT
      ================================================================ -->
-<main class="page" id="page-aiagent">
+<main class="page theme-purple" id="page-aiagent">
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
