@@ -724,6 +724,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
   .eyebrow-full { display: none; }
   .eyebrow-short { display: inline; }
+  .interest-thumb video { display: none; }
   .nav-burger { display: flex; }
   .nav-links {
     display: flex;
@@ -962,7 +963,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="interest-card reveal">
           <div class="interest-thumb grad-2">
             <img src="assets/images/interest-robotics.jpg" alt="Cutting-edge robotics">
-            <video src="assets/images/interest-robotics.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="assets/images/interest-robotics.mp4" muted loop playsinline preload="none"></video>
           </div>
           <div class="interest-body">
             <h3>Cutting-Edge Robotics</h3>
@@ -972,7 +973,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="interest-card reveal">
           <div class="interest-thumb grad-4">
             <img src="assets/images/interest-rf.jpg" alt="RF and space communications">
-            <video src="assets/images/interest-rf.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="assets/images/interest-rf.mp4" muted loop playsinline preload="none"></video>
           </div>
           <div class="interest-body">
             <h3>RF &amp; Space Communications</h3>
@@ -982,7 +983,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="interest-card reveal">
           <div class="interest-thumb grad-5">
             <img src="assets/images/interest-ai.jpg" alt="AI and AGI datacenter">
-            <video src="assets/images/interest-ai.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="assets/images/interest-ai.mp4" muted loop playsinline preload="none"></video>
           </div>
           <div class="interest-body">
             <h3>AI &amp; the Road to AGI</h3>
@@ -1511,6 +1512,7 @@ document.querySelectorAll('.interest-card').forEach(card => {
   if (!video) return;
 
   card.addEventListener('mouseenter', () => {
+    if (getComputedStyle(video).display === 'none') return;
     video.currentTime = 0;
     video.play().catch(() => {});
   });
