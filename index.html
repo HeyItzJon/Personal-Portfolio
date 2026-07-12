@@ -550,6 +550,30 @@ section { padding: 100px 0; }
 .skill-group li { font-size: 14.5px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .skill-group li:last-child { border-bottom: none; }
 
+/* ---- Interests ---- */
+.interests-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.interest-card {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.interest-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.interest-thumb {
+  aspect-ratio: 4/3;
+  position: relative;
+  overflow: hidden;
+}
+.interest-thumb img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.interest-body { padding: 20px 22px 24px; }
+.interest-body h3 { font-size: 17px; margin-bottom: 8px; }
+.interest-body p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.5; }
+
 /* ---- Contact ---- */
 .contact {
   background: var(--ink);
@@ -772,7 +796,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="eyebrow">About Me</div>
         <h2>A bit about my interests</h2>
         <p>Before I was building circuits, I was a certified lifeguard, swim instructor, and first aid instructor with the City of Ottawa, and a volunteer coach for competitive speed skaters. Those roles taught me the same lesson twice: stay calm under pressure, document everything properly, and take responsibility when it counts.</p>
-        <p>That mindset carries into how I approach engineering. I like taking an idea from a rough sketch to something that actually works. Most of my projects come down to the same cycle: build it, test it until it breaks (I like that part more than I probably should), figure out why, and fix it properly. I am always curious to learn about new technology and have recently developed an interest for AI implementation and use cases, which I am hoping to incorporate into some of my future projects.</p>
+        <p>That mindset carries into how I approach engineering. I like taking an idea from a rough sketch to something that actually works. Most of my projects come down to the same cycle: build it, test it until it breaks (I like that part more than I probably should), figure out why, and fix it properly. I am always curious to learn about new technology and have recently developed an interest in RF systems and where AI is headed, especially AI implementation and use cases, which I am hoping to incorporate into some of my future projects.</p>
         <p>I'm always open to co-op opportunities, conversations with other engineers, or just learning how things actually work and get done in the real-world.</p>
       </div>
 
@@ -904,20 +928,54 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       </div>
       <div class="skills-grid">
         <div class="skill-group reveal">
-          <h3>Design &amp; Simulation</h3>
-          <ul><li>Altium Designer</li><li>EasyEDA</li><li>NI Multisim</li><li>Vivado</li><li>Autodesk Fusion CAD</li></ul>
+          <h3>Design &amp; Fabrication</h3>
+          <ul><li>Altium Designer</li><li>EasyEDA</li><li>Autodesk Fusion CAD</li><li>Soldering &amp; Rework</li><li>Component Selection</li><li>3D Printing &amp; Prototyping</li><li>Breadboarding</li></ul>
         </div>
         <div class="skill-group reveal">
-          <h3>Programming</h3>
-          <ul><li>C / C++</li><li>Python</li><li>Java</li><li>Verilog HDL</li><li>Git Version Control</li></ul>
+          <h3>Programming &amp; Firmware</h3>
+          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Java</li><li>Git Version Control</li></ul>
         </div>
         <div class="skill-group reveal">
-          <h3>Hardware</h3>
-          <ul><li>Soldering &amp; Rework</li><li>Oscilloscope / Multimeter</li><li>3D Printing &amp; Prototyping</li><li>Breadboarding</li><li>Component Analysis</li></ul>
+          <h3>Test, Simulation &amp; Platforms</h3>
+          <ul><li>Arduino</li><li>Raspberry Pi</li><li>FPGA</li><li>Oscilloscope / Multimeter</li><li>NI Multisim</li><li>Vivado</li><li>Jupyter Notebook</li></ul>
         </div>
-        <div class="skill-group reveal">
-          <h3>Platforms</h3>
-          <ul><li>Arduino</li><li>Raspberry Pi</li><li>FPGA</li><li>LaTeX</li><li>Jupyter Notebook</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="interests">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <div class="eyebrow">Interests</div>
+        <h2>What I'm keeping an eye on</h2>
+      </div>
+      <div class="interests-grid">
+        <div class="interest-card reveal">
+          <div class="interest-thumb grad-2">
+            <img src="assets/images/interest-robotics.png" alt="Cutting-edge robotics">
+          </div>
+          <div class="interest-body">
+            <h3>Cutting-Edge Robotics</h3>
+            <p>Legged and humanoid robots closing the gap between lab demos and real-world deployment.</p>
+          </div>
+        </div>
+        <div class="interest-card reveal">
+          <div class="interest-thumb grad-4">
+            <img src="assets/images/interest-rf.png" alt="RF and space communications">
+          </div>
+          <div class="interest-body">
+            <h3>RF &amp; Space Communications</h3>
+            <p>From 6G to satellite constellations, wireless keeps getting more ambitious.</p>
+          </div>
+        </div>
+        <div class="interest-card reveal">
+          <div class="interest-thumb grad-5">
+            <img src="assets/images/interest-ai.png" alt="AI and AGI datacenter">
+          </div>
+          <div class="interest-body">
+            <h3>AI &amp; the Road to AGI</h3>
+            <p>Where automation stops assisting and starts actually thinking for itself.</p>
+          </div>
         </div>
       </div>
     </div>
