@@ -1414,33 +1414,24 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <script>
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const HAS_GSAP = !!window.gsap;
-const HAS_ST = HAS_GSAP && !!window.ScrollTrigger;
-if (HAS_ST) gsap.registerPlugin(ScrollTrigger);
 const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
 
 /* ============================================================
-   SMOOTH SCROLL — Lenis (kept in sync with native scrollY so the
-   existing pin/crossfade math below keeps working untouched)
+   SCROLL HELPER — native scrolling. The pinned-hero crossfade
+   below reads real window.scrollY, so it stays on native scroll
+   rather than a smooth-scroll library's virtualized position.
    ============================================================ */
-let lenis = null;
-if (window.Lenis && !prefersReducedMotion && !isTouch) {
-  lenis = new Lenis({ duration: 1.05, smoothWheel: true });
-  (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
-  if (HAS_GSAP) {
-    lenis.on('scroll', () => { if (HAS_ST) ScrollTrigger.update(); });
-    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
-    gsap.ticker.lagSmoothing(0);
-  }
-}
 function scrollToEl(target, offset) {
-  if (lenis) { lenis.scrollTo(target, { offset: offset || 0 }); }
-  else if (typeof target === 'number') { window.scrollTo({ top: target, behavior: 'smooth' }); }
-  else { target.scrollIntoView({ behavior: 'smooth' }); }
+  if (typeof target === 'number') { window.scrollTo({ top: target, behavior: 'smooth' }); }
+  else if (offset) {
+    const y = target.getBoundingClientRect().top + window.scrollY + offset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  } else {
+    target.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 /* ============================================================
@@ -1486,7 +1477,6 @@ function updateChrome() {
   toTop.classList.toggle('show', scrollTop > 600);
 }
 window.addEventListener('scroll', updateChrome, { passive: true });
-if (lenis) lenis.on('scroll', updateChrome);
 toTop.addEventListener('click', () => scrollToEl(0));
 
 /* ============================================================
@@ -1549,42 +1539,27 @@ const routes = ['home', 'pcb', 'mosfet', 'gokart', 'rcplane', 'aiagent'];
 function showPage(route, scrollTarget) {
   if (!routes.includes(route)) route = 'home';
 
-  const current = document.querySelector('.page.active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + route);
+  if (page) page.classList.add('active');
 
-  const finish = () => {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const page = document.getElementById('page-' + route);
-    if (page) page.classList.add('active');
+  const newHash = '#' + route;
+  if (location.hash !== newHash) {
+    history.pushState(null, '', newHash);
+  }
 
-    const newHash = '#' + route;
-    if (location.hash !== newHash) {
-      history.pushState(null, '', newHash);
+  requestAnimationFrame(() => {
+    if (scrollTarget) {
+      const el = document.getElementById(scrollTarget);
+      if (el) { scrollToEl(el, -72); return; }
     }
+    scrollToEl(0);
+  });
 
-    requestAnimationFrame(() => {
-      if (scrollTarget) {
-        const el = document.getElementById(scrollTarget);
-        if (el) { scrollToEl(el, -72); return; }
-      }
-      scrollToEl(0);
-    });
+  initReveals(page);
 
-    initReveals(page);
-
-    if (route === 'home' && window.recenterProjCarousel) {
-      requestAnimationFrame(window.recenterProjCarousel);
-    }
-    if (HAS_ST) requestAnimationFrame(() => ScrollTrigger.refresh());
-  };
-
-  const targetPage = document.getElementById('page-' + route);
-  if (current && targetPage && current !== targetPage && HAS_GSAP && !prefersReducedMotion) {
-    gsap.to(current, {
-      opacity: 0, y: -14, duration: 0.25, ease: 'power2.in',
-      onComplete: () => { gsap.set(current, { clearProps: 'opacity,transform' }); finish(); }
-    });
-  } else {
-    finish();
+  if (route === 'home' && window.recenterProjCarousel) {
+    requestAnimationFrame(window.recenterProjCarousel);
   }
 }
 
