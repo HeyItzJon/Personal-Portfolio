@@ -23,6 +23,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- Kicks the hero video fetch off immediately, in parallel with everything
+     else in <head>, instead of waiting for the parser to reach the <video>
+     tag partway down the page. -->
+<link rel="preload" as="video" href="assets/hero-bg.mp4" type="video/mp4">
+
 <script type="importmap">
 { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
 </script>
@@ -96,7 +101,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -115,6 +120,11 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.35s ease, color 0.35s ease;
+  /* Safety net: absolutely-positioned/transformed elements (the project
+     deck's fan, hero glows, etc.) should never be able to push the page
+     itself into horizontal scroll — clip at the root instead of chasing
+     every possible offender. */
+  overflow-x: hidden;
 }
 body, body * {
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
@@ -528,6 +538,7 @@ section { padding: 100px 0; }
    is meant to feel like a full-width, imposing showcase, not a boxed-in
    component. */
 .pcarousel-stage {
+  position: relative;
   max-width: min(1680px, 94vw);
   margin: 0 auto;
   padding: 0 var(--pad);
@@ -557,24 +568,28 @@ section { padding: 100px 0; }
   outline: none;
 }
 
+/* Back below the deck as its own row (not overlaid on the cards) — sized
+   up and given real breathing room so it reads as a deliberate control
+   bar, not an afterthought. */
 .pcarousel-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  margin-top: 40px;
+  gap: 28px;
+  margin-top: 56px;
 }
 .pcarousel-arrow {
-  width: 64px; height: 52px;
-  border-radius: 16px;
+  width: 64px; height: 60px;
+  border-radius: 18px;
   background: var(--surface);
   border: 1.5px solid var(--line-strong);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
   color: var(--ink);
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
   transition: transform 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .pcarousel-arrow:hover {
@@ -585,7 +600,9 @@ section { padding: 100px 0; }
   box-shadow: var(--shadow-md);
 }
 .pcarousel-arrow:active { transform: translateY(0) scale(0.97); }
-.pcarousel-dots { display: flex; gap: 8px; }
+.pcarousel-dots {
+  display: flex; gap: 8px;
+}
 .pcarousel-dots button {
   width: 9px; height: 9px;
   border-radius: 50%;
@@ -906,6 +923,35 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .nav-links.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
   .nav-links a { padding: 14px 16px; border-radius: var(--r-sm); }
   .nav-cta { margin-left: 0; text-align: center; }
+
+  /* ---- Project deck: swap the 3D fan for a plain native-scroll
+     slideshow. The fan's absolute-positioned, JS-transformed cards
+     don't translate well to small touch screens (fiddly hit-testing,
+     easy to overflow the viewport) — a straightforward swipeable row
+     with scroll-snap is far more predictable here. JS detects this
+     breakpoint and stops writing transforms to the cards to match. */
+  .pcarousel-stage { padding: 0; max-width: 100%; }
+  .pcarousel {
+    height: auto;
+    overflow: visible;
+  }
+  .pcarousel-track {
+    position: static;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 12vw 24px;
+  }
+  .pcarousel .project-card {
+    position: static;
+    flex: 0 0 76vw;
+    max-width: 340px;
+    scroll-snap-align: center;
+    transform: none;
+  }
+  .pcarousel-controls { gap: 18px; margin-top: 20px; }
 }
 </style>
 </head>
@@ -940,7 +986,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
   <section class="pin-section" id="home">
     <div class="pin-sticky">
-      <video class="hero-video" id="heroVideo" src="assets/hero-bg.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+      <video class="hero-video" id="heroVideo" src="assets/hero-bg.mp4" autoplay muted loop playsinline preload="auto" fetchpriority="high" aria-hidden="true"></video>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-glow-2" aria-hidden="true"></div>
@@ -1150,9 +1196,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
       </div>
       <div class="pcarousel-controls">
-        <button class="pcarousel-arrow" id="projPrev" aria-label="Previous project">‹</button>
+        <button class="pcarousel-arrow prev" id="projPrev" aria-label="Previous project">‹</button>
         <div class="pcarousel-dots" id="projDots"></div>
-        <button class="pcarousel-arrow" id="projNext" aria-label="Next project">›</button>
+        <button class="pcarousel-arrow next" id="projNext" aria-label="Next project">›</button>
       </div>
     </div>
   </section>
@@ -1661,11 +1707,16 @@ if (track && dotsWrap) {
 }
 
 /* ============================================================
-   PROJECT DECK — cards sit on a shallow arc. Whichever card is
-   "active" (the resting pick) sits dead centre, upright, frontmost;
-   every other card's position is computed relative to it. Navigation
-   is deliberately arrows + dots only — no hover sweep, no drag —
-   the most predictable, no-surprises way to browse it.
+   PROJECT DECK — desktop: cards sit on a shallow arc. Whichever card
+   is "active" (the resting pick) sits dead centre, upright,
+   frontmost; every other card's position is computed relative to
+   it. Navigation is arrows + dots only — no hover sweep, no drag.
+
+   Mobile (<=700px): the fan's absolute-positioned, JS-transformed
+   cards don't translate well to touch screens, so it switches to a
+   plain native horizontal scroll-snap row instead — no transforms,
+   no custom hit-testing, just cards in normal flow that the browser
+   itself handles swiping for.
    ============================================================ */
 const projTrack = document.getElementById('projTrack');
 const projDots = document.getElementById('projDots');
@@ -1674,13 +1725,15 @@ const projCarousel = document.getElementById('projCarousel');
 if (projTrack && projDots) {
   const cards = Array.from(projTrack.children);
   // Visual spacing between fanned cards (the stage is wide, like the hero,
-  // so cards spread out further apart).
+  // so cards spread out further apart). Desktop only.
   const SLOT_SPACING = 130;
   let pIndex = Math.floor((cards.length - 1) / 2);
+  const mobileMq = window.matchMedia('(max-width: 700px)');
+  let mobileObserver = null;
 
   cards.forEach((_, i) => {
     const dot = document.createElement('button');
-    dot.setAttribute('aria-label', 'Bring project ' + (i + 1) + ' to the front');
+    dot.setAttribute('aria-label', 'Go to project ' + (i + 1));
     dot.addEventListener('click', () => pGoTo(i));
     projDots.appendChild(dot);
   });
@@ -1691,9 +1744,22 @@ if (projTrack && projDots) {
     return Math.max(0.55, Math.min(1, w / 1100));
   }
 
-  function updateDeck() {
-    const mult = spreadForWidth();
+  function syncDotsAndTheme() {
+    pDots.forEach((d, i) => d.classList.toggle('active', i === pIndex));
+    // Tint the active dot with the front card's own theme colors instead
+    // of the site-wide accent, so the index matches whatever's on screen.
+    const frontCard = cards[pIndex];
+    if (frontCard) {
+      const cs = getComputedStyle(frontCard);
+      const tc1 = cs.getPropertyValue('--tc1').trim();
+      const tc2 = cs.getPropertyValue('--tc2').trim();
+      if (tc1) projDots.style.setProperty('--dot-tc1', tc1);
+      if (tc2) projDots.style.setProperty('--dot-tc2', tc2);
+    }
+  }
 
+  function updateDeckDesktop() {
+    const mult = spreadForWidth();
     cards.forEach((card, i) => {
       const offset = i - pIndex;
       const absOffset = Math.min(Math.abs(offset), 3);
@@ -1707,24 +1773,53 @@ if (projTrack && projDots) {
         'translate(-50%,-50%) translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
       card.style.zIndex = Math.round(z + 100);
     });
+    syncDotsAndTheme();
+  }
 
-    pDots.forEach((d, i) => d.classList.toggle('active', i === pIndex));
+  function scrollToCardMobile(index, smooth) {
+    const card = cards[index];
+    if (!card) return;
+    card.scrollIntoView({ behavior: smooth === false ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+  }
 
-    // Tint the active dot with the front card's own theme colors instead
-    // of the site-wide accent, so the index matches whatever's on screen.
-    const frontCard = cards[pIndex];
-    if (frontCard) {
-      const cs = getComputedStyle(frontCard);
-      const tc1 = cs.getPropertyValue('--tc1').trim();
-      const tc2 = cs.getPropertyValue('--tc2').trim();
-      if (tc1) projDots.style.setProperty('--dot-tc1', tc1);
-      if (tc2) projDots.style.setProperty('--dot-tc2', tc2);
+  // Mobile: track whichever card is most centred as the visitor natively
+  // swipes, so the dots/arrows stay in sync without fighting the scroll.
+  function setupMobileObserver() {
+    if (mobileObserver) mobileObserver.disconnect();
+    mobileObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+          const i = cards.indexOf(entry.target);
+          if (i !== -1 && i !== pIndex) {
+            pIndex = i;
+            syncDotsAndTheme();
+          }
+        }
+      });
+    }, { root: projTrack, threshold: [0.6] });
+    cards.forEach((card) => mobileObserver.observe(card));
+  }
+
+  function applyMode() {
+    if (mobileMq.matches) {
+      cards.forEach((card) => { card.style.transform = ''; card.style.zIndex = ''; });
+      setupMobileObserver();
+      syncDotsAndTheme();
+      requestAnimationFrame(() => scrollToCardMobile(pIndex, false));
+    } else {
+      if (mobileObserver) { mobileObserver.disconnect(); mobileObserver = null; }
+      updateDeckDesktop();
     }
   }
 
   function pGoTo(index) {
     pIndex = Math.max(0, Math.min(index, cards.length - 1));
-    updateDeck();
+    if (mobileMq.matches) {
+      scrollToCardMobile(pIndex);
+      syncDotsAndTheme();
+    } else {
+      updateDeckDesktop();
+    }
   }
 
   document.getElementById('projNext').addEventListener('click', () => pGoTo(pIndex + 1));
@@ -1737,12 +1832,13 @@ if (projTrack && projDots) {
     card.addEventListener('click', () => { pIndex = i; });
   });
 
-  window.addEventListener('resize', updateDeck);
+  window.addEventListener('resize', applyMode);
+  if (mobileMq.addEventListener) mobileMq.addEventListener('change', applyMode);
 
   // Let the router refresh sizing when the home page becomes visible again
-  window.recenterProjCarousel = updateDeck;
+  window.recenterProjCarousel = applyMode;
 
-  requestAnimationFrame(updateDeck);
+  requestAnimationFrame(applyMode);
 }
 
 /* ============================================================
@@ -1798,6 +1894,12 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   let ticking = false;
   let navHeight = 72;
   let stickyHeight = 0;
+  // The pinned hero is fully faded to a flat background color well before
+  // the section releases, so the "trailing" space that gives the
+  // fixed->absolute handoff room to avoid a jump doesn't need to be a full
+  // viewport tall — a fraction of one is enough, and it's the whole reason
+  // About used to feel like it needed extra scrolling to reach.
+  let trailingBuffer = 0;
   let pinStart = 0;   // document scrollY where pinning begins
   let pinEnd = 0;     // document scrollY where pinning ends
 
@@ -1816,6 +1918,13 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
       armVideoScrub();
     } else {
       heroVideo.addEventListener('loadedmetadata', armVideoScrub, { once: true });
+      // Belt-and-suspenders for flaky mobile connections/caches: if
+      // metadata still hasn't shown up shortly after load, give the
+      // browser one nudge to restart the fetch instead of silently
+      // sitting on a stalled request forever.
+      setTimeout(() => {
+        if (!videoScrubReady && heroVideo.readyState < 1) heroVideo.load();
+      }, 2500);
     }
   }
 
@@ -1829,8 +1938,9 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   function syncLayout() {
     navHeight = navEl ? navEl.getBoundingClientRect().height : 72;
     stickyHeight = window.innerHeight - navHeight;
+    trailingBuffer = Math.min(stickyHeight, window.innerHeight * 0.3);
     const animationRange = window.innerHeight * 1.15;
-    pinSection.style.height = (stickyHeight + animationRange) + 'px';
+    pinSection.style.height = (animationRange + trailingBuffer) + 'px';
 
     // Absolute document position of the section's top, independent of current scroll
     const scrollY = window.scrollY || window.pageYOffset;
@@ -1848,13 +1958,17 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
 
     if (scrollY < pinEnd) {
       pinSticky.style.position = 'fixed';
+      pinSticky.style.height = stickyHeight + 'px';
       pinSticky.style.top = navHeight + 'px';
       pinSticky.style.left = '0';
     } else {
-      // Past the animation range: lock at the bottom of the section so
-      // the page can continue scrolling with no visual jump.
+      // Past the animation range: by now the hero is fully faded to a flat
+      // background color, so lock the sticky layer to just the (much
+      // shorter) trailing buffer instead of a full viewport — that's what
+      // used to make About feel like it needed extra scrolling to reach.
       pinSticky.style.position = 'absolute';
-      pinSticky.style.top = (pinSection.offsetHeight - stickyHeight) + 'px';
+      pinSticky.style.height = trailingBuffer + 'px';
+      pinSticky.style.top = (pinSection.offsetHeight - trailingBuffer) + 'px';
       pinSticky.style.left = '0';
     }
 
@@ -1911,7 +2025,7 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
     // Soften the release: crossfade the whole pinned hero into the page
     // background over the last stretch of the scroll-jack, instead of a
     // hard cut the instant it unpins.
-    const unpinFadeP = Math.max(0, Math.min(1, (progress - 0.90) / 0.10));
+    const unpinFadeP = Math.max(0, Math.min(1, (progress - 0.80) / 0.20));
     heroUnpinFade.style.opacity = unpinFadeP;
 
     // Color flow: blend the glow/accent colors based on which stage is dominant
@@ -2108,8 +2222,11 @@ routeFromHash();
     }
     mesh.instanceMatrix.needsUpdate = true;
 
+    // Anchored, not drifting: rotation only comes from cursor tilt now, so
+    // it reads as something you're actively pushing around rather than
+    // something quietly spinning away on its own.
     group.rotation.x = REST_TILT + tiltX;
-    group.rotation.y = tiltY + t * 0.03;
+    group.rotation.y = tiltY;
 
     renderer.render(scene, camera);
   }
