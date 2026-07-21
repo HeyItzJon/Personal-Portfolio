@@ -952,30 +952,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     transform: none;
   }
   .pcarousel-controls { gap: 18px; margin-top: 20px; }
-
-  /* ---- Hero: drop the scroll-jacked pin/crossfade entirely on mobile.
-     It depends on a stable window.innerHeight, and mobile browsers
-     change that mid-scroll as the address bar hides/shows — that's what
-     was causing the jump-to-bottom/glitch-on-scroll bugs. Instead, the
-     three text phases just stack as normal static sections (matching
-     the existing prefers-reduced-motion fallback below), and the video
-     is capped to exactly one screen's height so it only ever sits
-     behind the first one, never stretched or scroll-scrubbed. JS skips
-     the whole pin/video-scrub script on this breakpoint to match. */
-  .pin-section { height: auto !important; margin-top: 0 !important; }
-  .pin-sticky { position: relative !important; height: auto !important; }
-  .pin-layer { position: static !important; opacity: 1 !important; transform: none !important; padding: 64px var(--pad) !important; }
-  .pin-hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-  .hero-video, .hero-scrim, .hero-glow, .hero-glow-2 {
-    position: absolute; top: 0; left: 0; right: auto; bottom: auto;
-    width: 100%; height: 100vh;
-  }
-  .hero-unpin-fade { display: none; }
-  /* No scroll-driven color flow on mobile (the JS that computes it
-     doesn't run here), so hard-code each phase's intended accent
-     instead of leaving every phase on the hero's blue default. */
-  #pinIntro .grad-text { background: linear-gradient(135deg, #7C3AED, #C084FC); -webkit-background-clip: text; background-clip: text; }
-  #pinThird .grad-text { background: linear-gradient(135deg, #D97706, #FBBF24); -webkit-background-clip: text; background-clip: text; }
 }
 </style>
 </head>
@@ -1010,7 +986,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
   <section class="pin-section" id="home">
     <div class="pin-sticky">
-      <video class="hero-video" id="heroVideo" src="assets/hero-bg.mp4" muted loop playsinline preload="auto" fetchpriority="high" aria-hidden="true"></video>
+      <video class="hero-video" id="heroVideo" src="assets/hero-bg.mp4" autoplay muted loop playsinline preload="auto" fetchpriority="high" aria-hidden="true"></video>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-glow-2" aria-hidden="true"></div>
@@ -1913,13 +1889,8 @@ const heroUnpinFade = document.getElementById('heroUnpinFade');
 const heroVideo = document.getElementById('heroVideo');
 const navEl = document.querySelector('.nav');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Mobile gets a static stacked hero (see the max-width:700px rules) instead
-// of the scroll-jacked pin/crossfade — mobile browsers resize the viewport
-// mid-scroll as the address bar hides/shows, which made the pinned math
-// (and the video scrub riding on it) jump and glitch.
-const isMobileHero = window.matchMedia('(max-width: 700px)').matches;
 
-if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade && !prefersReducedMotion && !isMobileHero) {
+if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade && !prefersReducedMotion) {
   let ticking = false;
   let navHeight = 72;
   let stickyHeight = 0;
@@ -1932,16 +1903,22 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   let pinStart = 0;   // document scrollY where pinning begins
   let pinEnd = 0;     // document scrollY where pinning ends
 
-  // Scroll-attached video: once metadata is known, hand playback control
-  // over to scroll position instead of the browser's own clock.
+  // Scroll-attached video: it autoplays on load (that's deliberate — it
+  // should be moving the instant the page appears, not waiting on the
+  // visitor to scroll first). Once metadata is known AND the visitor
+  // actually scrolls, playback control hands over to scroll position
+  // instead of the browser's own clock. The handoff is tied to the first
+  // real scroll (not to metadata loading) so it happens the moment the
+  // visitor takes over, rather than autoplay racing a slow mobile
+  // connection and then snapping backward mid-clip once scrubbing starts.
   let videoDuration = 0;
   let videoScrubReady = false;
+  let videoHandedOff = false;
   if (heroVideo) {
     const armVideoScrub = () => {
       videoDuration = heroVideo.duration || 0;
       if (!videoDuration) return;
       videoScrubReady = true;
-      heroVideo.pause();
     };
     if (heroVideo.readyState >= 1) {
       armVideoScrub();
@@ -2008,7 +1985,9 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
     // progress, like a scrubbed product-reveal clip (NVIDIA/Apple style)
     // instead of letting it free-run on its own clock. Clamped just shy of
     // the end so a seek never lands exactly on the last frame boundary.
-    if (heroVideo && videoScrubReady) {
+    // Only takes over once the visitor has actually scrolled — see
+    // videoHandedOff above.
+    if (heroVideo && videoScrubReady && videoHandedOff) {
       const targetTime = Math.min(progress * videoDuration, videoDuration - 0.08);
       if (Math.abs(heroVideo.currentTime - targetTime) > 0.01) {
         heroVideo.currentTime = targetTime;
@@ -2083,6 +2062,12 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   }
 
   function onScroll() {
+    // The moment the visitor actually scrolls, take the video away from
+    // autoplay and hand it to scroll-scrub — see videoHandedOff above.
+    if (!videoHandedOff && heroVideo && videoScrubReady) {
+      videoHandedOff = true;
+      heroVideo.pause();
+    }
     if (!ticking) {
       requestAnimationFrame(updatePin);
       ticking = true;
@@ -2090,7 +2075,17 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', () => { syncLayout(); onScroll(); });
+
+  // Debounced: mobile browsers fire resize repeatedly while the address
+  // bar animates in/out during a scroll, and recalculating pin geometry
+  // mid-animation (against a momentarily wrong window.innerHeight) is
+  // what caused the jump-to-bottom/glitch bugs. Waiting for resizing to
+  // actually settle avoids recalculating against that unstable value.
+  let resizeSettleTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeSettleTimer);
+    resizeSettleTimer = setTimeout(() => { syncLayout(); onScroll(); }, 250);
+  });
   syncLayout();
   updatePin();
   requestAnimationFrame(() => { syncLayout(); updatePin(); });
