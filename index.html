@@ -279,18 +279,6 @@ h1, h2, h3 {
     linear-gradient(180deg, rgba(2,3,7,0.86) 0%, rgba(2,3,7,0.68) 32%, rgba(2,3,7,0.75) 68%, rgba(2,3,7,0.94) 100%);
   pointer-events: none;
 }
-/* Lets the flow-color channels below be transitioned like normal numbers
-   instead of snapping — only actually given a `transition` on mobile (see
-   the max-width:700px block); desktop keeps setting these every scroll
-   frame, so easing them there would just add lag to something that's
-   already tracking scroll position exactly. */
-@property --flow-r1 { syntax: '<number>'; inherits: true; initial-value: 2; }
-@property --flow-g1 { syntax: '<number>'; inherits: true; initial-value: 132; }
-@property --flow-b1 { syntax: '<number>'; inherits: true; initial-value: 199; }
-@property --flow-r2 { syntax: '<number>'; inherits: true; initial-value: 6; }
-@property --flow-g2 { syntax: '<number>'; inherits: true; initial-value: 182; }
-@property --flow-b2 { syntax: '<number>'; inherits: true; initial-value: 212; }
-
 .hero-glow {
   position: absolute; top: -260px; right: -200px;
   width: 780px; height: 780px;
@@ -854,31 +842,28 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   section { padding: 72px 0; }
 }
 @media (max-width: 700px) {
-  /* The scroll-jacked pinned hero (position:fixed + per-frame scroll
-     math driving opacity/transform) is unreliable on mobile browsers —
-     dynamic viewport height as the address bar shows/hides, and touch
-     scroll not firing scroll events densely enough, made it stutter and
-     jump. Mobile drops the pinning entirely: the three text panels stack
-     in normal document flow and each fades in on its own as it's
-     scrolled to (JS below, via the same reveal-on-scroll idiom used
-     elsewhere on the page), instead of being driven by continuous
-     scroll-position math. The accent color wash still happens — just as
-     a transition to a new target color per panel instead of a per-frame
-     blend. The video goes too (load reliability, decode performance) in
-     favor of a solid dark backing. See the matching JS bypass on
-     isMobileHero. */
+  /* The scroll-jacked pinned hero (position:fixed + per-frame scroll math
+     driving opacity/transform, and even the reveal-on-scroll version
+     tried before it) was unreliable on mobile browsers — dynamic
+     viewport height as the address bar shows/hides, and touch scroll
+     not firing scroll events densely enough, made it stutter and jump.
+     Mobile now gets a fully static hero: the three text panels just
+     stack in normal document flow, all visible immediately, no JS
+     involved at all — nothing here for mobile's scroll quirks to
+     break. Each panel keeps its own fixed accent color (see
+     .pin-hero/.pin-intro/.pin-third .grad-text below) instead of the
+     desktop's scroll-driven color blend. The video goes too (load
+     reliability, decode performance) in favor of a solid dark backing.
+     See the matching JS bypass on isMobileHero. */
   .pin-section { height: auto !important; margin-top: 0 !important; }
-  .pin-sticky {
-    position: static !important;
-    height: auto !important;
-    background: #05060a;
-    transition: --flow-r1 0.9s ease, --flow-g1 0.9s ease, --flow-b1 0.9s ease,
-                --flow-r2 0.9s ease, --flow-g2 0.9s ease, --flow-b2 0.9s ease;
-  }
-  .pin-layer { position: static !important; padding: 56px var(--pad) !important; }
+  .pin-sticky { position: static !important; height: auto !important; background: #05060a; }
+  .pin-layer { position: static !important; opacity: 1 !important; transform: none !important; padding: 40px var(--pad) !important; }
   .hero-video { display: none; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
+  .pin-hero .grad-text { background: linear-gradient(135deg, #0284C7, #06B6D4); -webkit-background-clip: text; background-clip: text; }
+  .pin-intro .grad-text { background: linear-gradient(135deg, #7C3AED, #C084FC); -webkit-background-clip: text; background-clip: text; }
+  .pin-third .grad-text { background: linear-gradient(135deg, #D97706, #FBBF24); -webkit-background-clip: text; background-clip: text; }
   .eyebrow-full { display: none; }
   .eyebrow-short { display: inline; }
   .interest-thumb video { display: none; }
@@ -1849,55 +1834,19 @@ const heroUnpinFade = document.getElementById('heroUnpinFade');
 const heroVideo = document.getElementById('heroVideo');
 const navEl = document.querySelector('.nav');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Mobile skips the scroll-jack entirely (see the max-width:700px rules,
-// which fall back to the same static stacked layout as reduced-motion) —
-// the fixed-position + per-frame scroll math was unreliable on mobile
-// browsers, so there's nothing here for it to hook into.
+// Mobile skips the scroll-jack (and any JS-driven reveal/color logic)
+// entirely — see the max-width:700px rules, which render a fully static
+// hero instead. The fixed-position + per-frame scroll math was
+// unreliable on mobile browsers, so there's nothing here for it to hook
+// into at all.
 const isMobileHero = window.matchMedia('(max-width: 700px)').matches;
 
-// Shared between the desktop scroll-jack (blended every frame) and the
-// mobile fallback (transitioned to a target stage on reveal) below.
+// Used only by the desktop scroll-jack's per-frame blend below.
 const heroStageColors = [
   { r1: 2,   g1: 132, b1: 199, r2: 6,   g2: 182, b2: 212 },  // blue (hero)
   { r1: 124, g1: 58,  b1: 237, r2: 192, g2: 132, b2: 252 },  // purple (intro)
   { r1: 217, g1: 119, b1: 6,   r2: 251, g2: 191, b2: 36  }   // amber (third)
 ];
-
-if (pinSticky && pinHero && pinIntro && pinThird && isMobileHero) {
-  // Mobile: no pinning, no scroll-jack — each panel just fades in like any
-  // other .reveal element as it's scrolled to (reusing the same observer
-  // and CSS used across the rest of the page), and picks up its stage's
-  // accent color on the way in. The color change is a CSS transition on
-  // --flow-* (see the max-width:700px rule) rather than a per-frame blend,
-  // since there's no continuous scroll math driving this path.
-  const stagePanels = [
-    { el: pinHero, stage: 0 },
-    { el: pinIntro, stage: 1 },
-    { el: pinThird, stage: 2 }
-  ];
-  const applyStageColor = (stage) => {
-    const c = heroStageColors[stage];
-    pinSticky.style.setProperty('--flow-r1', c.r1);
-    pinSticky.style.setProperty('--flow-g1', c.g1);
-    pinSticky.style.setProperty('--flow-b1', c.b1);
-    pinSticky.style.setProperty('--flow-r2', c.r2);
-    pinSticky.style.setProperty('--flow-g2', c.g2);
-    pinSticky.style.setProperty('--flow-b2', c.b2);
-  };
-  const stageObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      const panel = stagePanels.find(p => p.el === entry.target);
-      if (panel) applyStageColor(panel.stage);
-    });
-  }, { threshold: 0.4 });
-  stagePanels.forEach(({ el }) => {
-    el.classList.add('reveal');
-    revealObserver.observe(el);
-    stageObserver.observe(el);
-  });
-  applyStageColor(0);
-}
 
 if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade && !prefersReducedMotion && !isMobileHero) {
   let ticking = false;
