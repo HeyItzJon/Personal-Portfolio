@@ -7,18 +7,6 @@
 <link rel="icon" type="image/png" href="assets/images/site-logo-j.png">
 <meta name="description" content="Jonathan Bourget — Electrical Engineering co-op student at Carleton University. PCB design, embedded systems, and hands-on hardware builds.">
 
-<script>
-  // Applied synchronously, before first paint, so there's no flash of the
-  // wrong theme on load.
-  (function () {
-    try {
-      var stored = localStorage.getItem('theme');
-      var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    } catch (e) {}
-  })();
-</script>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,44 +25,6 @@
    DESIGN SYSTEM
    ============================================================ */
 :root {
-  --bg:          #FFFFFF;
-  --bg-soft:     #F6F7FB;
-  --surface:     #FFFFFF;   /* card/panel fill */
-  --nav-bg:      rgba(255,255,255,0.82);
-  --contact-bg:  #12141A;
-  --contact-bg-2: #1a1d27;
-  --ink:         #12141A;
-  --muted:       #6B7280;
-  --accent:      #0284C7;   /* electric blue */
-  --accent-2:    #06B6D4;   /* cyan */
-  --accent-soft: #E0F2FE;
-  --line:        #E8ECF1;
-  --line-strong: #D3DAE3;
-  --grad: linear-gradient(135deg, var(--accent), var(--accent-2));
-  --btn-outline-bg: #FFFFFF;
-  --cta-bg: var(--ink);
-  --cta-fg: #FFFFFF;
-
-  --shadow-sm: 0 2px 8px rgba(18,20,26,0.06);
-  --shadow-md: 0 8px 24px rgba(18,20,26,0.08);
-  --shadow-lg: 0 20px 50px rgba(18,20,26,0.12);
-  --shadow-accent: 0 12px 28px rgba(2,132,199,0.30);
-
-  --font-display: 'Space Grotesk', 'Arial', sans-serif;
-  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  --maxw: 1320px;
-  --pad: clamp(20px, 5vw, 64px);
-  --r-lg: 24px;
-  --r-md: 16px;
-  --r-sm: 10px;
-  --r-full: 999px;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
   --bg:          #0A0C11;
   --bg-soft:     #12151D;
   --surface:     #151922;
@@ -88,6 +38,7 @@
   --accent-soft: rgba(56,189,248,0.14);
   --line:        rgba(255,255,255,0.09);
   --line-strong: rgba(255,255,255,0.16);
+  --grad: linear-gradient(135deg, var(--accent), var(--accent-2));
   --btn-outline-bg: rgba(255,255,255,0.04);
   --cta-bg: var(--accent);
   --cta-fg: #06090F;
@@ -96,6 +47,17 @@
   --shadow-md: 0 10px 28px rgba(0,0,0,0.45);
   --shadow-lg: 0 24px 56px rgba(0,0,0,0.55);
   --shadow-accent: 0 14px 32px rgba(56,189,248,0.28);
+
+  --font-display: 'Space Grotesk', 'Arial', sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --maxw: 1320px;
+  --pad: clamp(20px, 5vw, 64px);
+  --r-lg: 24px;
+  --r-md: 16px;
+  --r-sm: 10px;
+  --r-full: 999px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: dark;
 }
@@ -225,32 +187,7 @@ h1, h2, h3 {
   background: var(--cta-bg) !important;
   margin-left: 8px;
 }
-.nav-cta:hover { background: var(--accent) !important; color: #fff !important; }
-:root[data-theme="dark"] .nav-cta:hover { color: #06090F !important; }
-
-.theme-toggle {
-  position: relative;
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  border: 1.5px solid var(--line-strong);
-  background: var(--bg-soft);
-  color: var(--ink);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  margin-left: 10px;
-  flex-shrink: 0;
-  transition: border-color 0.2s, transform 0.2s, background 0.2s;
-}
-.theme-toggle:hover { border-color: var(--accent); transform: rotate(-8deg) scale(1.06); }
-.theme-toggle svg {
-  width: 18px; height: 18px;
-  position: absolute; top: 50%; left: 50%;
-  transition: opacity 0.25s var(--ease), transform 0.35s var(--ease);
-}
-.theme-toggle .icon-moon { opacity: 0; transform: translate(-50%,-50%) scale(0.5) rotate(40deg); }
-.theme-toggle .icon-sun { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
-:root[data-theme="dark"] .theme-toggle .icon-sun { opacity: 0; transform: translate(-50%,-50%) scale(0.5) rotate(-40deg); }
-:root[data-theme="dark"] .theme-toggle .icon-moon { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+.nav-cta:hover { background: var(--accent) !important; color: #06090F !important; }
 
 .nav-burger {
   display: none;
@@ -342,6 +279,18 @@ h1, h2, h3 {
     linear-gradient(180deg, rgba(2,3,7,0.86) 0%, rgba(2,3,7,0.68) 32%, rgba(2,3,7,0.75) 68%, rgba(2,3,7,0.94) 100%);
   pointer-events: none;
 }
+/* Lets the flow-color channels below be transitioned like normal numbers
+   instead of snapping — only actually given a `transition` on mobile (see
+   the max-width:700px block); desktop keeps setting these every scroll
+   frame, so easing them there would just add lag to something that's
+   already tracking scroll position exactly. */
+@property --flow-r1 { syntax: '<number>'; inherits: true; initial-value: 2; }
+@property --flow-g1 { syntax: '<number>'; inherits: true; initial-value: 132; }
+@property --flow-b1 { syntax: '<number>'; inherits: true; initial-value: 199; }
+@property --flow-r2 { syntax: '<number>'; inherits: true; initial-value: 6; }
+@property --flow-g2 { syntax: '<number>'; inherits: true; initial-value: 182; }
+@property --flow-b2 { syntax: '<number>'; inherits: true; initial-value: 212; }
+
 .hero-glow {
   position: absolute; top: -260px; right: -200px;
   width: 780px; height: 780px;
@@ -905,12 +854,29 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   section { padding: 72px 0; }
 }
 @media (max-width: 700px) {
-  /* The PCB video doesn't hold up on mobile (load reliability, decode
-     performance) — keep the three-phase text crossfade and color flow,
-     which work fine, and just drop the video for a solid dark backing
-     instead. */
+  /* The scroll-jacked pinned hero (position:fixed + per-frame scroll
+     math driving opacity/transform) is unreliable on mobile browsers —
+     dynamic viewport height as the address bar shows/hides, and touch
+     scroll not firing scroll events densely enough, made it stutter and
+     jump. Mobile drops the pinning entirely: the three text panels stack
+     in normal document flow and each fades in on its own as it's
+     scrolled to (JS below, via the same reveal-on-scroll idiom used
+     elsewhere on the page), instead of being driven by continuous
+     scroll-position math. The accent color wash still happens — just as
+     a transition to a new target color per panel instead of a per-frame
+     blend. The video goes too (load reliability, decode performance) in
+     favor of a solid dark backing. See the matching JS bypass on
+     isMobileHero. */
+  .pin-section { height: auto !important; margin-top: 0 !important; }
+  .pin-sticky {
+    position: static !important;
+    height: auto !important;
+    background: #05060a;
+    transition: --flow-r1 0.9s ease, --flow-g1 0.9s ease, --flow-b1 0.9s ease,
+                --flow-r2 0.9s ease, --flow-g2 0.9s ease, --flow-b2 0.9s ease;
+  }
+  .pin-layer { position: static !important; padding: 56px var(--pad) !important; }
   .hero-video { display: none; }
-  .pin-sticky { background: #05060a; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
   .eyebrow-full { display: none; }
@@ -982,10 +948,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <li><a data-route="home" data-scroll="contact">Contact</a></li>
       <li><a href="assets/resume/Jonathan_Bourget_Resume.pdf" class="nav-cta" target="_blank">Resume</a></li>
     </ul>
-    <button class="theme-toggle" id="themeToggle" aria-label="Switch to dark theme" type="button">
-      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>
-    </button>
     <button class="nav-burger" id="navBurger" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -1666,21 +1628,6 @@ navBurger.addEventListener('click', () => {
 });
 
 /* ============================================================
-   THEME TOGGLE — light / dark, persisted to localStorage
-   ============================================================ */
-const themeToggle = document.getElementById('themeToggle');
-function setThemeLabel(theme) {
-  themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-}
-setThemeLabel(document.documentElement.getAttribute('data-theme') || 'light');
-themeToggle.addEventListener('click', () => {
-  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  setThemeLabel(next);
-  try { localStorage.setItem('theme', next); } catch (e) {}
-});
-
-/* ============================================================
    CAROUSEL — arrows, dots, autoplay, swipe
    ============================================================ */
 const track = document.getElementById('carouselTrack');
@@ -1902,11 +1849,57 @@ const heroUnpinFade = document.getElementById('heroUnpinFade');
 const heroVideo = document.getElementById('heroVideo');
 const navEl = document.querySelector('.nav');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Mobile drops the video (see the max-width:700px rules) — the text
-// crossfade and color flow below still run there, just nothing to scrub.
+// Mobile skips the scroll-jack entirely (see the max-width:700px rules,
+// which fall back to the same static stacked layout as reduced-motion) —
+// the fixed-position + per-frame scroll math was unreliable on mobile
+// browsers, so there's nothing here for it to hook into.
 const isMobileHero = window.matchMedia('(max-width: 700px)').matches;
 
-if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade && !prefersReducedMotion) {
+// Shared between the desktop scroll-jack (blended every frame) and the
+// mobile fallback (transitioned to a target stage on reveal) below.
+const heroStageColors = [
+  { r1: 2,   g1: 132, b1: 199, r2: 6,   g2: 182, b2: 212 },  // blue (hero)
+  { r1: 124, g1: 58,  b1: 237, r2: 192, g2: 132, b2: 252 },  // purple (intro)
+  { r1: 217, g1: 119, b1: 6,   r2: 251, g2: 191, b2: 36  }   // amber (third)
+];
+
+if (pinSticky && pinHero && pinIntro && pinThird && isMobileHero) {
+  // Mobile: no pinning, no scroll-jack — each panel just fades in like any
+  // other .reveal element as it's scrolled to (reusing the same observer
+  // and CSS used across the rest of the page), and picks up its stage's
+  // accent color on the way in. The color change is a CSS transition on
+  // --flow-* (see the max-width:700px rule) rather than a per-frame blend,
+  // since there's no continuous scroll math driving this path.
+  const stagePanels = [
+    { el: pinHero, stage: 0 },
+    { el: pinIntro, stage: 1 },
+    { el: pinThird, stage: 2 }
+  ];
+  const applyStageColor = (stage) => {
+    const c = heroStageColors[stage];
+    pinSticky.style.setProperty('--flow-r1', c.r1);
+    pinSticky.style.setProperty('--flow-g1', c.g1);
+    pinSticky.style.setProperty('--flow-b1', c.b1);
+    pinSticky.style.setProperty('--flow-r2', c.r2);
+    pinSticky.style.setProperty('--flow-g2', c.g2);
+    pinSticky.style.setProperty('--flow-b2', c.b2);
+  };
+  const stageObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const panel = stagePanels.find(p => p.el === entry.target);
+      if (panel) applyStageColor(panel.stage);
+    });
+  }, { threshold: 0.4 });
+  stagePanels.forEach(({ el }) => {
+    el.classList.add('reveal');
+    revealObserver.observe(el);
+    stageObserver.observe(el);
+  });
+  applyStageColor(0);
+}
+
+if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade && !prefersReducedMotion && !isMobileHero) {
   let ticking = false;
   let navHeight = 72;
   let stickyHeight = 0;
@@ -2054,18 +2047,13 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
     heroUnpinFade.style.opacity = unpinFadeP;
 
     // Color flow: blend the glow/accent colors based on which stage is dominant
-    const stageColors = [
-      { r1: 2,   g1: 132, b1: 199, r2: 6,   g2: 182, b2: 212 },  // blue (hero)
-      { r1: 124, g1: 58,  b1: 237, r2: 192, g2: 132, b2: 252 },  // purple (intro)
-      { r1: 217, g1: 119, b1: 6,   r2: 251, g2: 191, b2: 36  }   // amber (third)
-    ];
     const totalW = heroOpacity + introOpacity + thirdOpacity;
     const w = totalW > 0.001 ? totalW : 1;
     const heroW = totalW > 0.001 ? heroOpacity : 1;
     const introW = totalW > 0.001 ? introOpacity : 0;
     const thirdW = totalW > 0.001 ? thirdOpacity : 0;
     const blend = (key) => Math.round(
-      (heroW * stageColors[0][key] + introW * stageColors[1][key] + thirdW * stageColors[2][key]) / w
+      (heroW * heroStageColors[0][key] + introW * heroStageColors[1][key] + thirdW * heroStageColors[2][key]) / w
     );
     pinSticky.style.setProperty('--flow-r1', blend('r1'));
     pinSticky.style.setProperty('--flow-g1', blend('g1'));
@@ -2174,14 +2162,6 @@ routeFromHash();
   const mesh = new THREE.InstancedMesh(geometry, material, GRID_X * GRID_Z);
   group.add(mesh);
   const dummy = new THREE.Object3D();
-
-  function refreshThemeColors() {
-    lightA.color = readColor('--accent-2', '#06B6D4');
-    lightB.color = readColor('--accent', '#0284C7');
-    material.color = readColor('--accent-2', '#06B6D4');
-  }
-  const themeToggleBtn = document.getElementById('themeToggle');
-  if (themeToggleBtn) themeToggleBtn.addEventListener('click', () => setTimeout(refreshThemeColors, 0));
 
   function resize() {
     const w = contactEl.clientWidth, h = contactEl.clientHeight;
