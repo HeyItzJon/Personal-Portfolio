@@ -258,7 +258,7 @@ h1, h2, h3 {
 .pin-hero { z-index: 2; }
 .pin-intro { z-index: 1; opacity: 0; }
 .pin-third { z-index: 0; opacity: 0; }
-.pin-inner { max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
+.pin-inner { max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
 .pin-icons { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
 .pin-icon { position: absolute; filter: blur(3px); }
 .pin-icon svg { display: block; width: 100%; height: 100%; }
@@ -304,7 +304,11 @@ h1, h2, h3 {
   pointer-events: none;
 }
 .hero-inner { position: relative; z-index: 1; text-align: center; max-width: 800px; margin: 0 auto; }
-.pin-hero h1 { font-size: clamp(52px, 10vw, 104px); line-height: 1.04; color: #fff; }
+.pin-hero h1 { font-size: clamp(65px, 12.5vw, 130px); line-height: 1.04; color: #fff; white-space: nowrap; }
+/* The hero's h1 needs more than the shared .pin-inner's 800px to stay on
+   one line at this size — widen just this panel's container rather than
+   the shared class (intro/third's paragraph text still wants 800px). */
+#pinHero .pin-inner { max-width: 1200px; }
 .grad-text {
   background: linear-gradient(135deg, rgb(var(--flow-r1,2),var(--flow-g1,132),var(--flow-b1,199)), rgb(var(--flow-r2,6),var(--flow-g2,182),var(--flow-b2,212)));
   -webkit-background-clip: text;
@@ -318,11 +322,11 @@ h1, h2, h3 {
 #home .intro-statement-text { color: #fff; }
 
 .intro-statement-text {
-  max-width: 46ch;
+  max-width: 62ch;
   margin: 0 auto;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(24px, 3.6vw, 36px);
+  font-size: clamp(36px, 5.4vw, 54px);
   line-height: 1.35;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -857,6 +861,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      See the matching JS bypass on isMobileHero. */
   .pin-section { height: auto !important; margin-top: 0 !important; }
   .pin-sticky { position: static !important; height: auto !important; background: #05060a; }
+  /* The desktop nowrap (index.html: "fit onto one line") only works
+     because 12.5vw scales the text down with the viewport — on phones
+     the clamp's 65px floor stops that shrink well before the line would
+     actually fit, so force wrapping back on here instead of overflowing. */
+  .pin-hero h1 { white-space: normal; }
   .pin-layer { position: static !important; opacity: 1 !important; transform: none !important; padding: 40px var(--pad) !important; }
   .hero-video { display: none; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
