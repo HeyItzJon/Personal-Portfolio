@@ -861,9 +861,14 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .hero-video { display: none; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
-  .pin-hero .grad-text { background: linear-gradient(135deg, #0284C7, #06B6D4); -webkit-background-clip: text; background-clip: text; }
-  .pin-intro .grad-text { background: linear-gradient(135deg, #7C3AED, #C084FC); -webkit-background-clip: text; background-clip: text; }
-  .pin-third .grad-text { background: linear-gradient(135deg, #D97706, #FBBF24); -webkit-background-clip: text; background-clip: text; }
+  /* Flat single colors, not the desktop gradient-clipped text — a two-tone
+     blend across each word could itself read as "a fade" up close. */
+  .pin-hero .grad-text, .pin-intro .grad-text, .pin-third .grad-text {
+    background: none; -webkit-background-clip: initial; background-clip: initial;
+  }
+  .pin-hero .grad-text { color: #38BDF8; }
+  .pin-intro .grad-text { color: #C084FC; }
+  .pin-third .grad-text { color: #FBBF24; }
   .eyebrow-full { display: none; }
   .eyebrow-short { display: inline; }
   .interest-thumb video { display: none; }
@@ -1724,7 +1729,15 @@ if (projTrack && projDots) {
   function scrollToCardMobile(index, smooth) {
     const card = cards[index];
     if (!card) return;
-    card.scrollIntoView({ behavior: smooth === false ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+    // card.scrollIntoView({inline:'center', block:'nearest'}) looks like
+    // it should only move the horizontal carousel, but block:'nearest'
+    // still scrolls the *page* vertically whenever the carousel (default
+    // card is the middle one, often well below the fold on load) isn't
+    // already in view — the exact "scroll jumps to the bottom" bug on
+    // mobile. Scrolling the track's own scrollLeft directly can't touch
+    // page scroll at all, since it never asks any ancestor to scroll.
+    const target = card.offsetLeft - (projTrack.clientWidth - card.clientWidth) / 2;
+    projTrack.scrollTo({ left: target, behavior: smooth === false ? 'auto' : 'smooth' });
   }
 
   // Mobile: track whichever card is most centred as the visitor natively
