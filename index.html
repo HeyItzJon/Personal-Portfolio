@@ -1887,27 +1887,61 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   // just loads in and sits on its first frame until the visitor scrolls,
   // at which point scroll position becomes the only thing driving which
   // frame shows. Skipped entirely on mobile, where there's no video.
+  //
+  // Metadata (duration/dimensions) is available almost immediately, but
+  // that's not the same as the clip actually being downloaded — scrubbing
+  // before it's buffered means seeks stall waiting on the network
+  // mid-scroll, which gets more noticeable the longer the clip is (this
+  // one runs ~8s). So duration is read off metadata right away, but
+  // scrubbing itself doesn't arm until the browser reports it can play
+  // through without stalling — i.e. it's loaded ahead of time on purpose,
+  // not scrubbed while still buffering.
   let videoDuration = 0;
   let videoScrubReady = false;
   if (heroVideo && !isMobileHero) {
-    const armVideoScrub = () => {
-      videoDuration = heroVideo.duration || 0;
+    const armDuration = () => {
+      if (!videoDuration) videoDuration = heroVideo.duration || 0;
+    };
+    const armScrubReady = () => {
+      if (videoScrubReady) return;
+      armDuration();
       if (!videoDuration) return;
       videoScrubReady = true;
       heroVideo.pause();
     };
+
     if (heroVideo.readyState >= 1) {
-      armVideoScrub();
+      armDuration();
     } else {
-      heroVideo.addEventListener('loadedmetadata', armVideoScrub, { once: true });
-      // Belt-and-suspenders for flaky connections/caches: if metadata
-      // still hasn't shown up shortly after load, give the browser one
-      // nudge to restart the fetch instead of silently sitting on a
-      // stalled request forever.
-      setTimeout(() => {
-        if (!videoScrubReady && heroVideo.readyState < 1) heroVideo.load();
-      }, 2500);
+      heroVideo.addEventListener('loadedmetadata', armDuration, { once: true });
     }
+
+    if (heroVideo.readyState >= 4) {
+      // HAVE_ENOUGH_DATA already — e.g. served from browser cache.
+      armScrubReady();
+    } else {
+      heroVideo.addEventListener('canplaythrough', armScrubReady, { once: true });
+      // Some browsers are conservative about firing canplaythrough on a
+      // preload="auto" video that's still mid-buffer; polling the actual
+      // buffered range catches those too instead of waiting indefinitely
+      // on an event that may never come.
+      const checkBuffered = setInterval(() => {
+        if (videoScrubReady) { clearInterval(checkBuffered); return; }
+        if (!heroVideo.duration || !heroVideo.buffered.length) return;
+        const bufferedEnd = heroVideo.buffered.end(heroVideo.buffered.length - 1);
+        if (bufferedEnd >= heroVideo.duration - 0.25) {
+          clearInterval(checkBuffered);
+          armScrubReady();
+        }
+      }, 250);
+    }
+
+    // Belt-and-suspenders for flaky connections/caches: if nothing has
+    // shown up shortly after load, give the browser one nudge to restart
+    // the fetch instead of silently sitting on a stalled request forever.
+    setTimeout(() => {
+      if (!videoScrubReady && heroVideo.readyState < 1) heroVideo.load();
+    }, 2500);
   }
 
   // Entrance "pop": scales in from slightly small with a soft overshoot
