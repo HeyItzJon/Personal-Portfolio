@@ -28,7 +28,6 @@
   --bg:          #0A0C11;
   --bg-soft:     #12151D;
   --surface:     #151922;
-  --nav-bg:      rgba(10,12,17,0.78);
   --contact-bg:  #10131b;
   --contact-bg-2: #171c28;
   --ink:         #EDEFF3;
@@ -63,7 +62,21 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; overflow-x: hidden; }
+/* overflow-x: clip (not hidden) deliberately — "hidden" on one axis makes
+   browsers implicitly promote the other axis's overflow to "auto",
+   turning html/body into their own scroll containers. That silently
+   breaks position:sticky everywhere on the page (nav included — it was
+   never actually sticking once scrolled, just nobody had scrolled far
+   enough with a reason to look closely), since sticky needs to resolve
+   against the real viewport. clip has no such side effect and still
+   does the one thing this was ever for: stop transformed/absolutely
+   positioned elements from creating horizontal scroll. */
+html { scroll-behavior: smooth; overflow-x: clip; }
+/* Scrollbar hidden but still fully functional (wheel/keyboard/touch all
+   still scroll normally) — reclaims the ~15-17px some browsers reserve
+   for it instead of letting it eat into the page's usable width. */
+html { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -75,7 +88,6 @@ html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   margin: 0;
-  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 16px;
@@ -85,8 +97,47 @@ body {
   /* Safety net: absolutely-positioned/transformed elements (the project
      deck's fan, hero glows, etc.) should never be able to push the page
      itself into horizontal scroll — clip at the root instead of chasing
-     every possible offender. */
-  overflow-x: hidden;
+     every possible offender. clip, not hidden — see the matching note on
+     html's own overflow-x above; hidden here would re-break sticky the
+     same way. */
+  overflow-x: clip;
+  /* Base tone only — actually invisible in practice, since the fixed
+     .section-bg-video below fully covers the viewport at every scroll
+     position past the hero. Kept as a plain fallback color for the brief
+     instant before the video's first frame paints. */
+  background: var(--bg);
+}
+
+/* ---- Section background video: fixed, full-viewport, scroll-scrubbed ----
+   Sits at z-index:-1 (painted above body's own background but below every
+   normal-flow section, per stacking order — see the hero's own z-index
+   comment above .pin-sticky for the same rule), so it reads as a page
+   backdrop that About/Projects/Skills/etc. scroll over, not a section of
+   its own. Same scroll-scrub idea as the hero video (JS drives currentTime
+   directly instead of letting it free-run) — see updateBgScrub near the
+   closing body tag. */
+.section-bg-video {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #05060a;
+  /* No CSS filter here on purpose — a filter on a <video> forces the
+     browser to recompute it on every decoded frame, on top of the
+     backdrop-filter blur every glass card is already doing off the same
+     frame. That stacked per-frame cost is what was reading as choppy
+     scrubbing through Projects (most glass cards on screen at once).
+     The toned-down look now comes entirely from .section-bg-scrim below
+     instead — a static gradient, effectively free to composite. */
+}
+.section-bg-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(6,7,10,0.82) 0%, rgba(6,7,10,0.62) 25%, rgba(6,7,10,0.68) 60%, rgba(6,7,10,0.86) 100%);
+  pointer-events: none;
 }
 body, body * {
   transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
@@ -139,16 +190,22 @@ h1, h2, h3 {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--nav-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--line);
+  /* Same glass family as the cards now — translucent enough that the
+     section-bg-video actually shows through it, not just a solid dark
+     bar with a blur on top. */
+  background: rgba(10,12,17,0.42);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transform: translateY(0);
+  transition: transform 0.32s var(--ease);
 }
+.nav.nav-hidden { transform: translateY(-100%); }
 .nav .wrap {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  height: 56px;
 }
 .nav-logo {
   font-family: var(--font-display);
@@ -319,6 +376,16 @@ h1, h2, h3 {
 
 /* Hero pin-sticky sits on a video, not the white page bg — flip text/eyebrow to light */
 #home .pin-sticky .eyebrow { background: rgba(255,255,255,0.14); color: #fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+/* A little bigger than the base .eyebrow, and more translucent + a thin
+   accent-blue outline instead of the plain white fill above — same
+   glass-outline language as .btn-outline, so the white text has more
+   contrast to pop against (mostly the video showing through) instead of
+   a solid-ish white pill. */
+.eyebrow-hero { font-size: 14.5px; padding: 9px 20px; }
+#home .pin-sticky .eyebrow-hero {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(56,189,248,0.45);
+}
 #home .intro-statement-text { color: #fff; }
 
 .intro-statement-text {
@@ -352,6 +419,31 @@ h1, h2, h3 {
 .intro-box strong { display: block; font-family: var(--font-display); font-size: 22px; font-weight: 700; }
 .intro-box span { font-size: 13px; color: var(--muted); }
 .hero-actions { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+/* ---- Scroll hints ----
+   .scroll-hint-pulse: hero only, animated — the one moment a visitor
+   genuinely doesn't yet know this page scrolls. .scroll-hint-static:
+   one per section after that (About/Projects/Skills/Interests), no
+   animation — just enough to say "there's more" without nagging about
+   it repeatedly. Deliberately absent from Contact, the last stop. */
+.scroll-hint {
+  display: flex;
+  justify-content: center;
+  color: var(--muted);
+}
+.scroll-hint svg { width: 60px; height: 60px; display: block; stroke-width: 1.5; }
+.scroll-hint-pulse {
+  margin-top: 48px;
+  color: rgba(255,255,255,0.65);
+  animation: scrollHintBounce 1.8s ease-in-out infinite;
+}
+@keyframes scrollHintBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(12px); opacity: 1; }
+}
+.scroll-hint-static {
+  margin-top: 44px;
+  opacity: 0.55;
+}
 .hero-stats {
   margin: 72px auto 0;
   display: grid;
@@ -370,11 +462,44 @@ h1, h2, h3 {
 /* ---- Sections ---- */
 section { padding: 100px 0; }
 .section-head { margin-bottom: 56px; max-width: 62ch; }
+/* Pulls the card fan up closer to the heading/blurb than the other
+   sections get — the deck is the tall element, so trimming this gap
+   specifically (not the shared .section-head default) is what actually
+   buys back vertical space on a laptop screen. */
+#projects .section-head { margin-bottom: 28px; }
 .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
 .section-head h2 { font-size: clamp(30px, 4vw, 42px); }
 .section-head p { color: var(--muted); margin-top: 16px; font-size: 17.5px; }
 
-/* ---- About ---- */
+/* ---- Sticky-hold sections ----
+   Reusable on any section: gives it extra scroll headroom (min-height)
+   and sticks its content near the top of that headroom — so for a
+   stretch of scrolling, the section holds in place while the
+   section-bg-video keeps scrubbing underneath (it's driven by raw
+   scroll position, not by the section's own visibility, so it doesn't
+   care that the content on top of it has stopped moving). Content
+   releases and normal flow resumes once the extra height is scrolled
+   through, right as the next section carries it out. Pure CSS
+   (position: sticky), so it doesn't touch the hero's fixed-position
+   scroll-jack math at all — cheap to tune or revert per-section. Used
+   on every section, Contact included — each one holds on its own color
+   from the bg video (see bgCheckpoints below). Disabled below 880px
+   everywhere it's used (see that media query) — mobile stays exactly as
+   it already was. */
+.pin-hold {
+  position: relative;
+  min-height: 170vh;
+}
+/* Every pin-hold section holds vertically centered — the exact top
+   offset is computed and set per-section by the PIN-HOLD HEIGHT +
+   CENTERING SYNC script (search that name below), since true centering
+   with *consistent* release pacing across sections needs the offset to
+   account for each section's own content height. 50% here is just the
+   pre-JS fallback. */
+.pin-hold-inner {
+  position: sticky;
+  top: 50%;
+}
 .about-grid {
   display: grid;
   grid-template-columns: 0.82fr 1.25fr;
@@ -569,20 +694,27 @@ section { padding: 100px 0; }
 /* Project card base (shared) */
 /* ---- Project color themes ---- */
 .theme-blue   { --tc1: #0284C7; --tc2: #38BDF8; --tglow: rgba(2,132,199,0.38);  --tsoft: rgba(2,132,199,0.08); }
-.theme-red    { --tc1: #DC2626; --tc2: #F87171; --tglow: rgba(220,38,38,0.38); --tsoft: rgba(220,38,38,0.08); }
-.theme-green  { --tc1: #16A34A; --tc2: #4ADE80; --tglow: rgba(22,163,74,0.38); --tsoft: rgba(22,163,74,0.08); }
-.theme-amber  { --tc1: #D97706; --tc2: #FBBF24; --tglow: rgba(217,119,6,0.38); --tsoft: rgba(217,119,6,0.08); }
-.theme-purple { --tc1: #7C3AED; --tc2: #C084FC; --tglow: rgba(124,58,237,0.38); --tsoft: rgba(124,58,237,0.08); }
+.theme-red    { --tc1: #9F1239; --tc2: #FB7185; --tglow: rgba(159,18,57,0.38);  --tsoft: rgba(159,18,57,0.08); }
+.theme-green  { --tc1: #0D9488; --tc2: #5EEAD4; --tglow: rgba(13,148,136,0.38); --tsoft: rgba(13,148,136,0.08); }
+.theme-amber  { --tc1: #B45309; --tc2: #F0A857; --tglow: rgba(180,83,9,0.38);   --tsoft: rgba(180,83,9,0.08); }
+.theme-purple { --tc1: #6D28D9; --tc2: #C4B5FD; --tglow: rgba(109,40,217,0.38); --tsoft: rgba(109,40,217,0.08); }
 
 .project-card {
   border-radius: var(--r-lg);
   text-decoration: none;
   color: var(--ink);
-  background: var(--surface);
+  /* Frosted glass: translucent surface + blur so the ambient backdrop's
+     glow bleeds through instead of the card reading as an opaque slab.
+     Blur radius kept modest on purpose — up to 5 of these render at once
+     in the Projects deck, on top of the scroll-scrubbed bg video, and
+     blur cost scales with radius. */
+  background: rgba(21,25,34,0.52);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-md);
-  border: 2px solid transparent;
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.10);
   overflow: hidden;
   cursor: pointer;
 }
@@ -635,7 +767,9 @@ section { padding: 100px 0; }
   margin-top: 16px;
   font-weight: 600; font-size: 14px;
   color: var(--tc1, var(--accent));
+  text-decoration: none;
   display: flex; align-items: center; gap: 6px;
+  width: fit-content;
   transition: gap 0.2s;
 }
 .project-card:hover .project-cta { gap: 11px; }
@@ -643,12 +777,15 @@ section { padding: 100px 0; }
 /* ---- Skills ---- */
 .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; }
 .skill-group {
-  background: var(--bg-soft);
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: var(--r-md);
   padding: 28px;
-  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s, border-color 0.25s;
 }
-.skill-group:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); background: var(--surface); }
+.skill-group:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); background: rgba(255,255,255,0.065); border-color: rgba(255,255,255,0.12); }
 .skill-group h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
 .skill-group h3::after {
   content: "";
@@ -667,10 +804,14 @@ section { padding: 100px 0; }
 .interest-card {
   border-radius: var(--r-lg);
   overflow: hidden;
-  background: var(--surface);
+  background: rgba(21,25,34,0.5);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow: var(--shadow-md);
-  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s;
 }
+.interest-card:hover { border-color: rgba(255,255,255,0.14); }
 .interest-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
 .interest-thumb {
   aspect-ratio: 4/3;
@@ -699,17 +840,30 @@ section { padding: 100px 0; }
 .contact {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, var(--contact-bg-2), var(--contact-bg));
+  /* Frosted glass, same family as .project-card/.skill-group/.interest-card
+     — was an opaque gradient slab left over from before the video
+     background existed, which read as out of place next to the glass
+     system everywhere else. Pushed even more translucent a second time
+     per feedback — the bg video should read clearly through it, not just
+     tint it. Accent glows borrow the hero's own three-color story
+     (cyan/purple/amber, its scroll-blended stage colors); purple and
+     cyan swapped corners from the previous pass, amber unchanged. */
+  background: rgba(16,19,27,0.16);
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(2,132,199,0.38), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(6,182,212,0.30), transparent 45%),
-    linear-gradient(160deg, var(--contact-bg-2), var(--contact-bg));
+    radial-gradient(circle at 12% 15%, rgba(124,58,237,0.18), transparent 42%),
+    radial-gradient(circle at 88% 20%, rgba(217,119,6,0.14), transparent 42%),
+    radial-gradient(circle at 50% 105%, rgba(6,182,212,0.18), transparent 50%),
+    linear-gradient(160deg, rgba(23,28,40,0.16), rgba(16,19,27,0.16));
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.06);
   color: #fff;
   border-radius: var(--r-lg);
   padding: clamp(48px, 6vw, 84px);
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   flex-wrap: wrap;
   gap: 40px;
 }
@@ -749,8 +903,26 @@ footer {
 }
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
-/* ---- Project detail pages ---- */
-.detail-hero { padding: 64px 0 48px; }
+/* ---- Project detail pages ----
+   Plain flat dark backdrop — simple on purpose, these are reading pages.
+   Still needed as an actual element (not just "no background"): it's a
+   child of the themed <main>, later in the DOM than the home page's
+   .section-bg-video/.section-bg-scrim, so at this same z-index:-1 it
+   paints over them and blocks that video from bleeding through here. */
+.detail-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg);
+}
+
+/* .detail-hero/.detail-body/.detail-nav all share the same max-width +
+   auto margins, so the whole column (title, meta, copy, prev/next nav)
+   centers as one consistent block inside the much wider .wrap instead of
+   each piece doing its own thing — .detail-body previously had a
+   max-width with no margin:auto, so it just sat flush against the left
+   edge of .wrap, leaving a big dead gap on the right on wide screens. */
+.detail-hero { padding: 64px 0 48px; max-width: 860px; margin: 0 auto; }
 .back-link {
   font-size: 14px; font-weight: 600;
   color: var(--muted);
@@ -777,7 +949,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 }
 .detail-meta strong { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
 
-.detail-body { padding: 24px 0 64px; max-width: 780px; }
+.detail-body { padding: 24px 0 64px; max-width: 860px; margin: 0 auto; }
 .detail-body h2 { font-size: 23px; margin-top: 52px; margin-bottom: 18px; }
 .detail-body h2:first-child { margin-top: 0; }
 .detail-body p { font-size: 17px; margin: 0 0 18px; }
@@ -815,6 +987,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .detail-nav {
   border-top: 1px solid var(--line);
   padding: 36px 0 64px;
+  max-width: 860px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -838,6 +1012,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 /* ---- Responsive ---- */
 @media (max-width: 880px) {
+  .pin-hold { min-height: auto; }
+  .pin-hold-inner { position: static; top: auto; }
   .about-grid { grid-template-columns: 1fr; gap: 44px; }
   .pcarousel { height: clamp(380px, 86vw, 440px); }
   .figure-grid { grid-template-columns: 1fr; }
@@ -885,7 +1061,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .nav-links {
     display: flex;
     position: absolute;
-    top: 72px; left: 0; right: 0;
+    top: 56px; left: 0; right: 0;
     background: var(--bg);
     border-bottom: 1px solid var(--line);
     flex-direction: column;
@@ -935,6 +1111,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 </head>
 <body>
 
+<video class="section-bg-video" id="sectionBgVideo" src="assets/bubble-bg.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+<div class="section-bg-scrim" aria-hidden="true"></div>
+
 <!-- ============ NAV ============ -->
 <nav class="nav">
   <div class="wrap">
@@ -967,7 +1146,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="pin-layer pin-hero" id="pinHero">
         <div class="pin-inner">
-          <div class="eyebrow">
+          <div class="eyebrow eyebrow-hero">
             <span class="eyebrow-full">🟢 Open to Co-op Opportunities — Spring/Summer 2027</span>
             <span class="eyebrow-short">Open to Co-op — Summer 2027</span>
           </div>
@@ -975,6 +1154,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           <div class="hero-actions">
             <a class="btn btn-primary" data-route="home" data-scroll="projects">View My Projects</a>
             <a class="btn btn-outline" data-route="home" data-scroll="contact">Get in Touch</a>
+          </div>
+          <div class="scroll-hint scroll-hint-pulse" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </div>
         </div>
       </div>
@@ -1045,45 +1227,49 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     </div>
   </section>
 
-  <section id="about">
-    <div class="wrap about-grid">
-      <div class="about-copy reveal">
-        <div class="eyebrow">About Me</div>
-        <h2>A bit about myself</h2>
-        <p>Before I was building circuits, I was a certified lifeguard, swim instructor, and first aid instructor with the City of Ottawa, and a volunteer coach for competitive speed skaters. Those roles taught me the same lesson twice: stay calm under pressure, document everything properly, and take responsibility when it counts.</p>
-        <p>That mindset carries into how I approach engineering. I like taking an idea from a rough sketch to something that actually works. Most of my projects come down to the same cycle: build it, test it until it breaks (I like that part more than I probably should), figure out why, and fix it properly. I am always curious to learn about new technology and have recently developed an interest in RF systems and where AI is headed, especially AI implementation and use cases, which I am hoping to incorporate into some of my future projects.</p>
-        <p>I'm always open to co-op opportunities, conversations with other engineers, or just learning how things actually work and get done in the real-world.</p>
-      </div>
-
-      <div class="carousel reveal" id="aboutCarousel">
-        <div class="carousel-track" id="carouselTrack">
-          <div class="carousel-slide grad-1">
-            <img src="assets/images/about-1.jpg" alt="Lifeguarding">
-          </div>
-          <div class="carousel-slide grad-2">
-            <img src="assets/images/about-2.JPEG" alt="Workbench">
-          </div>
-          <div class="carousel-slide grad-3">
-            <img src="assets/images/about-3.JPEG" alt="Roof Lighting Project">
-          </div>
-          <div class="carousel-slide grad-4">
-            <video src="assets/images/about-4.MP4" autoplay muted loop playsinline></video>
-          </div>
-           <div class="carousel-slide grad-5">
-            <img src="assets/images/about-5.JPEG" alt="Nexys FPGA Learning Project">
-          </div>
+  <section id="about" class="pin-hold">
+    <div class="pin-hold-inner">
+      <div class="wrap about-grid">
+        <div class="about-copy reveal">
+          <h2>A bit about myself</h2>
+          <p>Before I was building circuits, I was a certified lifeguard, swim instructor, and first aid instructor with the City of Ottawa, and a volunteer coach for competitive speed skaters. Those roles taught me the same lesson twice: stay calm under pressure, document everything properly, and take responsibility when it counts.</p>
+          <p>That mindset carries into how I approach engineering. I like taking an idea from a rough sketch to something that actually works. Most of my projects come down to the same cycle: build it, test it until it breaks (I like that part more than I probably should), figure out why, and fix it properly. I am always curious to learn about new technology and have recently developed an interest in RF systems and where AI is headed, especially AI implementation and use cases, which I am hoping to incorporate into some of my future projects.</p>
+          <p>I'm always open to co-op opportunities, conversations with other engineers, or just learning how things actually work and get done in the real-world.</p>
         </div>
-        <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">‹</button>
-        <button class="carousel-arrow next" id="carouselNext" aria-label="Next photo">›</button>
-        <div class="carousel-dots" id="carouselDots"></div>
+
+        <div class="carousel reveal" id="aboutCarousel">
+          <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide grad-1">
+              <img src="assets/images/about-1.jpg" alt="Lifeguarding">
+            </div>
+            <div class="carousel-slide grad-2">
+              <img src="assets/images/about-2.JPEG" alt="Workbench">
+            </div>
+            <div class="carousel-slide grad-3">
+              <img src="assets/images/about-3.JPEG" alt="Roof Lighting Project">
+            </div>
+            <div class="carousel-slide grad-4">
+              <video src="assets/images/about-4.MP4" autoplay muted loop playsinline></video>
+            </div>
+             <div class="carousel-slide grad-5">
+              <img src="assets/images/about-5.JPEG" alt="Nexys FPGA Learning Project">
+            </div>
+          </div>
+          <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">‹</button>
+          <button class="carousel-arrow next" id="carouselNext" aria-label="Next photo">›</button>
+          <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+      </div>
+      <div class="scroll-hint scroll-hint-static" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
     </div>
   </section>
 
-  <section id="projects" style="background:var(--bg-soft);">
+  <section id="projects" class="pin-hold">
+   <div class="pin-hold-inner">
     <div class="wrap">
       <div class="section-head center reveal">
-        <div class="eyebrow">Projects</div>
         <h2>Check out my builds!</h2>
         <p>A growing list of different challenges that I tackled - click any card for the full story, photos, and what went wrong along the way.</p>
       </div>
@@ -1092,7 +1278,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="pcarousel" id="projCarousel">
         <div class="pcarousel-track" id="projTrack">
 
-          <a class="project-card theme-blue" data-route="pcb" data-idx="0" tabindex="0">
+          <div class="project-card theme-blue" data-idx="0" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/project-pcb-cover.JPEG" alt="Modular Bicycle Lighting System">
             </div>
@@ -1103,11 +1289,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <div class="project-tags">
                 <span class="tag">EasyEDA</span><span class="tag">PCB Design</span><span class="tag">C++ / Arduino</span><span class="tag">CAD + 3D Print</span>
               </div>
-              <div class="project-cta">View Project →</div>
+              <a class="project-cta" data-route="pcb" tabindex="0">View Project →</a>
             </div>
-          </a>
+          </div>
 
-         <a class="project-card theme-red" data-route="gokart" data-idx="1" tabindex="0">
+         <div class="project-card theme-red" data-idx="1" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/project-gokart-cover.JPG" alt="Electric Go-Kart">
             </div>
@@ -1118,11 +1304,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <div class="project-tags">
                 <span class="tag">Three-Phase Systems</span><span class="tag">Motor Control</span><span class="tag">Metal Working</span><span class="tag">Fabrication</span>
               </div>
-              <div class="project-cta">View Project →</div>
+              <a class="project-cta" data-route="gokart" tabindex="0">View Project →</a>
             </div>
-          </a>
+          </div>
 
-         <a class="project-card theme-green" data-route="rcplane" data-idx="2" tabindex="0">
+         <div class="project-card theme-green" data-idx="2" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/project-c-130-rc-drone.jpg" alt="C-130 Autonomous RC Drone">
             </div>
@@ -1133,11 +1319,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <div class="project-tags">
                 <span class="tag">Drone Control</span><span class="tag">Communications</span><span class="tag">Signal Processing</span><span class="tag">Component Selection</span><span class="tag">RF</span>
               </div>
-              <div class="project-cta">View Project →</div>
+              <a class="project-cta" data-route="rcplane" tabindex="0">View Project →</a>
             </div>
-          </a>
+          </div>
            
-          <a class="project-card theme-amber" data-route="mosfet" data-idx="3" tabindex="0">
+          <div class="project-card theme-amber" data-idx="3" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
             </div>
@@ -1148,11 +1334,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <div class="project-tags">
                 <span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Heat Dissipation</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
               </div>
-              <div class="project-cta">View Project →</div>
+              <a class="project-cta" data-route="mosfet" tabindex="0">View Project →</a>
             </div>
-          </a>
+          </div>
 
-          <a class="project-card theme-purple" data-route="aiagent" data-idx="4" tabindex="0">
+          <div class="project-card theme-purple" data-idx="4" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/project-aiagent-cover.png" alt="Custom AI Agent Secretary">
             </div>
@@ -1163,9 +1349,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
               <div class="project-tags">
                 <span class="tag">AI / LLM</span><span class="tag">Token Mechanics</span><span class="tag">Automation</span><span class="tag">APIs</span><span class="tag">Powershell</span>
               </div>
-              <div class="project-cta">View Project →</div>
+              <a class="project-cta" data-route="aiagent" tabindex="0">View Project →</a>
             </div>
-          </a>
+          </div>
 
         </div>
       </div>
@@ -1175,12 +1361,16 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <button class="pcarousel-arrow next" id="projNext" aria-label="Next project">›</button>
       </div>
     </div>
+    <div class="scroll-hint scroll-hint-static" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+   </div>
   </section>
 
-  <section id="skills">
+  <section id="skills" class="pin-hold">
+   <div class="pin-hold-inner">
     <div class="wrap">
       <div class="section-head center reveal">
-        <div class="eyebrow">Skills</div>
         <h2>Tools &amp; technical proficiencies</h2>
       </div>
       <div class="skills-grid">
@@ -1198,12 +1388,13 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
       </div>
     </div>
+   </div>
   </section>
 
-  <section id="interests">
+  <section id="interests" class="pin-hold">
+   <div class="pin-hold-inner">
     <div class="wrap">
       <div class="section-head center reveal">
-        <div class="eyebrow">Interests</div>
         <h2>What I'm keeping an eye on</h2>
       </div>
       <div class="interests-grid">
@@ -1239,9 +1430,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
       </div>
     </div>
+   </div>
   </section>
 
-  <section id="contact">
+  <section id="contact" class="pin-hold">
+   <div class="pin-hold-inner">
     <div class="wrap">
       <div class="contact reveal">
         <canvas class="contact-wave-canvas" id="contactWave" aria-hidden="true"></canvas>
@@ -1269,6 +1462,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
       </div>
     </div>
+   </div>
   </section>
 
 </main>
@@ -1277,6 +1471,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      PAGE: PCB LIGHTING PROJECT
      ================================================================ -->
 <main class="page theme-blue" id="page-pcb">
+  <div class="detail-bg" aria-hidden="true"></div>
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1360,6 +1555,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      PAGE: MOSFET PROJECT
      ================================================================ -->
 <main class="page theme-amber" id="page-mosfet">
+  <div class="detail-bg" aria-hidden="true"></div>
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1413,6 +1609,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      PAGE: GO-KART PROJECT
      ================================================================ -->
 <main class="page theme-red" id="page-gokart">
+  <div class="detail-bg" aria-hidden="true"></div>
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1481,6 +1678,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      PAGE: RC AIRPLANE PROJECT
      ================================================================ -->
 <main class="page theme-green" id="page-rcplane">
+  <div class="detail-bg" aria-hidden="true"></div>
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1513,6 +1711,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      PAGE: AI AGENT PROJECT
      ================================================================ -->
 <main class="page theme-purple" id="page-aiagent">
+  <div class="detail-bg" aria-hidden="true"></div>
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
@@ -1695,9 +1894,14 @@ if (projTrack && projDots) {
   // Visual spacing between fanned cards (the stage is wide, like the hero,
   // so cards spread out further apart). Desktop only.
   const SLOT_SPACING = 130;
+  // Wider, flatter spacing used once the cursor is over the deck (see
+  // FAN <-> EXPANDED below) — cards un-rotate and spread into a straight
+  // left-right row instead of staying stacked like a hand of cards.
+  const FLAT_SPACING = 400;
   let pIndex = Math.floor((cards.length - 1) / 2);
   const mobileMq = window.matchMedia('(max-width: 700px)');
   let mobileObserver = null;
+  let deckExpanded = false;
 
   cards.forEach((_, i) => {
     const dot = document.createElement('button');
@@ -1731,11 +1935,32 @@ if (projTrack && projDots) {
     cards.forEach((card, i) => {
       const offset = i - pIndex;
       const absOffset = Math.min(Math.abs(offset), 3);
-      const x = offset * SLOT_SPACING * mult;
-      const y = absOffset * 16 * mult;
-      const rot = offset * 7.5;
-      const scale = 1 - absOffset * 0.065;
       const z = 50 - Math.abs(offset);
+      let x, y, rot, scale;
+      if (deckExpanded) {
+        // FAN -> EXPANDED: same deck, same buttons/arrows/dots — just
+        // un-rotated and spread into a flat left-right row (a "regular
+        // click-through list") while the cursor is over it, instead of
+        // staying stacked like a hand of cards.
+        x = offset * FLAT_SPACING * mult;
+        y = 0;
+        rot = 0;
+        scale = 1 - absOffset * 0.07;
+      } else {
+        // Straight linear spacing (offset * SLOT_SPACING) looked uneven
+        // between the inner and outer cards — increasing rotation makes
+        // each further-out card's own visual footprint swing sideways
+        // more than a flat per-step translateX accounts for, so outer
+        // cards read as more bunched together than inner ones even
+        // though the underlying x values were evenly stepped. Scaling
+        // the per-step spacing up a bit for each additional step out
+        // compensates for that.
+        const spacingMult = 1 + Math.max(0, absOffset - 1) * 0.18;
+        x = offset * SLOT_SPACING * mult * spacingMult;
+        y = absOffset * 16 * mult;
+        rot = offset * 7.5;
+        scale = 1 - absOffset * 0.065;
+      }
 
       card.style.transform =
         'translate(-50%,-50%) translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
@@ -1806,6 +2031,24 @@ if (projTrack && projDots) {
     // pick, so it's still centred like this if the visitor comes back.
     card.addEventListener('focus', () => pGoTo(i));
     card.addEventListener('click', () => { pIndex = i; });
+  });
+
+  // FAN <-> EXPANDED: the cursor crossing into the deck's bounding box
+  // is the trigger, desktop only. Covers the stage as a whole (deck +
+  // the prev/dots/next controls below it), not just the cards, so
+  // moving down onto the buttons doesn't collapse it back to the fan
+  // mid-interaction. Mobile already uses native horizontal scroll
+  // instead of this fan at all, so there's nothing to expand there.
+  const pcarouselStage = projCarousel.closest('.pcarousel-stage') || projCarousel;
+  pcarouselStage.addEventListener('pointerenter', () => {
+    if (mobileMq.matches) return;
+    deckExpanded = true;
+    updateDeckDesktop();
+  });
+  pcarouselStage.addEventListener('pointerleave', () => {
+    if (mobileMq.matches) return;
+    deckExpanded = false;
+    updateDeckDesktop();
   });
 
   window.addEventListener('resize', applyMode);
@@ -1881,7 +2124,7 @@ const heroStageColors = [
 
 if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade && !prefersReducedMotion && !isMobileHero) {
   let ticking = false;
-  let navHeight = 72;
+  let navHeight = 56;
   let stickyHeight = 0;
   // The pinned hero is fully faded to a flat background color well before
   // the section releases, so the "trailing" space that gives the
@@ -1961,8 +2204,16 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   }
 
   function syncLayout() {
-    navHeight = navEl ? navEl.getBoundingClientRect().height : 72;
-    stickyHeight = window.innerHeight - navHeight;
+    navHeight = navEl ? navEl.getBoundingClientRect().height : 56;
+    // Full viewport height, not reduced by navHeight — the hero video now
+    // runs the entire height of the screen, with the nav floating as a
+    // translucent overlay on top of it (nav's own z-index:50 vs.
+    // pin-sticky's z-index:10 already put it there) instead of pushing
+    // the video down and starting it below the bar. That's what makes
+    // the nav's auto-hide (see the AUTO-HIDE NAV block) actually reveal
+    // more video when it slides away, instead of just uncovering dead
+    // space that was never part of the video to begin with.
+    stickyHeight = window.innerHeight;
     trailingBuffer = Math.min(stickyHeight, window.innerHeight * 0.12);
     const animationRange = window.innerHeight * 1.4;
     pinSection.style.height = (animationRange + trailingBuffer) + 'px';
@@ -1970,7 +2221,7 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
     // Absolute document position of the section's top, independent of current scroll
     const scrollY = window.scrollY || window.pageYOffset;
     const sectionDocTop = pinSection.getBoundingClientRect().top + scrollY;
-    pinStart = sectionDocTop - navHeight;
+    pinStart = sectionDocTop;
     pinEnd = pinStart + animationRange;
 
     pinSticky.style.width = '100%';
@@ -1984,7 +2235,7 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
     if (scrollY < pinEnd) {
       pinSticky.style.position = 'fixed';
       pinSticky.style.height = stickyHeight + 'px';
-      pinSticky.style.top = navHeight + 'px';
+      pinSticky.style.top = '0';
       pinSticky.style.left = '0';
     } else {
       // Past the animation range: by now the hero is fully faded to a flat
@@ -2144,6 +2395,263 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
     }
   }
 }
+
+/* ============================================================
+   PIN-HOLD HEIGHT + CENTERING SYNC — keeps the release ("unstick")
+   pacing consistent across every pin-hold section, regardless of how
+   much content each one has.
+
+   Native position:sticky's stuck-vs-release split is pure geometry:
+   release length = (sticky top offset) + (content's own height). A flat
+   CSS `top: 50%` for every section (true visual centering) makes that
+   offset scale with content height too — so a short section (Contact)
+   and a tall one (About's two-column grid + carousel) release at
+   noticeably different paces even though the ones that already felt
+   right (Projects <-> Skills) just happen to be similar heights.
+
+   Computing the top offset here as (viewport-center minus half the
+   content's own height) still centers it exactly — same visual result
+   as top:50% — but does it with a small explicit px value instead of a
+   flat 50%, which is what actually cuts the content-height sensitivity
+   in the release length roughly in half. It can't be reduced to zero
+   without giving up true centering (that's a hard constraint of how
+   sticky's math works, not a bug), but this is the best available
+   middle ground between "centered" and "identical pacing everywhere."
+   CSS's 170vh / top:50% (see .pin-hold / .pin-hold-inner) are only the
+   pre-JS fallback so there's no flash of wrong layout before this runs.
+   ============================================================ */
+(function () {
+  const holds = Array.from(document.querySelectorAll('.pin-hold'));
+  if (!holds.length) return;
+
+  // How long content should visibly hold in place before releasing,
+  // in viewport-heights — tuned to match the Projects <-> Skills pacing,
+  // which already felt right under the old flat 170vh.
+  const STUCK_VH = 0.8;
+  const MIN_TOP = 40; // px — floor so tall content never pins flush to the very top edge
+  const mobileMq880 = window.matchMedia('(max-width: 880px)');
+
+  function sync() {
+    if (mobileMq880.matches) {
+      // pin-hold is disabled entirely below 880px (see that media query)
+      // — clear any inline styles so they don't outrank the CSS reset
+      // there (inline styles beat media-query class rules).
+      holds.forEach((hold) => {
+        hold.style.minHeight = '';
+        const inner = hold.querySelector('.pin-hold-inner');
+        if (inner) inner.style.top = '';
+      });
+      return;
+    }
+    holds.forEach((hold) => {
+      const inner = hold.querySelector('.pin-hold-inner');
+      if (!inner) return;
+      const h = inner.getBoundingClientRect().height;
+      const top = Math.max(MIN_TOP, window.innerHeight / 2 - h / 2);
+      inner.style.top = top + 'px';
+      hold.style.minHeight = (h + top + STUCK_VH * window.innerHeight) + 'px';
+    });
+  }
+
+  sync();
+  window.addEventListener('resize', sync);
+  window.addEventListener('load', sync);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sync);
+})();
+
+/* ============================================================
+   AUTO-HIDE NAV — slides up out of the way on scroll-down, slides back
+   in on scroll-up (or once back near the very top). Transform-based
+   (not display/visibility), so it doesn't disturb the nav's own
+   position:sticky or cause any layout shift — it just slides within its
+   own stuck position. Paused while the mobile dropdown is open so it
+   can't slide away out from under someone using it.
+   ============================================================ */
+(function () {
+  const nav = document.querySelector('.nav');
+  if (!nav || prefersReducedMotion) return;
+
+  const HIDE_AFTER = 80; // px scrolled before hiding is even considered — stays put near the top
+  let lastY = window.scrollY || window.pageYOffset;
+  let ticking = false;
+
+  function update() {
+    ticking = false;
+    const y = window.scrollY || window.pageYOffset;
+    const dropdownOpen = navLinks && navLinks.classList.contains('open');
+
+    if (!dropdownOpen) {
+      if (y <= HIDE_AFTER) {
+        nav.classList.remove('nav-hidden');
+      } else if (y > lastY + 2) {
+        nav.classList.add('nav-hidden');
+      } else if (y < lastY - 2) {
+        nav.classList.remove('nav-hidden');
+      }
+    }
+    lastY = y;
+  }
+  const onScroll = () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+
+/* ============================================================
+   SECTION BACKGROUND VIDEO — scroll-scrubbed like the hero clip, but
+   instead of a pinned/fixed-height section, it's a full-viewport fixed
+   layer that plays "underneath" normal scrolling: scroll progress from
+   the page maps to the video's timeline via a handful of checkpoints
+   (not one flat start->end span) — each checkpoint pins a specific
+   video timestamp to a specific section's scroll position, so e.g. "video
+   is fully violet" can be pinned to "top of Projects" regardless of how
+   tall About happens to be. Time between checkpoints is interpolated
+   linearly. Tune the `time` values (or add more checkpoints) to retime
+   which color shows where — see bgCheckpoints below. Same
+   load-fully-before-scrubbing discipline as the hero video, for the same
+   reason: seeking into an unbuffered range stalls on the network mid-
+   scroll, which reads as stutter.
+   On mobile it just autoplays/loops instead of scroll-scrubbing — the
+   hero's own pinned scroll-jack is already disabled on mobile for
+   reliability (see isMobileHero above), so a second scroll-driven video
+   isn't worth the same risk there; ambient looping motion is plenty.
+   ============================================================ */
+(function () {
+  const bgVideo = document.getElementById('sectionBgVideo');
+  if (!bgVideo || prefersReducedMotion) return;
+
+  if (isMobileHero) {
+    bgVideo.loop = true;
+    bgVideo.autoplay = true;
+    bgVideo.play().catch(() => {});
+    return;
+  }
+
+  // v2 clip (~10s) has one color per section: violet ~0-1.5s, teal
+  // ~2-3.5s, green ~4-5.5s, gold ~6-7.5s, rose ~8-9.5s, with roughly 1s
+  // blends between each. Each section mostly holds its own color for its
+  // sticky-locked scroll range, but creeps forward a small amount during
+  // that lock too (LOCK_DRIFT_FRACTION below) so the spheres keep
+  // drifting in slow motion instead of sitting on one frozen frame — the
+  // bulk of each color change still happens during the "unstick" window
+  // (the tail of a section's pin-hold box where position:sticky
+  // releases and it scrolls away as the next section arrives), which is
+  // what keeps the *main* transition timed where it already was. That
+  // unstick window is computed live from each section's own geometry
+  // (box height minus its sticky content's own rendered height minus
+  // the sticky top offset) in updateBgScrub below, not hardcoded, so it
+  // stays correct if content heights ever change.
+  const LOCK_DRIFT_FRACTION = 0.2;
+  const bgColorStops = [
+    { id: 'about',     time: 0 },
+    { id: 'projects',  time: 2.6 },
+    { id: 'skills',    time: 4.6 },
+    { id: 'interests', time: 6.6 },
+    { id: 'contact',   time: 8.8 },
+  ].map(s => ({ ...s, el: document.getElementById(s.id) })).filter(s => s.el);
+  if (bgColorStops.length < 2) return;
+
+  let bgDuration = 0;
+  let bgScrubReady = false;
+
+  const armBgDuration = () => { if (!bgDuration) bgDuration = bgVideo.duration || 0; };
+  const armBgScrubReady = () => {
+    if (bgScrubReady) return;
+    armBgDuration();
+    if (!bgDuration) return;
+    bgScrubReady = true;
+    bgVideo.pause();
+    updateBgScrub();
+  };
+
+  if (bgVideo.readyState >= 1) {
+    armBgDuration();
+  } else {
+    bgVideo.addEventListener('loadedmetadata', armBgDuration, { once: true });
+  }
+
+  if (bgVideo.readyState >= 4) {
+    armBgScrubReady();
+  } else {
+    bgVideo.addEventListener('canplaythrough', armBgScrubReady, { once: true });
+    const checkBgBuffered = setInterval(() => {
+      if (bgScrubReady) { clearInterval(checkBgBuffered); return; }
+      if (!bgVideo.duration || !bgVideo.buffered.length) return;
+      const bufferedEnd = bgVideo.buffered.end(bgVideo.buffered.length - 1);
+      if (bufferedEnd >= bgVideo.duration - 0.25) {
+        clearInterval(checkBgBuffered);
+        armBgScrubReady();
+      }
+    }, 250);
+  }
+  setTimeout(() => {
+    if (!bgScrubReady && bgVideo.readyState < 1) bgVideo.load();
+  }, 2500);
+
+  let ticking = false;
+  function updateBgScrub() {
+    ticking = false;
+    if (!bgScrubReady) return;
+    const scrollY = window.scrollY || window.pageYOffset;
+
+    // Build the point list fresh every call (cheap, and stays correct
+    // across resizes/reveal-animation reflows instead of caching stale
+    // rects): a (start, holdEnd) pair per section. holdEnd carries a
+    // small fraction of the way toward the next color (LOCK_DRIFT_FRACTION)
+    // instead of the exact same time as start, so the locked-scroll range
+    // isn't a single frozen frame — just slow. The gap from one section's
+    // holdEnd to the NEXT section's start is its unstick window, which
+    // still carries the other ~80% of the change, i.e. the main visible
+    // transition. Contact (last stop, no "next" section) drifts toward a
+    // virtual point 1.5s further into the clip instead.
+    const points = [];
+    for (let i = 0; i < bgColorStops.length; i++) {
+      const stop = bgColorStops[i];
+      const r = stop.el.getBoundingClientRect();
+      const startY = scrollY + r.top;
+      points.push({ y: startY, time: stop.time });
+
+      const inner = stop.el.querySelector('.pin-hold-inner');
+      if (inner) {
+        const innerH = inner.getBoundingClientRect().height;
+        const innerTop = parseFloat(getComputedStyle(inner).top) || 0;
+        const holdEndY = Math.max(startY, startY + r.height - innerH - innerTop);
+        const nextTime = (i < bgColorStops.length - 1)
+          ? bgColorStops[i + 1].time
+          : Math.min(stop.time + 1.5, bgDuration - 0.05);
+        const driftTime = stop.time + (nextTime - stop.time) * LOCK_DRIFT_FRACTION;
+        points.push({ y: holdEndY, time: driftTime });
+      }
+    }
+
+    let targetTime;
+    if (scrollY <= points[0].y) {
+      targetTime = points[0].time;
+    } else if (scrollY >= points[points.length - 1].y) {
+      targetTime = points[points.length - 1].time;
+    } else {
+      targetTime = points[points.length - 1].time;
+      for (let i = 0; i < points.length - 1; i++) {
+        if (scrollY >= points[i].y && scrollY <= points[i + 1].y) {
+          const span = points[i + 1].y - points[i].y || 1;
+          const f = (scrollY - points[i].y) / span;
+          targetTime = points[i].time + (points[i + 1].time - points[i].time) * f;
+          break;
+        }
+      }
+    }
+    targetTime = Math.min(targetTime, bgDuration - 0.05);
+    if (Math.abs(bgVideo.currentTime - targetTime) > 0.01) {
+      bgVideo.currentTime = targetTime;
+    }
+  }
+  const onBgScroll = () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(updateBgScrub); }
+  };
+  window.addEventListener('scroll', onBgScroll, { passive: true });
+  window.addEventListener('resize', onBgScroll);
+  window.addEventListener('load', updateBgScrub);
+})();
 
 /* ============================================================
    INIT
