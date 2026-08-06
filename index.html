@@ -420,29 +420,29 @@ h1, h2, h3 {
 .intro-box span { font-size: 13px; color: var(--muted); }
 .hero-actions { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 /* ---- Scroll hints ----
-   .scroll-hint-pulse: hero only, animated — the one moment a visitor
-   genuinely doesn't yet know this page scrolls. .scroll-hint-static:
-   one per section after that (About/Projects/Skills/Interests), no
-   animation — just enough to say "there's more" without nagging about
-   it repeatedly. Deliberately absent from Contact, the last stop. */
+   One per section (About/Projects/Skills/Interests) plus the hero,
+   all pulsing the same way now — just enough to say "there's more"
+   without needing the hero's to be the only one that moves.
+   Deliberately absent from Contact, the last stop. .scroll-hint-pulse
+   (hero only) gets a second chevron (see the double-arrow SVG markup)
+   since it's the one moment a visitor genuinely doesn't yet know this
+   page scrolls at all. */
 .scroll-hint {
   display: flex;
   justify-content: center;
-  color: var(--muted);
+  color: rgba(255,255,255,0.6);
+  animation: scrollHintBounce 1.8s ease-in-out infinite;
 }
 .scroll-hint svg { width: 60px; height: 60px; display: block; stroke-width: 1.5; }
 .scroll-hint-pulse {
-  margin-top: 48px;
-  color: rgba(255,255,255,0.65);
-  animation: scrollHintBounce 1.8s ease-in-out infinite;
+  margin-top: 72px;
 }
 @keyframes scrollHintBounce {
   0%, 100% { transform: translateY(0); opacity: 0.5; }
   50% { transform: translateY(12px); opacity: 1; }
 }
 .scroll-hint-static {
-  margin-top: 44px;
-  opacity: 0.55;
+  margin-top: 68px;
 }
 .hero-stats {
   margin: 72px auto 0;
@@ -1028,11 +1028,16 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      viewport height as the address bar shows/hides, and touch scroll
      not firing scroll events densely enough, made it stutter and jump.
      Mobile now gets a fully static hero: the three text panels just
-     stack in normal document flow, all visible immediately, no JS
-     involved at all — nothing here for mobile's scroll quirks to
-     break. Each panel keeps its own fixed accent color (see
-     .pin-hero/.pin-intro/.pin-third .grad-text below) instead of the
-     desktop's scroll-driven color blend. The video goes too (load
+     stack in normal document flow, no JS-driven scroll coupling at all
+     — nothing here for mobile's scroll quirks to break. pin-hero (the
+     "Hi, I'm Jonathan" panel) is still immediately visible with no
+     animation; pin-intro/pin-third (see .mobile-fade below) get a
+     simple opacity/translateY fade instead, triggered by the same
+     IntersectionObserver the rest of the site's .reveal elements use —
+     time-based, not scroll-jacked, so it can't inherit the same
+     reliability problems. Each panel keeps its own fixed accent color
+     (see .pin-hero/.pin-intro/.pin-third .grad-text below) instead of
+     the desktop's scroll-driven color blend. The video goes too (load
      reliability, decode performance) in favor of a solid dark backing.
      See the matching JS bypass on isMobileHero. */
   .pin-section { height: auto !important; margin-top: 0 !important; }
@@ -1042,7 +1047,22 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      the clamp's 65px floor stops that shrink well before the line would
      actually fit, so force wrapping back on here instead of overflowing. */
   .pin-hero h1 { white-space: normal; }
-  .pin-layer { position: static !important; opacity: 1 !important; transform: none !important; padding: 40px var(--pad) !important; }
+  .pin-layer { position: static !important; padding: 40px var(--pad) !important; }
+  .pin-hero { opacity: 1 !important; transform: none !important; }
+  .mobile-fade {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+  .mobile-fade.in { opacity: 1; transform: translateY(0); }
+  /* Noticeably smaller than desktop's clamp (which floors at 36px and
+     was still reading as too large on phones) — these two panels are
+     supporting lines under the main "Hi, I'm Jonathan", not a second
+     headline each. */
+  .pin-intro .intro-statement-text,
+  .pin-third .intro-statement-text {
+    font-size: clamp(22px, 6vw, 28px);
+  }
   .hero-video { display: none; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
@@ -1156,12 +1176,12 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <a class="btn btn-outline" data-route="home" data-scroll="contact">Get in Touch</a>
           </div>
           <div class="scroll-hint scroll-hint-pulse" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            <svg viewBox="0 0 24 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l6 6 6-6"/><path d="M6 19l6 6 6-6"/></svg>
           </div>
         </div>
       </div>
 
-      <div class="pin-layer pin-intro" id="pinIntro">
+      <div class="pin-layer pin-intro mobile-fade" id="pinIntro">
         <!--
         <div class="pin-icons">
           <div class="pin-icon" style="width:54px; height:54px; top:4.5%; left:58.8%; opacity:0.14; color:rgb(124,58,237); transform:rotate(19deg);">
@@ -1189,7 +1209,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
       </div>
 
-      <div class="pin-layer pin-third" id="pinThird">
+      <div class="pin-layer pin-third mobile-fade" id="pinThird">
         <!--
         <div class="pin-icons">
           <div class="pin-icon" style="width:47px; height:47px; top:2.9%; left:58.0%; opacity:0.14; color:rgb(217,119,6); transform:rotate(-10deg);">
@@ -2078,6 +2098,22 @@ function initReveals(scope) {
     revealObserver.observe(el);
   });
 }
+
+// Separate from revealObserver on purpose: .mobile-fade (the two
+// supporting hero panels, mobile only) can't reuse .reveal's CSS class
+// directly — .reveal's transition would also apply on desktop, fighting
+// the hero's per-frame inline scroll-jack opacity/transform there. Same
+// intersect-once-and-unobserve idea, just kept on its own class so it
+// stays completely inert outside the mobile media query.
+const mobileFadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      mobileFadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.mobile-fade').forEach(el => mobileFadeObserver.observe(el));
 
 /* ============================================================
    INTEREST CARD HOVER VIDEOS
