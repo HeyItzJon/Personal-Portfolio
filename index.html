@@ -638,8 +638,12 @@ section { padding: 100px 0; }
   transform-origin: 50% 82%;
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
 }
-.pcarousel .project-card:hover,
-.pcarousel .project-card:focus-visible {
+/* Glow follows whichever card is actually "current" (pIndex — the
+   centered/front card, tracked via the is-current class in
+   syncDotsAndTheme) rather than whatever the cursor happens to be over,
+   so hovering a neighboring card in the fan doesn't light it up as if
+   it were the resting pick. Same class mobile/tablet already use. */
+.pcarousel .project-card.is-current {
   box-shadow: 0 26px 50px var(--tglow, rgba(18,20,26,0.2));
   border-color: var(--tc1, var(--line-strong));
   outline: none;
@@ -1134,22 +1138,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     scroll-snap-align: center;
     transform: none;
   }
-  /* Touch has no real hover — a tap leaves :hover "stuck" on whatever was
-     last touched, which read as a random/wrong card glowing regardless of
-     which one was actually centered. Highlight is driven by the JS-tracked
-     .is-current class instead (set from the scroll-position
-     IntersectionObserver in setupMobileObserver), and :hover/:focus-visible
-     are turned off here so a tap can't add the glow to the wrong card. */
-  .pcarousel .project-card:hover,
-  .pcarousel .project-card:focus-visible {
-    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.10);
-  }
+  /* Touch has no real hover — a tap leaves the thumb's hover-zoom "stuck"
+     on whatever was last touched. The glow itself is already keyed off
+     .is-current everywhere (see the base .pcarousel .project-card.is-current
+     rule), so only the thumb zoom needs turning off here. */
   .pcarousel .project-card:hover .project-thumb img { transform: none; }
-  .pcarousel .project-card.is-current {
-    box-shadow: 0 26px 50px var(--tglow, rgba(18,20,26,0.2));
-    border-color: var(--tc1, var(--line-strong));
-  }
   .pcarousel-controls { gap: 18px; margin-top: 20px; }
 }
 /* Phone only — narrower than the shared 1024px breakpoint above. Tablet
@@ -1981,10 +1974,10 @@ if (projTrack && projDots) {
 
   function syncDotsAndTheme() {
     pDots.forEach((d, i) => d.classList.toggle('active', i === pIndex));
-    // Phone/tablet-only highlight target (see the .is-current rules in
-    // the 1024px media query) — desktop's front card is already visually
-    // obvious from position/rotation/z-index alone, so this class is a
-    // no-op there.
+    // Drives the glow everywhere (see the base .pcarousel .project-card
+    // .is-current rule) — the resting pick stays highlighted regardless
+    // of what the cursor happens to be over, instead of whatever card
+    // was last hovered.
     cards.forEach((c, i) => c.classList.toggle('is-current', i === pIndex));
     // Tint the active dot with the front card's own theme colors instead
     // of the site-wide accent, so the index matches whatever's on screen.
