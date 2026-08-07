@@ -483,9 +483,9 @@ section { padding: 100px 0; }
    (position: sticky), so it doesn't touch the hero's fixed-position
    scroll-jack math at all — cheap to tune or revert per-section. Used
    on every section, Contact included — each one holds on its own color
-   from the bg video (see bgCheckpoints below). Disabled below 880px
-   everywhere it's used (see that media query) — mobile stays exactly as
-   it already was. */
+   from the bg video (see bgCheckpoints below). Disabled below 1024px
+   everywhere it's used (see that media query) — phone/tablet stay
+   exactly as they already were. */
 .pin-hold {
   position: relative;
   min-height: 170vh;
@@ -1014,42 +1014,48 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
 .reveal.in { opacity: 1; transform: translateY(0); }
 
-/* ---- Responsive ---- */
-@media (max-width: 880px) {
+/* ---- Responsive ----
+   One shared breakpoint (1024px) for phone AND tablet: iPad showed the
+   same problems phone used to — the pinned scroll-jack fighting touch
+   scroll, and the project deck's hover-driven fan stuck mid-interaction
+   since a touchscreen has no real hover to trigger its expand/collapse.
+   Both get the same static hero + swipeable card row. The one thing that
+   still splits phone from tablet is the hero clip itself — see the
+   narrower max-width:700px rule below, which hides it only on phone;
+   tablet has room to keep it playing (ambiently, not scroll-scrubbed —
+   see the isPhoneHero check in the hero JS). */
+@media (max-width: 1024px) {
   .pin-hold { min-height: auto; }
   .pin-hold-inner { position: static; top: auto; }
   .about-grid { grid-template-columns: 1fr; gap: 44px; }
-  .pcarousel { height: clamp(480px, 90vw, 560px); }
   .figure-grid { grid-template-columns: 1fr; }
   .contact { flex-direction: column; align-items: flex-start; }
   .hero-stats { grid-template-columns: 1fr; }
   section { padding: 72px 0; }
-}
-@media (max-width: 700px) {
   /* The scroll-jacked pinned hero (position:fixed + per-frame scroll math
      driving opacity/transform, and even the reveal-on-scroll version
-     tried before it) was unreliable on mobile browsers — dynamic
-     viewport height as the address bar shows/hides, and touch scroll
-     not firing scroll events densely enough, made it stutter and jump.
-     Mobile now gets a fully static hero: the three text panels just
-     stack in normal document flow, no JS-driven scroll coupling at all
-     — nothing here for mobile's scroll quirks to break. pin-hero (the
-     "Hi, I'm Jonathan" panel) is still immediately visible with no
-     animation; pin-intro/pin-third (see .mobile-fade below) get a
-     simple opacity/translateY fade instead, triggered by the same
+     tried before it) was unreliable on touch browsers — dynamic viewport
+     height as the address bar shows/hides, and touch scroll not firing
+     scroll events densely enough, made it stutter and jump. Phone/tablet
+     now get a fully static hero: the three text panels just stack in
+     normal document flow, no JS-driven scroll coupling at all — nothing
+     here for touch scroll quirks to break. pin-hero (the "Hi, I'm
+     Jonathan" panel) is still immediately visible with no animation;
+     pin-intro/pin-third (see .mobile-fade below) get a simple
+     opacity/translateY fade instead, triggered by the same
      IntersectionObserver the rest of the site's .reveal elements use —
      time-based, not scroll-jacked, so it can't inherit the same
      reliability problems. Each panel keeps its own fixed accent color
      (see .pin-hero/.pin-intro/.pin-third .grad-text below) instead of
-     the desktop's scroll-driven color blend. The video goes too (load
-     reliability, decode performance) in favor of a solid dark backing.
-     See the matching JS bypass on isMobileHero. */
+     the desktop's scroll-driven color blend. See the matching JS bypass
+     on isMobileHero. */
   .pin-section { height: auto !important; margin-top: 0 !important; }
   .pin-sticky { position: static !important; height: auto !important; background: #05060a; }
   /* The desktop nowrap (index.html: "fit onto one line") only works
-     because 12.5vw scales the text down with the viewport — on phones
-     the clamp's 65px floor stops that shrink well before the line would
-     actually fit, so force wrapping back on here instead of overflowing. */
+     because 12.5vw scales the text down with the viewport — below this
+     breakpoint the clamp's 65px floor stops that shrink well before the
+     line would actually fit, so force wrapping back on here instead of
+     overflowing. */
   .pin-hero h1 { white-space: normal; }
   .pin-layer { position: static !important; padding: 40px var(--pad) !important; }
   .pin-hero { opacity: 1 !important; transform: none !important; }
@@ -1067,7 +1073,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .pin-third .intro-statement-text {
     font-size: clamp(22px, 6vw, 28px);
   }
-  .hero-video { display: none; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
   /* Flat single colors, not the desktop gradient-clipped text — a two-tone
@@ -1103,11 +1108,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .nav-cta { margin-left: 0; text-align: center; }
 
   /* ---- Project deck: swap the 3D fan for a plain native-scroll
-     slideshow. The fan's absolute-positioned, JS-transformed cards
-     don't translate well to small touch screens (fiddly hit-testing,
-     easy to overflow the viewport) — a straightforward swipeable row
-     with scroll-snap is far more predictable here. JS detects this
-     breakpoint and stops writing transforms to the cards to match. */
+     slideshow. The fan expands on hover, which touchscreens (phone and
+     tablet alike) don't have — without a mouse it just gets stuck
+     mid-interaction — so a straightforward swipeable row with
+     scroll-snap is far more predictable here. JS detects this breakpoint
+     and stops writing transforms to the cards to match. */
   .pcarousel-stage { padding: 0; max-width: 100%; }
   .pcarousel {
     height: auto;
@@ -1146,6 +1151,13 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     border-color: var(--tc1, var(--line-strong));
   }
   .pcarousel-controls { gap: 18px; margin-top: 20px; }
+}
+/* Phone only — narrower than the shared 1024px breakpoint above. Tablet
+   keeps the hero clip playing (ambiently — see isPhoneHero in the hero
+   JS); phone drops it entirely for load reliability and decode
+   performance, in favor of a solid dark backing. */
+@media (max-width: 700px) {
+  .hero-video { display: none; }
 }
 </style>
 </head>
@@ -1797,8 +1809,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 </footer>
 
 <!-- GSAP + ScrollTrigger: only the desktop pinned-hero's scroll/resize
-     plumbing below depends on this — mobile never touches it (its hero
-     is fully static, see the max-width:700px rules), and everything
+     plumbing below depends on this — phone/tablet never touch it (their
+     hero is fully static, see the max-width:1024px rules), and everything
      else on the page is plain vanilla JS. Plain synchronous <script>
      tags (not defer/async/module) so gsap/ScrollTrigger are guaranteed
      defined by the time the inline script right after this runs. -->
@@ -1921,11 +1933,11 @@ if (track && dotsWrap) {
    frontmost; every other card's position is computed relative to
    it. Navigation is arrows + dots only — no hover sweep, no drag.
 
-   Mobile (<=700px): the fan's absolute-positioned, JS-transformed
-   cards don't translate well to touch screens, so it switches to a
-   plain native horizontal scroll-snap row instead — no transforms,
-   no custom hit-testing, just cards in normal flow that the browser
-   itself handles swiping for.
+   Phone and tablet (<=1024px): the fan's absolute-positioned,
+   JS-transformed cards don't translate well to touch screens, so it
+   switches to a plain native horizontal scroll-snap row instead — no
+   transforms, no custom hit-testing, just cards in normal flow that the
+   browser itself handles swiping for.
    ============================================================ */
 const projTrack = document.getElementById('projTrack');
 const projDots = document.getElementById('projDots');
@@ -1946,7 +1958,11 @@ if (projTrack && projDots) {
   // state, so pIndex snaps back to this the moment the cursor leaves
   // (see the pointerleave handler below).
   const DEFAULT_INDEX = pIndex;
-  const mobileMq = window.matchMedia('(max-width: 700px)');
+  // Widened to include tablet (see isMobileHero): the fan's hover-driven
+  // expand relies on a mouse that isn't there on a touchscreen, so iPad
+  // gets the same plain swipeable row phone does instead of a fan stuck
+  // mid-interaction.
+  const mobileMq = window.matchMedia('(max-width: 1024px)');
   let mobileObserver = null;
   let deckExpanded = false;
 
@@ -1965,8 +1981,8 @@ if (projTrack && projDots) {
 
   function syncDotsAndTheme() {
     pDots.forEach((d, i) => d.classList.toggle('active', i === pIndex));
-    // Mobile-only highlight target (see the .is-current rules in the
-    // 700px media query) — desktop's front card is already visually
+    // Phone/tablet-only highlight target (see the .is-current rules in
+    // the 1024px media query) — desktop's front card is already visually
     // obvious from position/rotation/z-index alone, so this class is a
     // no-op there.
     cards.forEach((c, i) => c.classList.toggle('is-current', i === pIndex));
@@ -2177,12 +2193,17 @@ const heroUnpinFade = document.getElementById('heroUnpinFade');
 const heroVideo = document.getElementById('heroVideo');
 const navEl = document.querySelector('.nav');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Mobile skips the scroll-jack (and any JS-driven reveal/color logic)
-// entirely — see the max-width:700px rules, which render a fully static
-// hero instead. The fixed-position + per-frame scroll math was
-// unreliable on mobile browsers, so there's nothing here for it to hook
-// into at all.
-const isMobileHero = window.matchMedia('(max-width: 700px)').matches;
+// Phone AND tablet (iPad's fan/hover-driven deck and pinned scroll-jack
+// both fought touch input) skip the scroll-jack entirely — see the
+// max-width:1024px rules, which render a fully static hero instead. The
+// fixed-position + per-frame scroll math was unreliable on touch
+// browsers, so there's nothing here for it to hook into at all.
+const isMobileHero = window.matchMedia('(max-width: 1024px)').matches;
+// Narrower than isMobileHero on purpose: phones hide the hero clip
+// entirely (see the max-width:700px rule below), but tablets have room
+// to keep it playing ambiently instead — see the isPhoneHero check further
+// down.
+const isPhoneHero = window.matchMedia('(max-width: 700px)').matches;
 
 // Used only by the desktop scroll-jack's per-frame blend below.
 const heroStageColors = [
@@ -2463,6 +2484,12 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
       document.fonts.ready.then(() => { syncLayout(); updatePin(); });
     }
   }
+} else if (heroVideo && isMobileHero && !isPhoneHero && !prefersReducedMotion) {
+  // Tablet: the pinned scroll-jack above is skipped for this width range
+  // (see isMobileHero), but unlike phone there's enough room to keep the
+  // hero clip on screen — just ambient (loop) instead of scroll-scrubbed.
+  heroVideo.autoplay = true;
+  heroVideo.play().catch(() => {});
 }
 
 /* ============================================================
@@ -2498,11 +2525,11 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   // which already felt right under the old flat 170vh.
   const STUCK_VH = 0.8;
   const MIN_TOP = 40; // px — floor so tall content never pins flush to the very top edge
-  const mobileMq880 = window.matchMedia('(max-width: 880px)');
+  const mobileMq880 = window.matchMedia('(max-width: 1024px)');
 
   function sync() {
     if (mobileMq880.matches) {
-      // pin-hold is disabled entirely below 880px (see that media query)
+      // pin-hold is disabled entirely below 1024px (see that media query)
       // — clear any inline styles so they don't outrank the CSS reset
       // there (inline styles beat media-query class rules).
       holds.forEach((hold) => {
