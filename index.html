@@ -1151,10 +1151,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 </head>
 <body>
 
-<video class="section-bg-video" id="sectionBgVideo" muted playsinline preload="auto" aria-hidden="true">
-  <source src="assets/mobile-bg.mp4" media="(max-width: 700px)">
-  <source src="assets/bubble-bg.mp4">
-</video>
+<video class="section-bg-video" id="sectionBgVideo" src="assets/bubble-bg.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
 <div class="section-bg-scrim" aria-hidden="true"></div>
 
 <!-- ============ NAV ============ -->
@@ -2593,8 +2590,14 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   if (!bgVideo || prefersReducedMotion) return;
 
   if (isMobileHero) {
+    // <source media> on <video> has inconsistent real-device support, so
+    // the mobile clip is swapped in directly via JS instead — the same
+    // isMobileHero check the hero video's own scroll-jack bypass already
+    // relies on.
+    bgVideo.src = 'assets/mobile-bg.mp4';
     bgVideo.loop = true;
     bgVideo.autoplay = true;
+    bgVideo.load();
     bgVideo.play().catch(() => {});
     return;
   }
