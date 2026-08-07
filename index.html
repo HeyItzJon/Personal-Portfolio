@@ -420,29 +420,29 @@ h1, h2, h3 {
 .intro-box span { font-size: 13px; color: var(--muted); }
 .hero-actions { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 /* ---- Scroll hints ----
-   .scroll-hint-pulse: hero only, animated — the one moment a visitor
-   genuinely doesn't yet know this page scrolls. .scroll-hint-static:
-   one per section after that (About/Projects/Skills/Interests), no
-   animation — just enough to say "there's more" without nagging about
-   it repeatedly. Deliberately absent from Contact, the last stop. */
+   One per section (About/Projects/Skills/Interests) plus the hero,
+   all pulsing the same way now — just enough to say "there's more"
+   without needing the hero's to be the only one that moves.
+   Deliberately absent from Contact, the last stop. .scroll-hint-pulse
+   (hero only) gets a second chevron (see the double-arrow SVG markup)
+   since it's the one moment a visitor genuinely doesn't yet know this
+   page scrolls at all. */
 .scroll-hint {
   display: flex;
   justify-content: center;
-  color: var(--muted);
+  color: rgba(255,255,255,0.6);
+  animation: scrollHintBounce 1.8s ease-in-out infinite;
 }
 .scroll-hint svg { width: 60px; height: 60px; display: block; stroke-width: 1.5; }
 .scroll-hint-pulse {
-  margin-top: 48px;
-  color: rgba(255,255,255,0.65);
-  animation: scrollHintBounce 1.8s ease-in-out infinite;
+  margin-top: 72px;
 }
 @keyframes scrollHintBounce {
   0%, 100% { transform: translateY(0); opacity: 0.5; }
   50% { transform: translateY(12px); opacity: 1; }
 }
 .scroll-hint-static {
-  margin-top: 44px;
-  opacity: 0.55;
+  margin-top: 68px;
 }
 .hero-stats {
   margin: 72px auto 0;
@@ -618,7 +618,11 @@ section { padding: 100px 0; }
 }
 .pcarousel {
   position: relative;
-  height: clamp(460px, 38vw, 620px);
+  /* Floor raised from 460px — a rotated card's bounding box (fan mode
+     tilts up to ~22.5deg) is meaningfully taller than the card itself,
+     and the old floor didn't leave room for that at mid-width screens,
+     where the cards were sitting on top of .pcarousel-controls below. */
+  height: clamp(560px, 40vw, 640px);
   margin: 0 auto;
   max-width: 100%;
 }
@@ -649,7 +653,7 @@ section { padding: 100px 0; }
   align-items: center;
   justify-content: center;
   gap: 28px;
-  margin-top: 28px;
+  margin-top: 48px;
 }
 .pcarousel-arrow {
   width: 64px; height: 60px;
@@ -1015,7 +1019,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .pin-hold { min-height: auto; }
   .pin-hold-inner { position: static; top: auto; }
   .about-grid { grid-template-columns: 1fr; gap: 44px; }
-  .pcarousel { height: clamp(380px, 86vw, 440px); }
+  .pcarousel { height: clamp(480px, 90vw, 560px); }
   .figure-grid { grid-template-columns: 1fr; }
   .contact { flex-direction: column; align-items: flex-start; }
   .hero-stats { grid-template-columns: 1fr; }
@@ -1028,11 +1032,16 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      viewport height as the address bar shows/hides, and touch scroll
      not firing scroll events densely enough, made it stutter and jump.
      Mobile now gets a fully static hero: the three text panels just
-     stack in normal document flow, all visible immediately, no JS
-     involved at all — nothing here for mobile's scroll quirks to
-     break. Each panel keeps its own fixed accent color (see
-     .pin-hero/.pin-intro/.pin-third .grad-text below) instead of the
-     desktop's scroll-driven color blend. The video goes too (load
+     stack in normal document flow, no JS-driven scroll coupling at all
+     — nothing here for mobile's scroll quirks to break. pin-hero (the
+     "Hi, I'm Jonathan" panel) is still immediately visible with no
+     animation; pin-intro/pin-third (see .mobile-fade below) get a
+     simple opacity/translateY fade instead, triggered by the same
+     IntersectionObserver the rest of the site's .reveal elements use —
+     time-based, not scroll-jacked, so it can't inherit the same
+     reliability problems. Each panel keeps its own fixed accent color
+     (see .pin-hero/.pin-intro/.pin-third .grad-text below) instead of
+     the desktop's scroll-driven color blend. The video goes too (load
      reliability, decode performance) in favor of a solid dark backing.
      See the matching JS bypass on isMobileHero. */
   .pin-section { height: auto !important; margin-top: 0 !important; }
@@ -1042,7 +1051,22 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
      the clamp's 65px floor stops that shrink well before the line would
      actually fit, so force wrapping back on here instead of overflowing. */
   .pin-hero h1 { white-space: normal; }
-  .pin-layer { position: static !important; opacity: 1 !important; transform: none !important; padding: 40px var(--pad) !important; }
+  .pin-layer { position: static !important; padding: 40px var(--pad) !important; }
+  .pin-hero { opacity: 1 !important; transform: none !important; }
+  .mobile-fade {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+  .mobile-fade.in { opacity: 1; transform: translateY(0); }
+  /* Noticeably smaller than desktop's clamp (which floors at 36px and
+     was still reading as too large on phones) — these two panels are
+     supporting lines under the main "Hi, I'm Jonathan", not a second
+     headline each. */
+  .pin-intro .intro-statement-text,
+  .pin-third .intro-statement-text {
+    font-size: clamp(22px, 6vw, 28px);
+  }
   .hero-video { display: none; }
   .hero-glow { width: 320px; height: 320px; top: -140px; right: -120px; }
   .hero-glow-2 { width: 320px; height: 320px; bottom: -160px; left: -140px; }
@@ -1156,12 +1180,12 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <a class="btn btn-outline" data-route="home" data-scroll="contact">Get in Touch</a>
           </div>
           <div class="scroll-hint scroll-hint-pulse" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            <svg viewBox="0 0 24 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l6 6 6-6"/><path d="M6 19l6 6 6-6"/></svg>
           </div>
         </div>
       </div>
 
-      <div class="pin-layer pin-intro" id="pinIntro">
+      <div class="pin-layer pin-intro mobile-fade" id="pinIntro">
         <!--
         <div class="pin-icons">
           <div class="pin-icon" style="width:54px; height:54px; top:4.5%; left:58.8%; opacity:0.14; color:rgb(124,58,237); transform:rotate(19deg);">
@@ -1189,7 +1213,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
       </div>
 
-      <div class="pin-layer pin-third" id="pinThird">
+      <div class="pin-layer pin-third mobile-fade" id="pinThird">
         <!--
         <div class="pin-icons">
           <div class="pin-icon" style="width:47px; height:47px; top:2.9%; left:58.0%; opacity:0.14; color:rgb(217,119,6); transform:rotate(-10deg);">
@@ -1219,7 +1243,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
         -->
         <div class="pin-inner">
-          <p class="intro-statement-text"><span class="intro-line">I'm passionate about <span class="grad-text">electronics and hardware</span>, wireless systems, and even finance and investing.</span></p>
+          <p class="intro-statement-text"><span class="intro-line">I'm passionate about <span class="grad-text">hardware</span>, <span class="grad-text">wireless systems</span>, <span class="grad-text">robotics</span> and <span class="grad-text">artificial intelligence</span>.</span></p>
         </div>
       </div>
 
@@ -1232,9 +1256,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="wrap about-grid">
         <div class="about-copy reveal">
           <h2>A bit about myself</h2>
-          <p>Before I was building circuits, I was a certified lifeguard, swim instructor, and first aid instructor with the City of Ottawa, and a volunteer coach for competitive speed skaters. Those roles taught me the same lesson twice: stay calm under pressure, document everything properly, and take responsibility when it counts.</p>
-          <p>That mindset carries into how I approach engineering. I like taking an idea from a rough sketch to something that actually works. Most of my projects come down to the same cycle: build it, test it until it breaks (I like that part more than I probably should), figure out why, and fix it properly. I am always curious to learn about new technology and have recently developed an interest in RF systems and where AI is headed, especially AI implementation and use cases, which I am hoping to incorporate into some of my future projects.</p>
-          <p>I'm always open to co-op opportunities, conversations with other engineers, or just learning how things actually work and get done in the real-world.</p>
+          <p>I grew up in Ottawa with a longstanding interest in how things work at a physical and mechanical level. That curiosity shapes how I approach engineering throughout my studies and personal projects. I like taking an idea from a rough sketch to something that actually works, testing it until it breaks or reaches its limit, figuring out why, and then fixing it properly. I've picked up a broad set of practical skills that way and constantly try to gain more experience in whatever ways I can.</p>
+          <p>Outside of school, I work as a lifeguard, swim instructor, and first aid instructor with the City of Ottawa. I have coached and competed nationally in competitive speed skating, which has helped me build up a good set of interpersonal and self-development skills through both the work and sport avenues. I also have an interest in personal finance and economics, which has grown into a broader curiosity about practical AI and where it genuinely fits into engineering and finance, rather than the superficial hype around it.</p>
         </div>
 
         <div class="carousel reveal" id="aboutCarousel">
@@ -1244,9 +1267,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
             <div class="carousel-slide grad-2">
               <img src="assets/images/about-2.JPEG" alt="Workbench">
-            </div>
-            <div class="carousel-slide grad-3">
-              <img src="assets/images/about-3.JPEG" alt="Roof Lighting Project">
             </div>
             <div class="carousel-slide grad-4">
               <video src="assets/images/about-4.MP4" autoplay muted loop playsinline></video>
@@ -1271,7 +1291,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <div class="wrap">
       <div class="section-head center reveal">
         <h2>Check out my builds!</h2>
-        <p>A growing list of different challenges that I tackled - click any card for the full story, photos, and what went wrong along the way.</p>
+        <p>A growing list of different projects and challenges that I have tackled - click "View Project →" on any card for the full story, photos, and what went wrong along the way.</p>
       </div>
     </div>
     <div class="pcarousel-stage">
@@ -1375,17 +1395,20 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       </div>
       <div class="skills-grid">
         <div class="skill-group reveal">
-          <h3>Design &amp; Fabrication</h3>
-          <ul><li>Altium Designer</li><li>EasyEDA</li><li>Autodesk Fusion CAD</li><li>Soldering &amp; Rework</li><li>Component Selection</li><li>3D Printing &amp; Prototyping</li><li>Breadboarding</li></ul>
+          <h3>Design</h3>
+          <ul><li>Altium Designer</li><li>KiCad</li><li>Autodesk Fusion CAD</li><li>Component Selection</li><li>Breadboarding</li></ul>
         </div>
         <div class="skill-group reveal">
-          <h3>Programming &amp; Firmware</h3>
-          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Java</li><li>Git Version Control</li></ul>
+          <h3>Programming</h3>
+          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li></ul>
         </div>
         <div class="skill-group reveal">
-          <h3>Test, Simulation &amp; Platforms</h3>
-          <ul><li>Arduino</li><li>Raspberry Pi</li><li>FPGA</li><li>Oscilloscope / Multimeter</li><li>NI Multisim</li><li>Vivado</li><li>Jupyter Notebook</li></ul>
+          <h3>Platforms, Testing &amp; Simulation</h3>
+          <ul><li>Arduino</li><li>Raspberry &amp; Orange Pi (Linux)</li><li>STM &amp; ESP32</li><li>FPGAs &amp; AMD Vivado</li><li>Oscilloscope / Multimeter</li></ul>
         </div>
+      </div>
+      <div class="scroll-hint scroll-hint-static" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
     </div>
    </div>
@@ -1405,7 +1428,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </div>
           <div class="interest-body">
             <h3>Cutting-Edge Robotics</h3>
-            <p>Legged and humanoid robots closing the gap between lab demos and real-world deployment.</p>
+            <p>Legged and humanoid robots closing the gap between lab demos and real-world deployment. I'm most interested in advancements with actuator technology and integrations with machine learning.</p>
           </div>
         </div>
         <div class="interest-card reveal">
@@ -1415,7 +1438,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </div>
           <div class="interest-body">
             <h3>RF &amp; Space Communications</h3>
-            <p>From 6G to satellite constellations, wireless keeps getting more ambitious.</p>
+            <p>6G and IoT requirements are pushing wireless communication to its limits. I have a fascination for satellite constellations and am keen to understand antenna designs and endless uses for wireless communication.</p>
           </div>
         </div>
         <div class="interest-card reveal">
@@ -1425,9 +1448,12 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           </div>
           <div class="interest-body">
             <h3>AI &amp; the Road to AGI</h3>
-            <p>Where automation stops assisting and starts actually thinking for itself.</p>
+            <p>Looking past the buzzwords, I am excited to see the real use cases for AI systems within certain sectors like transport, industry, chip design and global finance. I am trying to embrace tools as they become available and learn how they can become powerful personal and corporate systems.</p>
           </div>
         </div>
+      </div>
+      <div class="scroll-hint scroll-hint-static" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
     </div>
    </div>
@@ -1440,8 +1466,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <canvas class="contact-wave-canvas" id="contactWave" aria-hidden="true"></canvas>
         <div>
           <div class="eyebrow" style="background:rgba(255,255,255,0.1); color:#fff;">Contact</div>
-          <h2>Let's build something.</h2>
-          <p>I'm currently looking for a 2027 Summer co-op placement. Always happy to talk about a project, a role, or just electronics and technology in general.</p>
+          <h2>Let's connect.</h2>
+          <p>I'm currently looking for a 2027 Summer Co-op placement. Always happy to talk about a project, a role, or just electronics and technology in general.</p>
           <div style="margin-top:28px;">
             <a href="mailto:jon.m.bourget@gmail.com" class="btn btn-primary">Email Me</a>
           </div>
@@ -1899,6 +1925,11 @@ if (projTrack && projDots) {
   // left-right row instead of staying stacked like a hand of cards.
   const FLAT_SPACING = 400;
   let pIndex = Math.floor((cards.length - 1) / 2);
+  // The compact/fan view always shows this same card forward — clicking
+  // or hovering a different one is a temporary look, not a new resting
+  // state, so pIndex snaps back to this the moment the cursor leaves
+  // (see the pointerleave handler below).
+  const DEFAULT_INDEX = pIndex;
   const mobileMq = window.matchMedia('(max-width: 700px)');
   let mobileObserver = null;
   let deckExpanded = false;
@@ -1936,16 +1967,18 @@ if (projTrack && projDots) {
       const offset = i - pIndex;
       const absOffset = Math.min(Math.abs(offset), 3);
       const z = 50 - Math.abs(offset);
-      let x, y, rot, scale;
+      // Every card is the same size in both modes now — no scale/y
+      // "perspective" falloff for the further-out ones. Fan mode keeps
+      // only the rotation as its visual identity (still reads as a
+      // stacked deck); expanded mode is a flat, evenly-sized row.
+      let x, rot;
       if (deckExpanded) {
         // FAN -> EXPANDED: same deck, same buttons/arrows/dots — just
         // un-rotated and spread into a flat left-right row (a "regular
         // click-through list") while the cursor is over it, instead of
         // staying stacked like a hand of cards.
         x = offset * FLAT_SPACING * mult;
-        y = 0;
         rot = 0;
-        scale = 1 - absOffset * 0.07;
       } else {
         // Straight linear spacing (offset * SLOT_SPACING) looked uneven
         // between the inner and outer cards — increasing rotation makes
@@ -1957,13 +1990,11 @@ if (projTrack && projDots) {
         // compensates for that.
         const spacingMult = 1 + Math.max(0, absOffset - 1) * 0.18;
         x = offset * SLOT_SPACING * mult * spacingMult;
-        y = absOffset * 16 * mult;
         rot = offset * 7.5;
-        scale = 1 - absOffset * 0.065;
       }
 
       card.style.transform =
-        'translate(-50%,-50%) translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
+        'translate(-50%,-50%) translate(' + x + 'px,0px) rotate(' + rot + 'deg)';
       card.style.zIndex = Math.round(z + 100);
     });
     syncDotsAndTheme();
@@ -2048,6 +2079,7 @@ if (projTrack && projDots) {
   pcarouselStage.addEventListener('pointerleave', () => {
     if (mobileMq.matches) return;
     deckExpanded = false;
+    pIndex = DEFAULT_INDEX;
     updateDeckDesktop();
   });
 
@@ -2078,6 +2110,22 @@ function initReveals(scope) {
     revealObserver.observe(el);
   });
 }
+
+// Separate from revealObserver on purpose: .mobile-fade (the two
+// supporting hero panels, mobile only) can't reuse .reveal's CSS class
+// directly — .reveal's transition would also apply on desktop, fighting
+// the hero's per-frame inline scroll-jack opacity/transform there. Same
+// intersect-once-and-unobserve idea, just kept on its own class so it
+// stays completely inert outside the mobile media query.
+const mobileFadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      mobileFadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.mobile-fade').forEach(el => mobileFadeObserver.observe(el));
 
 /* ============================================================
    INTEREST CARD HOVER VIDEOS
