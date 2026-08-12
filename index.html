@@ -502,7 +502,10 @@ section { padding: 100px 0; }
 }
 .about-grid {
   display: grid;
-  grid-template-columns: 0.82fr 1.25fr;
+  /* Laptop column widened (was 1.15fr) to make the frame + carousel
+     noticeably bigger; text column gives up a bit of its own room in
+     return. */
+  grid-template-columns: 0.82fr 1.3fr;
   gap: 64px;
   align-items: center;
 }
@@ -513,11 +516,41 @@ section { padding: 100px 0; }
 /* ---- Carousel ---- */
 .carousel {
   position: relative;
-  border-radius: var(--r-lg);
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  aspect-ratio: 4 / 3.4;
   background: var(--ink);
+}
+/* ---- Laptop frame (About carousel sits inside it as the "screen") ----
+   Real head-on MacBook photo as the frame, with the carousel absolutely
+   positioned to sit exactly over the photo's screen area. The shot is
+   dead-on (no perspective baked in), so the overlay isn't tilted either
+   — a tilted rectangle over a flat photo would look like a mismatched
+   sticker instead of a screen. */
+.laptop-frame {
+  position: relative;
+  width: 100%;
+}
+.laptop-shell {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+/* Percentages measured against the full (mostly transparent) source
+   image, not just the visible laptop — they're what place the overlay
+   over the photo's actual screen area regardless of how the image is
+   scaled. */
+.laptop-screen-overlay {
+  position: absolute;
+  left: 16.3%;
+  right: 16.3%;
+  top: 23%;
+  bottom: 34%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0c0d11;
 }
 .carousel-track { display: flex; height: 100%; transition: transform 0.55s var(--ease); }
 .carousel-slide {
@@ -603,13 +636,13 @@ section { padding: 100px 0; }
 .grad-4 { background: linear-gradient(135deg, #0891B2, #38BDF8); }
 .grad-5 { background: linear-gradient(135deg, #334155, #0EA5E9); }
 
-/* ---- Project carousel: center card in focus, neighbours peek blurred ---- */
-/* Deck of cards: each .project-card is absolutely centered in the stage,
-   then JS fans them out around that center point (translate/rotate/scale)
-   and pulls the hovered one forward — a physical stack, not a slider.
-   Deliberately breaks out of the usual .wrap width — like the hero, this
-   is meant to feel like a full-width, imposing showcase, not a boxed-in
-   component. */
+/* ---- Project carousel: two deliberately simple, distinct states
+   instead of one interaction trying to be a fan, a scrollable row,
+   and a hover-preview at once. A small decorative deck teases the
+   five projects; pressing "See Projects" swaps it for one project at
+   a time, stepped through with arrows/dots. Deliberately breaks out
+   of the usual .wrap width — like the hero, this is meant to feel
+   like a full-width, imposing showcase, not a boxed-in component. */
 .pcarousel-stage {
   position: relative;
   max-width: min(1680px, 94vw);
@@ -618,46 +651,130 @@ section { padding: 100px 0; }
 }
 .pcarousel {
   position: relative;
-  /* Floor raised from 460px — a rotated card's bounding box (fan mode
-     tilts up to ~22.5deg) is meaningfully taller than the card itself,
-     and the old floor didn't leave room for that at mid-width screens,
-     where the cards were sitting on top of .pcarousel-controls below. */
-  height: clamp(560px, 40vw, 640px);
   margin: 0 auto;
   max-width: 100%;
+  /* No transition on max-width here on purpose — deck<->single is a
+     discrete swap ("like a UI switch"), and animating the container's
+     own size would leave a window where the page's pin-hold sync (see
+     that JS further down) could read a mid-transition height instead
+     of the settled one. Instant keeps that read always correct. */
 }
+/* Real flex row (the shape mobile used to use on its own) — JS
+   computes each deck card's own translateX directly off this normal
+   flow instead of raw absolute coordinates, so the fan's per-card
+   offset stays correct across a resize without any remeasuring logic
+   of its own. */
 .pcarousel-track {
-  position: absolute;
-  inset: 0;
+  --card-w: clamp(180px, 18vw, 240px);
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  gap: 36px;
 }
 .pcarousel .project-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(380px, 62vw);
+  flex: 0 0 var(--card-w);
   transform-origin: 50% 82%;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+  transition: transform 0.55s var(--ease), opacity 0.55s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 /* Glow follows whichever card is actually "current" (pIndex — the
    centered/front card, tracked via the is-current class in
-   syncDotsAndTheme) rather than whatever the cursor happens to be over,
-   so hovering a neighboring card in the fan doesn't light it up as if
-   it were the resting pick. Same class mobile/tablet already use. */
+   syncDotsAndTheme). Plain box-shadow, not filter: drop-shadow() —
+   drop-shadow reads as more correct on paper (box-shadow can get
+   clipped by this same element's own overflow:hidden, needed for the
+   thumb's rounded corners and the max-height cap) but combining it
+   with this card's backdrop-filter turned out to be a real, easily
+   reproduced rendering hazard in testing — cards intermittently not
+   painting at all, and the tab occasionally hanging on repaint.
+   box-shadow's minor clipping is a far smaller cost than that. */
 .pcarousel .project-card.is-current {
   box-shadow: 0 26px 50px var(--tglow, rgba(18,20,26,0.2));
   border-color: var(--tc1, var(--line-strong));
   outline: none;
 }
+/* No filter here (see the note above about that combination).
+   backdrop-filter is turned off, though — every card's own glass
+   background/blur is translucent, and in the fan the cards nearest
+   the front (offset ±1) sit stacked under one more translucent+blurred
+   layer than the ones further out, so their *backdrop* blur was
+   compounding and reading as noticeably blurrier than the cards
+   behind them, backwards from what the fan is trying to say. */
+.pcarousel .project-card:not(.is-current) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
 
-/* Back below the deck as its own row (not overlaid on the cards) — sized
-   up and given real breathing room so it reads as a deliberate control
-   bar, not an afterthought. */
-.pcarousel-controls {
+/* SINGLE MODE (.pcarousel-stage.is-single, set by the JS below when
+   "See Projects", a card, or Back is pressed): one project at a time,
+   sliding via a plain translateX(-index*100%) track transform — the
+   exact same mechanism the small photo carousel up top already uses.
+   No scroll tracking, no observer, nothing async to desync — just an
+   index and a transform, on every device alike. */
+.pcarousel-stage.is-single .pcarousel {
+  max-width: 620px;
+  /* overflow:hidden goes here, on the element the track transform does
+     NOT apply to — not on .pcarousel-track itself. overflow:hidden's
+     clip region rides along with whatever transform is on its own
+     element, so a translateX on the track would drag the clip region
+     the exact same distance as the cards it's meant to reveal,
+     permanently clipping everything except card 0. The small photo
+     carousel up top already gets this right (overflow:hidden on
+     .carousel, the transform on the separate child .carousel-track);
+     this mirrors that. */
+  overflow: hidden;
+}
+.pcarousel-stage.is-single .pcarousel-track {
+  gap: 0;
+  transition: transform 0.5s var(--ease);
+}
+.pcarousel-stage.is-single .project-card {
+  flex: 0 0 100%;
+}
+
+/* "See Projects" — the one way into single mode, so it needs to read
+   as obviously, unmissably clickable; it's standing in for what used
+   to be a whole hover/scroll interaction. */
+.pcarousel-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 44px auto 0;
+  padding: 18px 36px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1206;
+  background: linear-gradient(135deg, #F0A857, #B45309);
+  border: none;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  box-shadow: 0 16px 34px rgba(180,83,9,0.34);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), gap 0.2s;
+}
+.pcarousel-cta svg { width: 20px; height: 20px; flex-shrink: 0; }
+.pcarousel-cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 20px 40px rgba(180,83,9,0.44); gap: 14px; }
+.pcarousel-stage.is-single .pcarousel-cta { display: none; }
+
+/* Controls and the back link only make sense once there's something
+   to step through one at a time — hidden entirely at rest. Scoped
+   under .pcarousel-stage (rather than bare .pcarousel-controls,
+   .pcarousel-back) so this reliably outranks .back-link's own
+   display:inline-flex regardless of which rule happens to come later
+   in the file. */
+.pcarousel-stage .pcarousel-controls, .pcarousel-stage .pcarousel-back {
+  display: none;
+}
+.pcarousel-stage.is-single .pcarousel-controls {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 28px;
-  margin-top: 48px;
+  margin-top: 32px;
+}
+.pcarousel-stage.is-single .pcarousel-back {
+  display: flex;
+  width: fit-content;
+  margin: 20px auto 0;
 }
 .pcarousel-arrow {
   width: 64px; height: 60px;
@@ -700,34 +817,35 @@ section { padding: 100px 0; }
 }
 
 /* Project card base (shared) */
-/* ---- Project color themes ---- */
-.theme-blue   { --tc1: #0284C7; --tc2: #38BDF8; --tglow: rgba(2,132,199,0.38);  --tsoft: rgba(2,132,199,0.08); }
-.theme-red    { --tc1: #9F1239; --tc2: #FB7185; --tglow: rgba(159,18,57,0.38);  --tsoft: rgba(159,18,57,0.08); }
-.theme-green  { --tc1: #0D9488; --tc2: #5EEAD4; --tglow: rgba(13,148,136,0.38); --tsoft: rgba(13,148,136,0.08); }
-.theme-amber  { --tc1: #B45309; --tc2: #F0A857; --tglow: rgba(180,83,9,0.38);   --tsoft: rgba(180,83,9,0.08); }
-.theme-purple { --tc1: #6D28D9; --tc2: #C4B5FD; --tglow: rgba(109,40,217,0.38); --tsoft: rgba(109,40,217,0.08); }
+/* ---- Project color theme — one consistent amber accent everywhere
+   instead of a distinct hue per project. Classes kept (rather than
+   rewriting every theme-X usage across the carousel cards and each
+   project's detail page) so this is the one place the palette lives. */
+.theme-blue, .theme-red, .theme-green, .theme-amber, .theme-purple {
+  --tc1: #B45309; --tc2: #F0A857; --tglow: rgba(180,83,9,0.38); --tsoft: rgba(180,83,9,0.08);
+}
 
 .project-card {
   border-radius: var(--r-lg);
   text-decoration: none;
   color: var(--ink);
-  /* Frosted glass: translucent surface + blur so the ambient backdrop's
-     glow bleeds through instead of the card reading as an opaque slab.
-     Blur radius kept modest on purpose — up to 5 of these render at once
-     in the Projects deck, on top of the scroll-scrubbed bg video, and
-     blur cost scales with radius. */
-  background: rgba(21,25,34,0.52);
+  /* Near-opaque surface with just enough blur/saturate on the current
+     card to keep a hint of glass. Blur radius kept modest on purpose —
+     up to 5 of these render at once in the Projects deck, on top of the
+     scroll-scrubbed bg video, and blur cost scales with radius. */
+  background: rgba(16,19,26,0.97);
   backdrop-filter: blur(12px) saturate(130%);
   -webkit-backdrop-filter: blur(12px) saturate(130%);
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.05);
   border: 2px solid rgba(255,255,255,0.10);
+  max-height: 72vh;
   overflow: hidden;
   cursor: pointer;
 }
 .project-thumb {
-  aspect-ratio: 4/3;
+  aspect-ratio: 16/10;
   position: relative;
   display: flex;
   align-items: flex-end;
@@ -783,7 +901,11 @@ section { padding: 100px 0; }
 .project-card:hover .project-cta { gap: 11px; }
 
 /* ---- Skills ---- */
-.skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; }
+/* Narrower columns only (was minmax(230px)) — text/padding/heading
+   size are back to their original weight, it's just the column width
+   itself that's trimmed down, so more cards fit per row without any
+   of them reading as cramped. */
+.skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
 .skill-group {
   background: rgba(255,255,255,0.035);
   backdrop-filter: blur(10px);
@@ -808,19 +930,32 @@ section { padding: 100px 0; }
 .skill-group li:last-child { border-bottom: none; }
 
 /* ---- Interests ---- */
-.interests-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+/* Same idea as the skill cards — narrower columns (was minmax(240px)),
+   text/padding restored to full size. */
+.interests-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; }
 .interest-card {
   border-radius: var(--r-lg);
   overflow: hidden;
   background: rgba(21,25,34,0.5);
   backdrop-filter: blur(11px);
   -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255,255,255,0.08);
+  /* 2px, same as .project-card's border weight, so the hover outline
+     has something to visibly thicken into instead of just recoloring
+     a hairline. */
+  border: 2px solid rgba(255,255,255,0.08);
   box-shadow: var(--shadow-md);
   transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s;
 }
-.interest-card:hover { border-color: rgba(255,255,255,0.14); }
-.interest-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+/* Purple glow on hover — same purple the hero/contact sections already
+   use for their own accent glows, so it reads as part of the same
+   color language rather than a one-off. Layered box-shadow (tight +
+   wide) to match the strength of the project deck's current-card glow
+   instead of the single soft shadow this used to have. */
+.interest-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(139,92,246,0.75);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(139,92,246,0.45), 0 0 55px rgba(139,92,246,0.3);
+}
 .interest-thumb {
   aspect-ratio: 4/3;
   position: relative;
@@ -851,20 +986,21 @@ section { padding: 100px 0; }
   /* Frosted glass, same family as .project-card/.skill-group/.interest-card
      — was an opaque gradient slab left over from before the video
      background existed, which read as out of place next to the glass
-     system everywhere else. Pushed even more translucent a second time
-     per feedback — the bg video should read clearly through it, not just
-     tint it. Accent glows borrow the hero's own three-color story
-     (cyan/purple/amber, its scroll-blended stage colors); purple and
-     cyan swapped corners from the previous pass, amber unchanged. */
-  background: rgba(16,19,27,0.16);
+     system everywhere else. Pushed even more translucent a third time
+     per feedback, blur raised to match, so it reads as glass first and
+     a tinted panel second. Accent glows borrow the hero's own
+     three-color story (cyan/purple/amber, its scroll-blended stage
+     colors) but at roughly half their previous strength — present
+     enough to still color the corners, not enough to compete with it. */
+  background: rgba(16,19,27,0.08);
   background-image:
-    radial-gradient(circle at 12% 15%, rgba(124,58,237,0.18), transparent 42%),
-    radial-gradient(circle at 88% 20%, rgba(217,119,6,0.14), transparent 42%),
-    radial-gradient(circle at 50% 105%, rgba(6,182,212,0.18), transparent 50%),
-    linear-gradient(160deg, rgba(23,28,40,0.16), rgba(16,19,27,0.16));
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgba(255,255,255,0.10);
+    radial-gradient(circle at 12% 15%, rgba(124,58,237,0.09), transparent 42%),
+    radial-gradient(circle at 88% 20%, rgba(217,119,6,0.07), transparent 42%),
+    radial-gradient(circle at 50% 105%, rgba(6,182,212,0.09), transparent 50%),
+    linear-gradient(160deg, rgba(23,28,40,0.08), rgba(16,19,27,0.08));
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.06);
   color: #fff;
   border-radius: var(--r-lg);
@@ -1110,40 +1246,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .nav-links.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
   .nav-links a { padding: 14px 16px; border-radius: var(--r-sm); }
   .nav-cta { margin-left: 0; text-align: center; }
-
-  /* ---- Project deck: swap the 3D fan for a plain native-scroll
-     slideshow. The fan expands on hover, which touchscreens (phone and
-     tablet alike) don't have — without a mouse it just gets stuck
-     mid-interaction — so a straightforward swipeable row with
-     scroll-snap is far more predictable here. JS detects this breakpoint
-     and stops writing transforms to the cards to match. */
-  .pcarousel-stage { padding: 0; max-width: 100%; }
-  .pcarousel {
-    height: auto;
-    overflow: visible;
-  }
-  .pcarousel-track {
-    position: static;
-    display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 4px 12vw 24px;
-  }
-  .pcarousel .project-card {
-    position: static;
-    flex: 0 0 76vw;
-    max-width: 340px;
-    scroll-snap-align: center;
-    transform: none;
-  }
-  /* Touch has no real hover — a tap leaves the thumb's hover-zoom "stuck"
-     on whatever was last touched. The glow itself is already keyed off
-     .is-current everywhere (see the base .pcarousel .project-card.is-current
-     rule), so only the thumb zoom needs turning off here. */
-  .pcarousel .project-card:hover .project-thumb img { transform: none; }
-  .pcarousel-controls { gap: 18px; margin-top: 20px; }
 }
 /* Phone only — narrower than the shared 1024px breakpoint above. Tablet
    keeps the hero clip playing (ambiently — see isPhoneHero in the hero
@@ -1281,24 +1383,29 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
           <p>Outside of school, I work as a lifeguard, swim instructor, and first aid instructor with the City of Ottawa. I have coached and competed nationally in competitive speed skating, which has helped me build up a good set of interpersonal and self-development skills through both the work and sport avenues. I also have an interest in personal finance and economics, which has grown into a broader curiosity about practical AI and where it genuinely fits into engineering and finance, rather than the superficial hype around it.</p>
         </div>
 
-        <div class="carousel reveal" id="aboutCarousel">
-          <div class="carousel-track" id="carouselTrack">
-            <div class="carousel-slide grad-1">
-              <img src="assets/images/about-1.jpg" alt="Lifeguarding">
-            </div>
-            <div class="carousel-slide grad-2">
-              <img src="assets/images/about-2.JPEG" alt="Workbench">
-            </div>
-            <div class="carousel-slide grad-4">
-              <video src="assets/images/about-4.MP4" autoplay muted loop playsinline></video>
-            </div>
-             <div class="carousel-slide grad-5">
-              <img src="assets/images/about-5.JPEG" alt="Nexys FPGA Learning Project">
+        <div class="laptop-frame reveal">
+          <img class="laptop-shell" src="assets/Backgrounds/laptop-image.png" alt="" aria-hidden="true">
+          <div class="laptop-screen-overlay">
+            <div class="carousel" id="aboutCarousel">
+              <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide grad-1">
+                  <img src="assets/images/about-1.jpg" alt="Lifeguarding">
+                </div>
+                <div class="carousel-slide grad-2">
+                  <img src="assets/images/about-2.JPEG" alt="Workbench">
+                </div>
+                <div class="carousel-slide grad-4">
+                  <video src="assets/images/about-4.MP4" autoplay muted loop playsinline></video>
+                </div>
+                 <div class="carousel-slide grad-5">
+                  <img src="assets/images/about-5.JPEG" alt="Nexys FPGA Learning Project">
+                </div>
+              </div>
+              <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">‹</button>
+              <button class="carousel-arrow next" id="carouselNext" aria-label="Next photo">›</button>
+              <div class="carousel-dots" id="carouselDots"></div>
             </div>
           </div>
-          <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">‹</button>
-          <button class="carousel-arrow next" id="carouselNext" aria-label="Next photo">›</button>
-          <div class="carousel-dots" id="carouselDots"></div>
         </div>
       </div>
       <div class="scroll-hint scroll-hint-static" aria-hidden="true">
@@ -1312,10 +1419,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <div class="wrap">
       <div class="section-head center reveal">
         <h2>Check out my builds!</h2>
-        <p>A growing list of different projects and challenges that I have tackled - click "View Project →" on any card for the full story, photos, and what went wrong along the way.</p>
+        <p>A growing list of projects and challenges I have tackled - click "View Project →" on any card for the full story, photos, and what went wrong along the way.</p>
       </div>
     </div>
-    <div class="pcarousel-stage">
+    <div class="pcarousel-stage" id="pcarouselStage">
       <div class="pcarousel" id="projCarousel">
         <div class="pcarousel-track" id="projTrack">
 
@@ -1396,11 +1503,16 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
         </div>
       </div>
+      <button class="pcarousel-cta" id="projSeeAll" type="button">
+        See Projects
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
       <div class="pcarousel-controls">
         <button class="pcarousel-arrow prev" id="projPrev" aria-label="Previous project">‹</button>
         <div class="pcarousel-dots" id="projDots"></div>
         <button class="pcarousel-arrow next" id="projNext" aria-label="Next project">›</button>
       </div>
+      <button class="back-link pcarousel-back" id="projBack" type="button">← All Projects</button>
     </div>
     <div class="scroll-hint scroll-hint-static" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -1412,7 +1524,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
    <div class="pin-hold-inner">
     <div class="wrap">
       <div class="section-head center reveal">
-        <h2>Tools &amp; technical proficiencies</h2>
+        <h2>Experience</h2>
       </div>
       <div class="skills-grid">
         <div class="skill-group reveal">
@@ -1439,7 +1551,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
    <div class="pin-hold-inner">
     <div class="wrap">
       <div class="section-head center reveal">
-        <h2>What I'm keeping an eye on</h2>
+        <h2>Industries that interest me</h2>
       </div>
       <div class="interests-grid">
         <div class="interest-card reveal">
@@ -1458,7 +1570,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <video src="assets/images/interest-rf.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
-            <h3>RF &amp; Space Communications</h3>
+            <h3>Wireless &amp; Space Communications</h3>
             <p>6G and IoT requirements are pushing wireless communication to its limits. I have a fascination for satellite constellations and am keen to understand antenna designs and endless uses for wireless communication.</p>
           </div>
         </div>
@@ -1468,7 +1580,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <video src="assets/images/interest-ai.mp4" muted loop playsinline preload="metadata"></video>
           </div>
           <div class="interest-body">
-            <h3>AI &amp; the Road to AGI</h3>
+            <h3>Machine Learning &amp; AGI</h3>
             <p>Looking past the buzzwords, I am excited to see the real use cases for AI systems within certain sectors like transport, industry, chip design and global finance. I am trying to embrace tools as they become available and learn how they can become powerful personal and corporate systems.</p>
           </div>
         </div>
@@ -1921,43 +2033,39 @@ if (track && dotsWrap) {
 }
 
 /* ============================================================
-   PROJECT DECK — desktop: cards sit on a shallow arc. Whichever card
-   is "active" (the resting pick) sits dead centre, upright,
-   frontmost; every other card's position is computed relative to
-   it. Navigation is arrows + dots only — no hover sweep, no drag.
-
-   Phone and tablet (<=1024px): the fan's absolute-positioned,
-   JS-transformed cards don't translate well to touch screens, so it
-   switches to a plain native horizontal scroll-snap row instead — no
-   transforms, no custom hit-testing, just cards in normal flow that the
-   browser itself handles swiping for.
+   PROJECT DECK — two deliberately simple, distinct states, on every
+   device alike:
+     - DECK: a small decorative arc fan showing all five projects at
+       once. Not itself navigable — it's a teaser, not a control.
+     - SINGLE: one project at a time, stepped through with arrows/
+       dots, driven by a plain translateX(-index*100%) track
+       transform — the exact same mechanism the small photo carousel
+       up top uses. No scroll tracking, no IntersectionObserver,
+       nothing asynchronous that can desync from a click; a resize
+       can't invalidate a percentage transform either.
+   "See Projects" (or clicking a deck card, or focusing one and
+   pressing Enter/Space) opens SINGLE at that card; "All Projects"
+   closes it back to DECK, always resting on the same default middle
+   card — browsing is a one-way door out of the deck, not a new
+   resting state for it.
    ============================================================ */
 const projTrack = document.getElementById('projTrack');
 const projDots = document.getElementById('projDots');
 const projCarousel = document.getElementById('projCarousel');
+const pcarouselStage = document.getElementById('pcarouselStage');
+const projSeeAll = document.getElementById('projSeeAll');
+const projBack = document.getElementById('projBack');
 
-if (projTrack && projDots) {
+if (projTrack && projDots && pcarouselStage && projSeeAll && projBack) {
   const cards = Array.from(projTrack.children);
-  // Visual spacing between fanned cards (the stage is wide, like the hero,
-  // so cards spread out further apart). Desktop only.
-  const SLOT_SPACING = 130;
-  // Wider, flatter spacing used once the cursor is over the deck (see
-  // FAN <-> EXPANDED below) — cards un-rotate and spread into a straight
-  // left-right row instead of staying stacked like a hand of cards.
-  const FLAT_SPACING = 400;
-  let pIndex = Math.floor((cards.length - 1) / 2);
-  // The compact/fan view always shows this same card forward — clicking
-  // or hovering a different one is a temporary look, not a new resting
-  // state, so pIndex snaps back to this the moment the cursor leaves
-  // (see the pointerleave handler below).
-  const DEFAULT_INDEX = pIndex;
-  // Widened to include tablet (see isMobileHero): the fan's hover-driven
-  // expand relies on a mouse that isn't there on a touchscreen, so iPad
-  // gets the same plain swipeable row phone does instead of a fan stuck
-  // mid-interaction.
-  const mobileMq = window.matchMedia('(max-width: 1024px)');
-  let mobileObserver = null;
-  let deckExpanded = false;
+  // The deck itself rests on the middle card (symmetric fan either
+  // side); "See Projects" deliberately overrides this and always
+  // opens single mode on the first project instead (see its click
+  // handler below) — two different resting points for two different
+  // states, not one shared default.
+  const DEFAULT_INDEX = Math.floor((cards.length - 1) / 2);
+  let pIndex = DEFAULT_INDEX;
+  let isSingle = false;
 
   cards.forEach((_, i) => {
     const dot = document.createElement('button');
@@ -1967,17 +2075,10 @@ if (projTrack && projDots) {
   });
   const pDots = Array.from(projDots.children);
 
-  function spreadForWidth() {
-    const w = projCarousel.offsetWidth;
-    return Math.max(0.55, Math.min(1, w / 1100));
-  }
-
   function syncDotsAndTheme() {
     pDots.forEach((d, i) => d.classList.toggle('active', i === pIndex));
     // Drives the glow everywhere (see the base .pcarousel .project-card
-    // .is-current rule) — the resting pick stays highlighted regardless
-    // of what the cursor happens to be over, instead of whatever card
-    // was last hovered.
+    // .is-current rule).
     cards.forEach((c, i) => c.classList.toggle('is-current', i === pIndex));
     // Tint the active dot with the front card's own theme colors instead
     // of the site-wide accent, so the index matches whatever's on screen.
@@ -1991,135 +2092,129 @@ if (projTrack && projDots) {
     }
   }
 
-  function updateDeckDesktop() {
-    const mult = spreadForWidth();
+  // DECK: a card's live flex-basis width plus the track's own gap is
+  // the one source of truth the fan's per-card offset reads off, so a
+  // resize (which changes clamp(180px, 18vw, 240px)) keeps it
+  // correct. offsetWidth, not getBoundingClientRect() — the latter
+  // returns the box AFTER the card's own rotate() transform, which is
+  // wider than the card actually is for every card but the upright
+  // one, silently corrupting every position computed from it.
+  function layoutDeck() {
+    // layoutSingle() leaves the track itself translated (see below) —
+    // clear it, or the deck's own per-card transforms compose on top
+    // of that stale offset instead of replacing it.
+    projTrack.style.transform = '';
+    const cardW = cards[0] ? cards[0].offsetWidth : 0;
+    const gap = parseFloat(getComputedStyle(projTrack).columnGap) || 0;
+    const step = cardW + gap;
+    const containerW = projCarousel.offsetWidth;
+    // Every card cancels its own natural flex-row slot back to this
+    // one shared centre point, so whichever card is current always
+    // ends up dead centre in the stage.
+    const centerX = containerW / 2 - cardW / 2;
+
     cards.forEach((card, i) => {
       const offset = i - pIndex;
       const absOffset = Math.min(Math.abs(offset), 3);
-      const z = 50 - Math.abs(offset);
-      // Every card is the same size in both modes now — no scale/y
-      // "perspective" falloff for the further-out ones. Fan mode keeps
-      // only the rotation as its visual identity (still reads as a
-      // stacked deck); expanded mode is a flat, evenly-sized row.
-      let x, rot;
-      if (deckExpanded) {
-        // FAN -> EXPANDED: same deck, same buttons/arrows/dots — just
-        // un-rotated and spread into a flat left-right row (a "regular
-        // click-through list") while the cursor is over it, instead of
-        // staying stacked like a hand of cards.
-        x = offset * FLAT_SPACING * mult;
-        rot = 0;
-      } else {
-        // Straight linear spacing (offset * SLOT_SPACING) looked uneven
-        // between the inner and outer cards — increasing rotation makes
-        // each further-out card's own visual footprint swing sideways
-        // more than a flat per-step translateX accounts for, so outer
-        // cards read as more bunched together than inner ones even
-        // though the underlying x values were evenly stepped. Scaling
-        // the per-step spacing up a bit for each additional step out
-        // compensates for that.
-        const spacingMult = 1 + Math.max(0, absOffset - 1) * 0.18;
-        x = offset * SLOT_SPACING * mult * spacingMult;
-        rot = offset * 7.5;
-      }
-
-      card.style.transform =
-        'translate(-50%,-50%) translate(' + x + 'px,0px) rotate(' + rot + 'deg)';
-      card.style.zIndex = Math.round(z + 100);
+      card.style.zIndex = Math.round(150 - absOffset);
+      const spacingMult = 1 + Math.max(0, absOffset - 1) * 0.18;
+      const dx = centerX - i * step + offset * cardW * 0.34 * spacingMult;
+      const rot = offset * 8;
+      // Rotating around a pivot near the bottom (see transform-origin)
+      // swings a card's top corner outward *and* upward the further it
+      // sits from centre — nudging it down a little as it recedes
+      // keeps the front card reading as the tallest one instead of the
+      // ones behind poking up above it.
+      const dy = absOffset * 5;
+      card.style.transform = 'translateX(' + dx + 'px) translateY(' + dy + 'px) rotate(' + rot + 'deg)';
+      card.style.opacity = 1;
     });
     syncDotsAndTheme();
   }
 
-  function scrollToCardMobile(index, smooth) {
-    const card = cards[index];
-    if (!card) return;
-    // card.scrollIntoView({inline:'center', block:'nearest'}) looks like
-    // it should only move the horizontal carousel, but block:'nearest'
-    // still scrolls the *page* vertically whenever the carousel (default
-    // card is the middle one, often well below the fold on load) isn't
-    // already in view — the exact "scroll jumps to the bottom" bug on
-    // mobile. Scrolling the track's own scrollLeft directly can't touch
-    // page scroll at all, since it never asks any ancestor to scroll.
-    const target = card.offsetLeft - (projTrack.clientWidth - card.clientWidth) / 2;
-    projTrack.scrollTo({ left: target, behavior: smooth === false ? 'auto' : 'smooth' });
+  // SINGLE: cards drop out of the fan entirely (flex: 0 0 100% takes
+  // over in CSS) and the track just slides by a whole card width per
+  // step — a percentage, so it's correct at any size with no
+  // remeasuring on resize.
+  function layoutSingle() {
+    cards.forEach((card) => { card.style.transform = ''; card.style.zIndex = ''; card.style.opacity = ''; });
+    projTrack.style.transform = 'translateX(-' + (pIndex * 100) + '%)';
+    syncDotsAndTheme();
   }
 
-  // Mobile: track whichever card is most centred as the visitor natively
-  // swipes, so the dots/arrows stay in sync without fighting the scroll.
-  function setupMobileObserver() {
-    if (mobileObserver) mobileObserver.disconnect();
-    mobileObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-          const i = cards.indexOf(entry.target);
-          if (i !== -1 && i !== pIndex) {
-            pIndex = i;
-            syncDotsAndTheme();
-          }
-        }
-      });
-    }, { root: projTrack, threshold: [0.6] });
-    cards.forEach((card) => mobileObserver.observe(card));
-  }
-
-  function applyMode() {
-    if (mobileMq.matches) {
-      cards.forEach((card) => { card.style.transform = ''; card.style.zIndex = ''; });
-      setupMobileObserver();
-      syncDotsAndTheme();
-      requestAnimationFrame(() => scrollToCardMobile(pIndex, false));
-    } else {
-      if (mobileObserver) { mobileObserver.disconnect(); mobileObserver = null; }
-      updateDeckDesktop();
-    }
+  function render() {
+    if (isSingle) layoutSingle(); else layoutDeck();
+    // Deck and single mode are very different heights, and the site's
+    // own PIN-HOLD HEIGHT + CENTERING SYNC (further down) only
+    // recomputes on resize/load/fonts-ready — it has no idea this
+    // section's content height just changed out from under it.
+    // window.syncPinHold is that system's own recompute, exposed for
+    // exactly this (dispatching a synthetic 'resize' event instead
+    // would loop back into this file's *own* resize listener below).
+    if (window.syncPinHold) window.syncPinHold();
   }
 
   function pGoTo(index) {
     pIndex = Math.max(0, Math.min(index, cards.length - 1));
-    if (mobileMq.matches) {
-      scrollToCardMobile(pIndex);
-      syncDotsAndTheme();
-    } else {
-      updateDeckDesktop();
-    }
+    render();
   }
 
+  function openSingle(index) {
+    isSingle = true;
+    if (index != null) pIndex = index;
+    pcarouselStage.classList.add('is-single');
+    render();
+  }
+
+  function closeSingle() {
+    isSingle = false;
+    pIndex = DEFAULT_INDEX;
+    pcarouselStage.classList.remove('is-single');
+    render();
+  }
+
+  projSeeAll.addEventListener('click', () => openSingle(0));
+  projBack.addEventListener('click', closeSingle);
   document.getElementById('projNext').addEventListener('click', () => pGoTo(pIndex + 1));
   document.getElementById('projPrev').addEventListener('click', () => pGoTo(pIndex - 1));
 
   cards.forEach((card, i) => {
-    // Focusing (keyboard) or clicking a card makes it the deck's resting
-    // pick, so it's still centred like this if the visitor comes back.
-    card.addEventListener('focus', () => pGoTo(i));
-    card.addEventListener('click', () => { pIndex = i; });
+    // In the deck, clicking or keyboard-activating a card opens it
+    // straight into single mode instead of just recentring the fan —
+    // except the "View Project →" link inside, which does its own
+    // route navigation and shouldn't also trigger this.
+    card.addEventListener('click', (e) => {
+      if (isSingle || e.target.closest('.project-cta')) return;
+      openSingle(i);
+    });
+    card.addEventListener('keydown', (e) => {
+      if (isSingle || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      openSingle(i);
+    });
   });
 
-  // FAN <-> EXPANDED: the cursor crossing into the deck's bounding box
-  // is the trigger, desktop only. Covers the stage as a whole (deck +
-  // the prev/dots/next controls below it), not just the cards, so
-  // moving down onto the buttons doesn't collapse it back to the fan
-  // mid-interaction. Mobile already uses native horizontal scroll
-  // instead of this fan at all, so there's nothing to expand there.
-  const pcarouselStage = projCarousel.closest('.pcarousel-stage') || projCarousel;
-  pcarouselStage.addEventListener('pointerenter', () => {
-    if (mobileMq.matches) return;
-    deckExpanded = true;
-    updateDeckDesktop();
-  });
-  pcarouselStage.addEventListener('pointerleave', () => {
-    if (mobileMq.matches) return;
-    deckExpanded = false;
-    pIndex = DEFAULT_INDEX;
-    updateDeckDesktop();
-  });
+  // Simple swipe support in single mode — same touchstart/touchend
+  // delta pattern the small photo carousel up top already uses.
+  let touchStartX = 0;
+  projTrack.addEventListener('touchstart', (e) => {
+    if (isSingle) touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  projTrack.addEventListener('touchend', (e) => {
+    if (!isSingle) return;
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diff) > 40) { diff < 0 ? pGoTo(pIndex + 1) : pGoTo(pIndex - 1); }
+  }, { passive: true });
 
-  window.addEventListener('resize', applyMode);
-  if (mobileMq.addEventListener) mobileMq.addEventListener('change', applyMode);
+  window.addEventListener('resize', render);
 
-  // Let the router refresh sizing when the home page becomes visible again
-  window.recenterProjCarousel = applyMode;
+  // Let the router refresh sizing when the home page becomes visible
+  // again — render() re-applies whichever mode is already active
+  // rather than forcing the deck, so a visitor who was mid-browse
+  // doesn't lose their place just from navigating away and back.
+  window.recenterProjCarousel = render;
 
-  requestAnimationFrame(applyMode);
+  requestAnimationFrame(layoutDeck);
 }
 
 /* ============================================================
@@ -2546,6 +2641,13 @@ if (pinSection && pinSticky && pinHero && pinIntro && pinThird && heroUnpinFade 
   window.addEventListener('resize', sync);
   window.addEventListener('load', sync);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(sync);
+
+  // Exposed so anything that changes a pin-hold section's own content
+  // height without the *window* resizing (the project deck/single
+  // mode switch, for one) can ask this to recompute directly — going
+  // through a synthetic 'resize' event instead would also re-trigger
+  // that code's own resize listener, recursing forever.
+  window.syncPinHold = sync;
 })();
 
 /* ============================================================
