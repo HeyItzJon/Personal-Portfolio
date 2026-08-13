@@ -502,12 +502,24 @@ section { padding: 100px 0; }
 }
 .about-grid {
   display: grid;
-  /* Laptop column widened (was 1.15fr) to make the frame + carousel
-     noticeably bigger; text column gives up a bit of its own room in
-     return. */
-  grid-template-columns: 0.82fr 1.3fr;
-  gap: 64px;
+  /* Text column gets a fixed, comfortable range of its own
+     (minmax, not a fr-share) so it isn't the thing that keeps
+     shrinking every time the laptop grows — the laptop column
+     instead overlaps into the gap and a little into the text
+     column's own box via .laptop-frame's negative margin/overscale
+     below. That overlap is safe because the source photo's laptop
+     graphic doesn't fill its own canvas edge-to-edge — see the note
+     on .laptop-frame — so only transparent picture area, never
+     actual laptop pixels, ever sits under the text. */
+  grid-template-columns: minmax(300px, 560px) minmax(0, 620px);
+  justify-content: space-between;
+  gap: 48px;
   align-items: center;
+  overflow: visible;
+}
+.about-copy {
+  position: relative;
+  z-index: 1;
 }
 .about-copy p { margin: 0 0 18px; font-size: 17px; }
 .about-copy p:last-child { margin-bottom: 0; }
@@ -524,12 +536,16 @@ section { padding: 100px 0; }
 /* ---- Laptop frame (About carousel sits inside it as the "screen") ----
    Real head-on MacBook photo as the frame, with the carousel absolutely
    positioned to sit exactly over the photo's screen area. The shot is
-   dead-on (no perspective baked in), so the overlay isn't tilted either
-   — a tilted rectangle over a flat photo would look like a mismatched
-   sticker instead of a screen. */
+   dead-on (no perspective baked in), so the overlay isn't tilted either.
+   Scaled up past its own grid column (width/margin-left below) to read
+   as a centerpiece — the photo itself has a thin transparent margin
+   around the laptop (a few percent top/sides, more underneath), so the
+   overscale/overlap only ever eats into that empty picture area or the
+   column gap, never the laptop graphic itself. */
 .laptop-frame {
   position: relative;
-  width: 100%;
+  width: 116%;
+  margin-left: -3%;
 }
 .laptop-shell {
   display: block;
@@ -538,17 +554,15 @@ section { padding: 100px 0; }
   pointer-events: none;
   user-select: none;
 }
-/* Percentages measured against the full (mostly transparent) source
-   image, not just the visible laptop — they're what place the overlay
-   over the photo's actual screen area regardless of how the image is
-   scaled. */
+/* Percentages measured against the photo's own frame so the overlay
+   lines up with its screen regardless of how the image is scaled. */
 .laptop-screen-overlay {
   position: absolute;
-  left: 16.3%;
-  right: 16.3%;
-  top: 23%;
-  bottom: 34%;
-  border-radius: 10px;
+  left: 13%;
+  right: 13%;
+  top: 7.5%;
+  bottom: 24.5%;
+  border-radius: 6px;
   overflow: hidden;
   background: #0c0d11;
 }
