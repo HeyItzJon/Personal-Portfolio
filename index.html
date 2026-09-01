@@ -1478,7 +1478,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
             <div class="project-body">
               <div class="project-ref">PROJ-03</div>
-              <h3>C-130 Autonomous RC Drone</h3>
+              <h3>Avionics &amp; Power Distribution PCB for RC Plane</h3>
               <p>Building the flight controller and RF system for an autonomous RC drone.</p>
               <div class="project-tags">
                 <span class="tag">Drone Control</span><span class="tag">Communications</span><span class="tag">Signal Processing</span><span class="tag">Component Selection</span><span class="tag">RF</span>
@@ -1774,7 +1774,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     </div>
 
     <div class="detail-nav">
-      <a data-route="rcplane">← C-130 Autonomous RC Drone</a>
+      <a data-route="rcplane">← Avionics &amp; Power Distribution PCB for RC Plane</a>
       <a data-route="aiagent">Next: Building an AI Secretary That Actually Works →</a>
     </div>
   </div>
@@ -1844,7 +1844,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-nav">
       <a data-route="pcb">← Modular Bicycle Lighting</a>
-      <a data-route="rcplane">Next: C-130 Autonomous RC Drone →</a>
+      <a data-route="rcplane">Next: Avionics &amp; Power Distribution PCB for RC Plane →</a>
     </div>
   </div>
 </main>
@@ -1858,12 +1858,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
       <div class="eyebrow">PROJ-03</div>
-      <h1>C-130 Autonomous RC Drone</h1>
+      <h1>Avionics &amp; Power Distribution PCB for RC Plane</h1>
       <div class="detail-meta">
         <div><strong>Ongoing</strong>Timeline</div>
         <div><strong>Electronics Team</strong>Role</div>
-        <div><strong>STM32</strong>Flight Computer</div>
-        <div><strong>ExpressLRS</strong>Radio Link</div>
       </div>
     </header>
 
@@ -1882,7 +1880,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part that can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery. The next revision swaps that 12V regulator for a buck converter, adds transient protection at the battery input, and tightens up the copper for the high-current paths.</p>
+      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part that can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -1892,8 +1890,19 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
+      <h2>What's Changing for V2</h2>
+      <p>Here's what the next board fixes: the 12V regulator swaps from that linear part to a small buck converter, so it stays regulated even as the battery sags under load instead of dropping out or wasting the difference as heat. I'm adding a diode and a bulk capacitor across the battery input to catch the voltage spikes the motor controllers throw off before they reach anything downstream. The output capacitors on that rail are also getting bumped up to a higher voltage rating — ceramic capacitors quietly lose some of their capacitance the closer they run to their rated voltage, so this builds in more margin. And the high-current paths are moving from routed traces to solid copper pours tied together with vias, which spreads the current and the heat out more evenly.</p>
+
       <h2>Flight Computer</h2>
-      <p>The flight computer is built around an STM32, which will handle the motor and servo outputs, read the IMU and GPS, and run the control logic for autonomous flight. The toolchain is up and running; next is wiring in the 9-axis IMU and GPS module and building out the actual flight-control code.</p>
+      <p>The flight computer is built around an STM32, which will handle the motor and servo outputs, read the IMU and GPS, and run the control logic for autonomous flight. The toolchain is up and running, and I've got the 9-axis IMU wired in and being tested on the bench; next is bringing in the GPS module and building out the actual flight-control code.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img wide">
+          <img src="assets/images/rc-drone-stm32-imu.jpeg" alt="STM32 dev board wired to a BNO085 9-axis IMU on a breadboard"></div>
+          <figcaption class="figure-cap">Fig. 3 — Bench-testing the STM32 against the IMU before it goes on the plane</figcaption>
+        </figure>
+      </div>
 
       <h2>Radio Link</h2>
       <p>I set up and tested the drone's wireless link myself: a RadioMaster Pocket transmitter talking to a RadioMaster RP4TD receiver over ExpressLRS. It's bound, holding a stable connection, and reading all 16 control channels cleanly. Left to do: mapping which stick and switch drives which channel, soldering permanent wiring, and connecting the channels to actual servo and motor control.</p>
