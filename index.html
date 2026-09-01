@@ -1125,6 +1125,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .figure-img.wide { aspect-ratio: 4/3; }
 .figure-img.xwide { aspect-ratio: 16/9; }
 .figure-img.tall { aspect-ratio: 9/16; max-width: 340px; margin: 0 auto; }
+.figure-img.screenshot { aspect-ratio: auto; padding: 0; }
+.figure-img.screenshot img { position: static; width: 100%; height: auto; object-fit: contain; display: block; }
 .figure-img img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -1502,14 +1504,14 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
           <div class="project-card theme-purple" data-idx="4" tabindex="0">
             <div class="project-thumb">
-              <img src="assets/images/pi-closeup.jpeg" alt="Orange Pi Zero 3 running the AI Secretary backend">
+              <img src="assets/images/pi-desk.jpeg" alt="Orange Pi Zero 3 on My Desk">
             </div>
             <div class="project-body">
               <div class="project-ref">PROJ-05</div>
-              <h3>Personal Secretary</h3>
-              <p>An AI-powered secretary that actually manages my time — merges Gmail, Calendar, and my investment portfolio into one prioritized daily brief, plus a physical LED wall display so I can see it without opening a tab.</p>
+              <h3>Building an AI Secretary That Actually Works</h3>
+              <p>An AI-powered secretary that actually manages my time: it merges Gmail, Calendar, and my investment portfolio into one prioritized daily brief, plus a physical LED wall display so I can see it without opening a tab.</p>
               <div class="project-tags">
-                <span class="tag">Node.js / React</span><span class="tag">SQLite</span><span class="tag">ESP32 / Embedded</span><span class="tag">DeepSeek + Claude</span>
+                <span class="tag">Node.js</span><span class="tag">React</span><span class="tag">SQLite</span><span class="tag">ESP32</span><span class="tag">Embedded Systems</span>
               </div>
               <a class="project-cta" data-route="aiagent" tabindex="0">View Project →</a>
             </div>
@@ -1547,7 +1549,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
         <div class="skill-group reveal">
           <h3>Programming</h3>
-          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li></ul>
+          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li><li>Node.js &amp; React</li></ul>
         </div>
         <div class="skill-group reveal">
           <h3>Platforms, Testing &amp; Simulation</h3>
@@ -1773,7 +1775,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-nav">
       <a data-route="rcplane">← C-130 Autonomous RC Drone</a>
-      <a data-route="aiagent">Next: Personal Secretary →</a>
+      <a data-route="aiagent">Next: Building an AI Secretary That Actually Works →</a>
     </div>
   </div>
 </main>
@@ -1889,69 +1891,82 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
       <div class="eyebrow">PROJ-05</div>
-      <h1>Personal Secretary</h1>
+      <h1>Building an AI Secretary That Actually Works</h1>
       <div class="detail-meta">
-        <div><strong>2026 — Ongoing</strong>Timeline</div>
+        <div><strong>Ongoing</strong>Timeline</div>
         <div><strong>Solo Project</strong>Role</div>
       </div>
     </header>
 
     <div class="detail-body">
       <h2>The Idea</h2>
-      <p>I have always wanted something closer to an actual personal secretary than a chatbot — a system that understands what's actually on my plate and helps me manage it, not just answer questions when I ask. That means real calendar awareness, real deadline pressure, and a sense of priority: what's genuinely urgent today versus what can wait. A side benefit is that I'm not re-explaining my own schedule and context to some AI tool every time I open a new chat — the system already knows.</p>
+      <p>I have always wanted something closer to an actual personal secretary than a chatbot: a system that understands what's actually on my plate and helps me manage it, not just answer questions when I ask. That means real calendar awareness, real deadline pressure, and a sense of priority: what's genuinely urgent today versus what can wait. A side benefit is that I'm not re-explaining my own schedule and context to some AI tool every time I open a new chat. The system already knows.</p>
       <p>I built a backend that pulls my Gmail, Google Calendar, investment holdings, and school deadlines into one place, and turns that into a single prioritized brief every day. The part that actually makes it feel like a secretary rather than a dashboard is memory: it tracks what it's already shown me, what I've dealt with, and what's still open, so it only surfaces what's new or genuinely still urgent.</p>
 
       <h2>V1: Hermes</h2>
-      <p>The first version installed and configured Hermes, a self-hosted AI agent that operates through existing LLM providers' API keys — I set up its plugins and markdown configuration files around the tasks I actually wanted automated day to day: daily weather updates on a cron job, a Telegram-delivered investment summary pulling from Yahoo Finance, and turning saved Instagram Reels into structured notes in my Obsidian vault. It worked, but I was limited to whatever the platform let me configure — I was never able to get it feeling truly "smart," even after an expensive API upgrade to Anthropic's Opus 5 model. No real state, no real prioritization logic, no actual UI. That ceiling — not the model, the architecture — is what pushed me to rebuild it as V2.</p>
+      <p>The first version installed and configured Hermes, a self-hosted AI agent that operates through existing LLM providers' API keys. I set up its plugins and markdown configuration files around the tasks I actually wanted automated day to day: daily weather updates on a cron job, a Telegram-delivered investment summary pulling from Yahoo Finance, and turning saved Instagram Reels into structured notes in my Obsidian vault. It worked, but I was limited to whatever the platform let me configure. I was never able to get it feeling truly "smart," even after an expensive API upgrade to Anthropic's Opus 5 model. No real state, no real prioritization logic, no actual UI. The ceiling was the architecture, not the model, and that's what pushed me to rebuild it as V2.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img grad-2 tall">
+          <img src="assets/images/agent-demo.png" alt="hermes telegram bot demo"></div>
+          <figcaption class="figure-cap">Fig. 1 — The Hermes/Telegram setup from V1, in action</figcaption>
+        </figure>
+      </div>
 
       <h2>V2: The Rebuild</h2>
-      <p>V2 is a custom system: a Node.js/Express backend on an Orange Pi Zero 3 (4GB) at home, a React dashboard, and — as of the newest round — a physical LED wall display in my room.</p>
-      <p><strong>A note on how this was built:</strong> I designed and iterated the system myself — the architecture, the data sources, how prioritization should work, the hardware. But with the complexity and scope I had in mind, I went all in with Claude Code and Codex to actually write the functional software from my specs. My job was direction, decisions, and testing; theirs was the code. Worth saying plainly rather than implying otherwise — I'm still early in learning to code myself.</p>
-      <p><strong>Stack:</strong> Node.js 22, Express, and SQLite — I migrated off a flat JSON file once it stopped scaling to the complexity of the different data sources and cache requirements. It pulls from Gmail and Calendar over Google's OAuth, live Yahoo Finance prices for my holdings, and D2L Brightspace deadlines via an .ics feed. The frontend is React 18 + Vite across six pages — Day, Week, Tasks, Portfolio, Stats, and Wall. DeepSeek handles the AI backbone by default, with Claude available as a swappable provider — DeepSeek's developer API won out mainly on cost, weighed against the data-security tradeoffs of that choice for now.</p>
+      <p>V2 is a custom system: a Node.js/Express backend on an Orange Pi Zero 3 (4GB) at home, a React dashboard, and, as of the newest round, a physical LED wall display in my room.</p>
+      <p><strong>A note on how this was built:</strong> I designed and iterated the system myself: the architecture, the data sources, how prioritization should work, the hardware. But with the complexity and scope I had in mind, I went all in with Claude Code and Codex to actually write the functional software from my specs. My job was direction, decisions, and testing; theirs was the code. Worth saying plainly rather than implying otherwise, since I'm still early in learning to code myself.</p>
+      <p><strong>Stack:</strong> Node.js 22, Express, and SQLite. I migrated off a flat JSON file once it stopped scaling to the complexity of the different data sources and cache requirements. It pulls from Gmail and Calendar over Google's OAuth, live Yahoo Finance prices for my holdings, and D2L Brightspace deadlines via an .ics feed. The frontend is React 18 + Vite across six pages: Day, Week, Tasks, Portfolio, Stats, and Wall. DeepSeek handles the AI backbone by default, with Claude available as a swappable provider. DeepSeek's developer API won out mainly on cost, weighed against the data-security tradeoffs of that choice for now.</p>
 
-      <div class="figure-grid">
-        <figure class="figure">
-          <div class="figure-img grad-2 wide">
-          <img src="assets/images/pi-closeup.jpeg" alt="orange pi zero 3 close-up"></div>
-          <figcaption class="figure-cap">Fig. 1 — The Orange Pi Zero 3 the backend actually runs on</figcaption>
-        </figure>
+      <div class="figure-grid single">
         <figure class="figure">
           <div class="figure-img grad-4 wide">
-          <img src="assets/images/pi-desk.jpeg" alt="orange pi zero 3 running on the desk"></div>
-          <figcaption class="figure-cap">Fig. 2 — Running on the desk, mid-bring-up</figcaption>
+          <img src="assets/images/pi-closeup.jpeg" alt="orange pi zero 3 close-up"></div>
+          <figcaption class="figure-cap">Fig. 2 — The Orange Pi Zero 3 the backend actually runs on</figcaption>
         </figure>
       </div>
 
       <h2>What's Working</h2>
-      <p>Calendar and Gmail are fully connected, merging every calendar in my Google account and my university's Brightspace feed into one view. Portfolio tracking pulls real prices for 40+ holdings, synced from my own Obsidian notes rather than typed in by hand. The item store gives it actual memory — every email or task carries a state (tracked, snoozed, resolved, and so on) instead of reappearing every refresh. A ranking function scores urgency by deadline pressure and category importance, so the brief is actually sorted by what matters, not just what's newest. There's also a "Worth a look" feature that researches and surfaces real stock candidates from live market data and my actual sector allocation, built so it can't invent a pitch it doesn't have data for.</p>
+      <p>Calendar and Gmail are fully connected, merging every calendar in my Google account and my university's Brightspace feed into one view.</p>
 
-      <div class="figure-grid">
+      <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-1 xwide">
-          <img src="assets/images/stats-page.png" alt="stats dashboard page"></div>
-          <figcaption class="figure-cap">Fig. 3 — Stats page: daily portfolio moves and the year in numbers</figcaption>
-        </figure>
-        <figure class="figure">
-          <div class="figure-img grad-3 xwide">
+          <div class="figure-img screenshot">
           <img src="assets/images/week-view.png" alt="week dashboard page"></div>
-          <figcaption class="figure-cap">Fig. 4 — Week page: busy score for the next 7 days, pulled straight from my calendar</figcaption>
+          <figcaption class="figure-cap">Fig. 3 — Week page: busy score for the next 7 days, pulled straight from my calendar</figcaption>
         </figure>
+      </div>
+
+      <p>Portfolio tracking pulls real prices for 40+ holdings, synced from my own Obsidian notes rather than typed in by hand. The item store gives it actual memory: every email or task carries a state (tracked, snoozed, resolved, and so on) instead of reappearing every refresh. A ranking function scores urgency by deadline pressure and category importance, so the brief is actually sorted by what matters, not just what's newest.</p>
+
+      <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-2 xwide">
+          <div class="figure-img screenshot">
+          <img src="assets/images/stats-page.png" alt="stats dashboard page"></div>
+          <figcaption class="figure-cap">Fig. 4 — Stats page: daily portfolio moves and the year in numbers</figcaption>
+        </figure>
+      </div>
+
+      <p>There's also a "Worth a look" feature that researches and surfaces real stock candidates from live market data and my actual sector allocation, built so it can't invent a pitch it doesn't have data for.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img screenshot">
           <img src="assets/images/stock-finds.png" alt="worth a look stock idea card"></div>
           <figcaption class="figure-cap">Fig. 5 — "Worth a look": a real stock idea, sourced from live market data</figcaption>
         </figure>
       </div>
 
-      <p>A couple of things didn't survive the first round of real-world use, and I think they're worth mentioning: portfolio prices used to live in a manually-updated config file with zero connection to anything real — I've since wired it to pull live from my Obsidian vault instead, so it can't quietly go stale. Market news started out as raw scraped search queries; I migrated it to a real fetch so it's never faking a headline. Neither was a huge fix, but they're the difference between something that looks like a demo and something I'd actually trust to run unattended and make real decisions with.</p>
+      <p>A couple of things didn't survive the first round of real-world use, and I think they're worth mentioning: portfolio prices used to live in a manually-updated config file with zero connection to anything real. I've since wired it to pull live from my Obsidian vault instead, so it can't quietly go stale. Market news started out as raw scraped search queries; I migrated it to a real fetch so it's never faking a headline. Neither was a huge fix, but they're the difference between something that looks like a demo and something I'd actually trust to run unattended and make real decisions with.</p>
 
       <h2>LED Panel Display</h2>
-      <p>The newest piece, and the one that turns this from a browser project into something physical: an ESP32-S3 driving three HUB75 LED matrix panels (192×32 px total) that I'm mounting as a wall display in my room, so I don't need to open a tab to see my brief. It polls the backend over WiFi on two separate schedules — a slower one for data and summaries prepared and cached on the Pi by DeepSeek and my sorting algorithms (portfolio, calendar, market moves), and a fast-refresh one just for live control, so pinning a screen or pushing a notification from the dashboard reaches the wall in near real time instead of waiting out the slow data cycle.</p>
-      <p>Firmware is fully written for the dedicated ESP32-S3, including a parallel simulation build that prints the same logic to a serial monitor so I could validate the WiFi and rendering logic before ever touching the physical panels. Physical bring-up — actually wired up and running on the real hardware — is the piece I'm still confirming end to end.</p>
+      <p>The newest piece, and the one that turns this from a browser project into something physical: an ESP32-S3 driving three HUB75 LED matrix panels (192×32 px total) that I'm mounting as a wall display in my room, so I don't need to open a tab to see my brief. It polls the backend over WiFi on two separate schedules: a slower one for data and summaries prepared and cached on the Pi by DeepSeek and my sorting algorithms (portfolio, calendar, market moves), and a fast-refresh one just for live control, so pinning a screen or pushing a notification from the dashboard reaches the wall in near real time instead of waiting out the slow data cycle.</p>
+      <p>Firmware is fully written for the dedicated ESP32-S3, including a parallel simulation build that prints the same logic to a serial monitor so I could validate the WiFi and rendering logic before ever touching the physical panels. Physical bring-up, actually wired up and running on the real hardware, is the piece I'm still confirming end to end.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-4 xwide">
+          <div class="figure-img screenshot">
           <img src="assets/images/wall-control.png" alt="wall control page"></div>
           <figcaption class="figure-cap">Fig. 6 — The live control page: enable/pin screens and push notifications straight to the hardware</figcaption>
         </figure>
@@ -1959,7 +1974,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="takeaway-box">
         <h2>Looking Ahead</h2>
-        <p>Built an AI-powered personal secretary that manages my time — merging Gmail, Calendar, and investment data into a prioritized daily brief on a self-hosted Orange Pi, with persistent memory and a physical LED wall display for real-time updates. I drove the architecture and design decisions; Claude Code and Codex handled the implementation. Next up: confirming the wall is fully wired and running end to end, then a conversational "ask it anything" layer on top.</p>
+        <p>Built an AI-powered personal secretary that manages my time: it merges Gmail, Calendar, and investment data into a prioritized daily brief on a self-hosted Orange Pi, with persistent memory and a physical LED wall display for real-time updates. I drove the architecture and design decisions; Claude Code and Codex handled the implementation. Next up: confirming the wall is fully wired and running end to end, then a conversational "ask it anything" layer on top.</p>
       </div>
     </div>
 
