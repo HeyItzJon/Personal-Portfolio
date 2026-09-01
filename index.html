@@ -830,6 +830,55 @@ section { padding: 100px 0; }
   transition: background 0.35s var(--ease), width 0.2s;
 }
 
+/* Desktop only: move the prev/next arrows off the bottom control row and
+   out to the sides of the card itself, like a normal carousel, so the
+   card is never partly hidden behind or crowded by its own controls.
+   Below this breakpoint everything stays exactly as it was (arrows next
+   to the dots, under the card) since there isn't reliably enough side
+   gutter on tablet/phone widths, and swipe already covers touch.
+   `.pcarousel-controls` gets `display: contents` so its three children
+   (prev arrow, dots, next arrow) become direct grid items of
+   `.pcarousel-stage.is-single` and can be placed independently instead
+   of only ever moving together as one row. */
+@media (min-width: 1025px) {
+  .pcarousel-stage.is-single {
+    display: grid;
+    grid-template-columns: auto minmax(0, 620px) auto;
+    justify-content: center;
+    align-items: center;
+    column-gap: 28px;
+  }
+  .pcarousel-stage.is-single .pcarousel {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .pcarousel-stage.is-single .pcarousel-controls {
+    display: contents;
+  }
+  .pcarousel-stage.is-single .pcarousel-arrow.prev {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .pcarousel-stage.is-single .pcarousel-arrow.next {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+  }
+  .pcarousel-stage.is-single .pcarousel-dots {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    margin-top: 28px;
+  }
+  .pcarousel-stage.is-single .pcarousel-back {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: center;
+    margin: 16px auto 0;
+  }
+}
+
 /* Project card base (shared) */
 /* ---- Project color theme — one consistent amber accent everywhere
    instead of a distinct hue per project. Classes kept (rather than
@@ -1435,7 +1484,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <div class="wrap">
       <div class="section-head center reveal">
         <h2>Check out my builds!</h2>
-        <p>A growing list of projects and challenges I have tackled - click "View Project →" on any card for the full story, photos, and what went wrong along the way.</p>
+        <p>A growing list of projects and challenges I have tackled - click View Project → on any card for the full story.</p>
       </div>
     </div>
     <div class="pcarousel-stage" id="pcarouselStage">
@@ -1474,11 +1523,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
          <div class="project-card theme-green" data-idx="2" tabindex="0">
             <div class="project-thumb">
-              <img src="assets/images/project-c-130-rc-drone.jpg" alt="C-130 Autonomous RC Drone">
+              <img src="assets/images/project-c130-pdb-cover.png" alt="Power distribution board layout for the C-130 drone">
             </div>
             <div class="project-body">
               <div class="project-ref">PROJ-03</div>
-              <h3>C-130 Autonomous RC Drone</h3>
+              <h3>Avionics &amp; Power Distribution PCB for RC Plane</h3>
               <p>Building the flight controller and RF system for an autonomous RC drone.</p>
               <div class="project-tags">
                 <span class="tag">Drone Control</span><span class="tag">Communications</span><span class="tag">Signal Processing</span><span class="tag">Component Selection</span><span class="tag">RF</span>
@@ -1487,33 +1536,33 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
           </div>
            
-          <div class="project-card theme-amber" data-idx="3" tabindex="0">
-            <div class="project-thumb">
-              <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
-            </div>
-            <div class="project-body">
-              <div class="project-ref">PROJ-04</div>
-              <h3>MOSFET x Off-Road System </h3>
-              <p>Integrated high-power LED lighting into a vehicle using MOSFET switching.</p>
-              <div class="project-tags">
-                <span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Heat Dissipation</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
-              </div>
-              <a class="project-cta" data-route="mosfet" tabindex="0">View Project →</a>
-            </div>
-          </div>
-
-          <div class="project-card theme-purple" data-idx="4" tabindex="0">
+          <div class="project-card theme-purple" data-idx="3" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/pi-desk.jpeg" alt="Orange Pi Zero 3 on My Desk">
             </div>
             <div class="project-body">
-              <div class="project-ref">PROJ-05</div>
+              <div class="project-ref">PROJ-04</div>
               <h3>Building an AI Secretary That Actually Works</h3>
               <p>An AI-powered secretary that actually manages my time: it merges Gmail, Calendar, and my investment portfolio into one prioritized daily brief, plus a physical LED wall display so I can see it without opening a tab.</p>
               <div class="project-tags">
                 <span class="tag">Node.js</span><span class="tag">React</span><span class="tag">SQLite</span><span class="tag">ESP32</span><span class="tag">Embedded Systems</span>
               </div>
               <a class="project-cta" data-route="aiagent" tabindex="0">View Project →</a>
+            </div>
+          </div>
+
+          <div class="project-card theme-amber" data-idx="4" tabindex="0">
+            <div class="project-thumb">
+              <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
+            </div>
+            <div class="project-body">
+              <div class="project-ref">PROJ-05</div>
+              <h3>MOSFET x Off-Road System </h3>
+              <p>Integrated high-power LED lighting into a vehicle using MOSFET switching.</p>
+              <div class="project-tags">
+                <span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Heat Dissipation</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
+              </div>
+              <a class="project-cta" data-route="mosfet" tabindex="0">View Project →</a>
             </div>
           </div>
 
@@ -1549,7 +1598,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
         <div class="skill-group reveal">
           <h3>Programming</h3>
-          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li><li>Node.js &amp; React</li></ul>
+          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li><li>Node.js</li></ul>
         </div>
         <div class="skill-group reveal">
           <h3>Platforms, Testing &amp; Simulation</h3>
@@ -1734,7 +1783,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PROJ-04</div>
+      <div class="eyebrow">PROJ-05</div>
       <h1>MOSFET/Arduino Integration for Vehicle Lighting</h1>
       <div class="detail-meta">
         <div><strong>2025</strong>Timeline</div>
@@ -1774,8 +1823,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     </div>
 
     <div class="detail-nav">
-      <a data-route="rcplane">← C-130 Autonomous RC Drone</a>
-      <a data-route="aiagent">Next: Building an AI Secretary That Actually Works →</a>
+      <a data-route="aiagent">← Building an AI Secretary That Actually Works</a>
     </div>
   </div>
 </main>
@@ -1844,7 +1892,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-nav">
       <a data-route="pcb">← Modular Bicycle Lighting</a>
-      <a data-route="rcplane">Next: C-130 Autonomous RC Drone →</a>
+      <a data-route="rcplane">Next: Avionics &amp; Power Distribution PCB for RC Plane →</a>
     </div>
   </div>
 </main>
@@ -1858,7 +1906,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
       <div class="eyebrow">PROJ-03</div>
-      <h1>C-130 Autonomous RC Drone</h1>
+      <h1>Avionics &amp; Power Distribution PCB for RC Plane</h1>
       <div class="detail-meta">
         <div><strong>Ongoing</strong>Timeline</div>
         <div><strong>Electronics Team</strong>Role</div>
@@ -1867,17 +1915,68 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-body">
       <h2>The Project</h2>
-      <p>I'll be joining the electronics subteam on the C-130 autonomous RC drone build. Our subteam is four people, including me, working within a larger project team of around eight to nine people total. My focus is on designing the flight controller around an STM32, the RF transmission and reception system, and some basic GPS and autonomous flight capability.</p>
+      <p>I lead the power distribution hardware and flight-controller electronics within our four-person electronics subteam, part of a larger project team of around eight to nine people building the C-130 autonomous RC drone. A multi-engine airframe is hard on its electronics: big motor current draws, voltage spikes when the motor controllers switch, and enough electrical noise to mess with GPS and other sensors if the power system isn't handled carefully. So before touching the flight computer, my first job was a Power Distribution Board (PDB) that takes raw 4S battery power and puts out clean, separate rails for everything downstream.</p>
+
+      <h2>Power Distribution</h2>
+      <p>The board splits the battery into four rails: raw power straight to the motor controllers, a 12V rail for video gear and other extras, a 5V rail for the flight controller, servos, and radio receiver, and a clean 3.3V rail just for the IMU and other sensitive sensors.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-drone-pdb-schematic.png" alt="Power distribution board schematic: 12V, 5V, and 3.3V regulator stages"></div>
+          <figcaption class="figure-cap">Fig. 1 — The regulator schematic: three rails plus the battery input</figcaption>
+        </figure>
+      </div>
+
+      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part (it just burns off the extra voltage as heat instead of stepping it down efficiently), so it can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-drone-pdb-render.png" alt="3D render of the power distribution board"></div>
+          <figcaption class="figure-cap">Fig. 2 — The board, rendered in Altium</figcaption>
+        </figure>
+      </div>
+
+      <h2>What's Changing for V2</h2>
+      <p>Here's what the next board fixes: the 12V regulator swaps from that linear part to a small buck converter, which switches the input voltage down in rapid pulses instead of just resisting it, so it stays regulated even as the battery sags under load and wastes a lot less as heat. I'm adding a diode and a bulk capacitor across the battery input to catch the voltage spikes the motor controllers throw off before they reach anything downstream, plus small decoupling caps right at each regulator's input pins to keep switching noise contained near the source instead of spreading across the board. The output capacitors on that rail are also getting bumped up to a higher voltage rating: ceramic capacitors quietly lose some of their capacitance the closer they run to their rated voltage, so this builds in more margin. And the high-current paths are moving from routed traces to solid copper pours tied together with vias, which spreads the current and the heat out more evenly.</p>
+
+      <h2>Flight Computer</h2>
+      <p>The flight computer is built around an STM32, which will handle the motor and servo outputs, read the IMU and GPS, and run the control logic for autonomous flight. The toolchain is up and running, and I've got the 9-axis IMU wired in and being tested on the bench; next is bringing in the GPS module and building out the actual flight-control code.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img wide">
+          <img src="assets/images/rc-drone-stm32-imu.jpeg" alt="STM32 dev board wired to a BNO085 9-axis IMU on a breadboard"></div>
+          <figcaption class="figure-cap">Fig. 3 — Bench-testing the STM32 against the IMU before it goes on the plane</figcaption>
+        </figure>
+      </div>
+
+      <h2>Radio Link</h2>
+      <p>I set up and tested the drone's wireless link myself: a RadioMaster Pocket transmitter talking to a RadioMaster RP4TD receiver over ExpressLRS. It's bound, holding a stable connection, and reading all 16 control channels cleanly. Left to do: mapping which stick and switch drives which channel, soldering permanent wiring, and connecting the channels to actual servo and motor control.</p>
+
+      <div class="figure-grid">
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-elrs-tx-radiomaster-pocket.png" alt="RadioMaster Pocket ExpressLRS transmitter"></div>
+          <figcaption class="figure-cap">Fig. 4 — The RadioMaster Pocket transmitter</figcaption>
+        </figure>
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-elrs-rx-rp4td.png" alt="RadioMaster RP4TD ExpressLRS receiver"></div>
+          <figcaption class="figure-cap">Fig. 5 — The RP4TD receiver</figcaption>
+        </figure>
+      </div>
 
       <div class="takeaway-box">
-        <h2>Looking Ahead</h2>
-        <p>This project is still early, so a lot of the specific component choices and architecture decisions are still ahead of us. The first concrete deliverable will be a full bill of materials, which I'll add here as a photo once it's finalized. From there, I'm hoping to also share some of the flight controller code on GitHub and, if the timeline allows, a 3D model of the PCB itself.</p>
+        <h2>Where It Stands</h2>
+        <p>The power board is close to being sent out for fabrication, pending one more review from a teammate. The flight computer toolchain and the radio link are both working; the sensors and motor/servo control are next. I'm hoping to share the flight-controller firmware on GitHub once there's something worth publishing.</p>
       </div>
     </div>
 
     <div class="detail-nav">
       <a data-route="gokart">← Electric Go-Kart</a>
-      <a data-route="mosfet">Next: MOSFET x Off-Road System →</a>
+      <a data-route="aiagent">Next: Building an AI Secretary That Actually Works →</a>
     </div>
   </div>
 </main>
@@ -1890,7 +1989,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   <div class="wrap">
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
-      <div class="eyebrow">PROJ-05</div>
+      <div class="eyebrow">PROJ-04</div>
       <h1>Building an AI Secretary That Actually Works</h1>
       <div class="detail-meta">
         <div><strong>Ongoing</strong>Timeline</div>
@@ -1979,8 +2078,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     </div>
 
     <div class="detail-nav">
-      <a data-route="mosfet">← MOSFET x Off-Road System</a>
-      <a data-route="home" data-scroll="projects">All projects →</a>
+      <a data-route="rcplane">← Avionics &amp; Power Distribution PCB for RC Plane</a>
+      <a data-route="mosfet">Next: MOSFET x Off-Road System →</a>
     </div>
   </div>
 </main>
