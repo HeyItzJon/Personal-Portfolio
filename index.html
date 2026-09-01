@@ -971,7 +971,7 @@ section { padding: 100px 0; }
   box-shadow: var(--shadow-lg), 0 0 20px rgba(139,92,246,0.45), 0 0 55px rgba(139,92,246,0.3);
 }
 .interest-thumb {
-  aspect-ratio: 4/3;
+  aspect-ratio: 16/10;
   position: relative;
   overflow: hidden;
 }
@@ -989,9 +989,19 @@ section { padding: 100px 0; }
   pointer-events: none;
 }
 .interest-card:hover .interest-thumb video { opacity: 1; }
-.interest-body { padding: 20px 22px 24px; }
-.interest-body h3 { font-size: 17px; margin-bottom: 8px; }
-.interest-body p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.5; }
+.interest-card { cursor: pointer; }
+.interest-body { padding: 16px 20px 18px; }
+.interest-body h3 { font-size: 17px; margin-bottom: 0; }
+/* Paragraph starts collapsed — cards open on click to reveal the full
+   explanation, so the grid reads as a compact set of titles by default. */
+.interest-body p {
+  color: var(--muted); font-size: 14px; line-height: 1.5;
+  max-height: 0; opacity: 0; margin: 0; overflow: hidden;
+  transition: max-height 0.4s var(--ease), opacity 0.3s var(--ease), margin-top 0.3s var(--ease);
+}
+.interest-card.expanded .interest-body p {
+  max-height: 260px; opacity: 1; margin-top: 10px;
+}
 
 /* ---- Contact ---- */
 .contact {
@@ -1435,7 +1445,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <div class="wrap">
       <div class="section-head center reveal">
         <h2>Check out my builds!</h2>
-        <p>A growing list of projects and challenges I have tackled - click "View Project →" on any card for the full story, photos, and what went wrong along the way.</p>
+        <p>A growing list of projects and challenges I have tackled - click View Project → on any card for the full story.</p>
       </div>
     </div>
     <div class="pcarousel-stage" id="pcarouselStage">
@@ -1487,33 +1497,33 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             </div>
           </div>
            
-          <div class="project-card theme-amber" data-idx="3" tabindex="0">
-            <div class="project-thumb">
-              <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
-            </div>
-            <div class="project-body">
-              <div class="project-ref">PROJ-04</div>
-              <h3>MOSFET x Off-Road System </h3>
-              <p>Integrated high-power LED lighting into a vehicle using MOSFET switching.</p>
-              <div class="project-tags">
-                <span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Heat Dissipation</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
-              </div>
-              <a class="project-cta" data-route="mosfet" tabindex="0">View Project →</a>
-            </div>
-          </div>
-
-          <div class="project-card theme-purple" data-idx="4" tabindex="0">
+          <div class="project-card theme-purple" data-idx="3" tabindex="0">
             <div class="project-thumb">
               <img src="assets/images/pi-desk.jpeg" alt="Orange Pi Zero 3 on My Desk">
             </div>
             <div class="project-body">
-              <div class="project-ref">PROJ-05</div>
+              <div class="project-ref">PROJ-04</div>
               <h3>Building an AI Secretary That Actually Works</h3>
               <p>An AI-powered secretary that actually manages my time: it merges Gmail, Calendar, and my investment portfolio into one prioritized daily brief, plus a physical LED wall display so I can see it without opening a tab.</p>
               <div class="project-tags">
                 <span class="tag">Node.js</span><span class="tag">React</span><span class="tag">SQLite</span><span class="tag">ESP32</span><span class="tag">Embedded Systems</span>
               </div>
               <a class="project-cta" data-route="aiagent" tabindex="0">View Project →</a>
+            </div>
+          </div>
+
+          <div class="project-card theme-amber" data-idx="4" tabindex="0">
+            <div class="project-thumb">
+              <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
+            </div>
+            <div class="project-body">
+              <div class="project-ref">PROJ-05</div>
+              <h3>MOSFET x Off-Road System </h3>
+              <p>Integrated high-power LED lighting into a vehicle using MOSFET switching.</p>
+              <div class="project-tags">
+                <span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Heat Dissipation</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
+              </div>
+              <a class="project-cta" data-route="mosfet" tabindex="0">View Project →</a>
             </div>
           </div>
 
@@ -1549,7 +1559,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </div>
         <div class="skill-group reveal">
           <h3>Programming</h3>
-          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li><li>Node.js &amp; React</li></ul>
+          <ul><li>C / C++</li><li>Verilog HDL</li><li>Python</li><li>Jupyter Notebook</li><li>Java</li><li>Git Version Control</li><li>Node.js</li></ul>
         </div>
         <div class="skill-group reveal">
           <h3>Platforms, Testing &amp; Simulation</h3>
@@ -1774,8 +1784,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     </div>
 
     <div class="detail-nav">
-      <a data-route="rcplane">← Avionics &amp; Power Distribution PCB for RC Plane</a>
-      <a data-route="aiagent">Next: Building an AI Secretary That Actually Works →</a>
+      <a data-route="aiagent">← Building an AI Secretary That Actually Works</a>
     </div>
   </div>
 </main>
@@ -1880,7 +1889,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part that can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery.</p>
+      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part — it just burns off the extra voltage as heat instead of stepping it down efficiently — so it can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -1891,7 +1900,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       </div>
 
       <h2>What's Changing for V2</h2>
-      <p>Here's what the next board fixes: the 12V regulator swaps from that linear part to a small buck converter, so it stays regulated even as the battery sags under load instead of dropping out or wasting the difference as heat. I'm adding a diode and a bulk capacitor across the battery input to catch the voltage spikes the motor controllers throw off before they reach anything downstream. The output capacitors on that rail are also getting bumped up to a higher voltage rating — ceramic capacitors quietly lose some of their capacitance the closer they run to their rated voltage, so this builds in more margin. And the high-current paths are moving from routed traces to solid copper pours tied together with vias, which spreads the current and the heat out more evenly.</p>
+      <p>Here's what the next board fixes: the 12V regulator swaps from that linear part to a small buck converter, which switches the input voltage down in rapid pulses instead of just resisting it, so it stays regulated even as the battery sags under load and wastes a lot less as heat. I'm adding a diode and a bulk capacitor across the battery input to catch the voltage spikes the motor controllers throw off before they reach anything downstream, plus small decoupling caps right at each regulator's input pins to keep switching noise contained near the source instead of spreading across the board. The output capacitors on that rail are also getting bumped up to a higher voltage rating — ceramic capacitors quietly lose some of their capacitance the closer they run to their rated voltage, so this builds in more margin. And the high-current paths are moving from routed traces to solid copper pours tied together with vias, which spreads the current and the heat out more evenly.</p>
 
       <h2>Flight Computer</h2>
       <p>The flight computer is built around an STM32, which will handle the motor and servo outputs, read the IMU and GPS, and run the control logic for autonomous flight. The toolchain is up and running, and I've got the 9-axis IMU wired in and being tested on the bench; next is bringing in the GPS module and building out the actual flight-control code.</p>
@@ -1907,6 +1916,19 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <h2>Radio Link</h2>
       <p>I set up and tested the drone's wireless link myself: a RadioMaster Pocket transmitter talking to a RadioMaster RP4TD receiver over ExpressLRS. It's bound, holding a stable connection, and reading all 16 control channels cleanly. Left to do: mapping which stick and switch drives which channel, soldering permanent wiring, and connecting the channels to actual servo and motor control.</p>
 
+      <div class="figure-grid">
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-elrs-tx-radiomaster-pocket.png" alt="RadioMaster Pocket ExpressLRS transmitter"></div>
+          <figcaption class="figure-cap">Fig. 4 — The RadioMaster Pocket transmitter</figcaption>
+        </figure>
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-elrs-rx-rp4td.png" alt="RadioMaster RP4TD ExpressLRS receiver"></div>
+          <figcaption class="figure-cap">Fig. 5 — The RP4TD receiver</figcaption>
+        </figure>
+      </div>
+
       <div class="takeaway-box">
         <h2>Where It Stands</h2>
         <p>The power board is close to being sent out for fabrication, pending one more review from a teammate. The flight computer toolchain and the radio link are both working; the sensors and motor/servo control are next. I'm hoping to share the flight-controller firmware on GitHub once there's something worth publishing.</p>
@@ -1915,7 +1937,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-nav">
       <a data-route="gokart">← Electric Go-Kart</a>
-      <a data-route="mosfet">Next: MOSFET x Off-Road System →</a>
+      <a data-route="aiagent">Next: Building an AI Secretary That Actually Works →</a>
     </div>
   </div>
 </main>
@@ -2017,8 +2039,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     </div>
 
     <div class="detail-nav">
-      <a data-route="mosfet">← MOSFET x Off-Road System</a>
-      <a data-route="home" data-scroll="projects">All projects →</a>
+      <a data-route="rcplane">← Avionics &amp; Power Distribution PCB for RC Plane</a>
+      <a data-route="mosfet">Next: MOSFET x Off-Road System →</a>
     </div>
   </div>
 </main>
@@ -2373,15 +2395,30 @@ document.querySelectorAll('.mobile-fade').forEach(el => mobileFadeObserver.obser
    ============================================================ */
 document.querySelectorAll('.interest-card').forEach(card => {
   const video = card.querySelector('video');
-  if (!video) return;
+  if (video) {
+    card.addEventListener('mouseenter', () => {
+      if (getComputedStyle(video).display === 'none') return;
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    });
+    card.addEventListener('mouseleave', () => {
+      video.pause();
+    });
+  }
 
-  card.addEventListener('mouseenter', () => {
-    if (getComputedStyle(video).display === 'none') return;
-    video.currentTime = 0;
-    video.play().catch(() => {});
-  });
-  card.addEventListener('mouseleave', () => {
-    video.pause();
+  // Click (or Enter/Space) expands the card to reveal the full
+  // explanation paragraph — collapsed by default so the grid reads
+  // as a compact set of titles.
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-expanded', 'false');
+  const toggle = () => {
+    const isExpanded = card.classList.toggle('expanded');
+    card.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+  };
+  card.addEventListener('click', toggle);
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
   });
 });
 
