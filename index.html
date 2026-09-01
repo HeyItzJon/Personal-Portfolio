@@ -971,7 +971,7 @@ section { padding: 100px 0; }
   box-shadow: var(--shadow-lg), 0 0 20px rgba(139,92,246,0.45), 0 0 55px rgba(139,92,246,0.3);
 }
 .interest-thumb {
-  aspect-ratio: 16/10;
+  aspect-ratio: 4/3;
   position: relative;
   overflow: hidden;
 }
@@ -989,19 +989,9 @@ section { padding: 100px 0; }
   pointer-events: none;
 }
 .interest-card:hover .interest-thumb video { opacity: 1; }
-.interest-card { cursor: pointer; }
-.interest-body { padding: 16px 20px 18px; }
-.interest-body h3 { font-size: 17px; margin-bottom: 0; }
-/* Paragraph starts collapsed — cards open on click to reveal the full
-   explanation, so the grid reads as a compact set of titles by default. */
-.interest-body p {
-  color: var(--muted); font-size: 14px; line-height: 1.5;
-  max-height: 0; opacity: 0; margin: 0; overflow: hidden;
-  transition: max-height 0.4s var(--ease), opacity 0.3s var(--ease), margin-top 0.3s var(--ease);
-}
-.interest-card.expanded .interest-body p {
-  max-height: 260px; opacity: 1; margin-top: 10px;
-}
+.interest-body { padding: 20px 22px 24px; }
+.interest-body h3 { font-size: 17px; margin-bottom: 8px; }
+.interest-body p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.5; }
 
 /* ---- Contact ---- */
 .contact {
@@ -2395,30 +2385,15 @@ document.querySelectorAll('.mobile-fade').forEach(el => mobileFadeObserver.obser
    ============================================================ */
 document.querySelectorAll('.interest-card').forEach(card => {
   const video = card.querySelector('video');
-  if (video) {
-    card.addEventListener('mouseenter', () => {
-      if (getComputedStyle(video).display === 'none') return;
-      video.currentTime = 0;
-      video.play().catch(() => {});
-    });
-    card.addEventListener('mouseleave', () => {
-      video.pause();
-    });
-  }
+  if (!video) return;
 
-  // Click (or Enter/Space) expands the card to reveal the full
-  // explanation paragraph — collapsed by default so the grid reads
-  // as a compact set of titles.
-  card.setAttribute('tabindex', '0');
-  card.setAttribute('role', 'button');
-  card.setAttribute('aria-expanded', 'false');
-  const toggle = () => {
-    const isExpanded = card.classList.toggle('expanded');
-    card.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-  };
-  card.addEventListener('click', toggle);
-  card.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  card.addEventListener('mouseenter', () => {
+    if (getComputedStyle(video).display === 'none') return;
+    video.currentTime = 0;
+    video.play().catch(() => {});
+  });
+  card.addEventListener('mouseleave', () => {
+    video.pause();
   });
 });
 
