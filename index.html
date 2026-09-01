@@ -1553,11 +1553,11 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
           <div class="project-card theme-amber" data-idx="4" tabindex="0">
             <div class="project-thumb">
-              <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET x Off-Road System">
+              <img src="assets/images/project-mosfet-cover.JPEG" alt="MOSFET Switched Off-Road System">
             </div>
             <div class="project-body">
               <div class="project-ref">PROJ-05</div>
-              <h3>MOSFET x Off-Road System </h3>
+              <h3>MOSFET Switched Off-Road System</h3>
               <p>Integrated high-power LED lighting into a vehicle using MOSFET switching.</p>
               <div class="project-tags">
                 <span class="tag">MOSFETs</span><span class="tag">Power Electronics</span><span class="tag">Heat Dissipation</span><span class="tag">Circuit Design</span><span class="tag">Automotive Electronics</span>
@@ -1784,7 +1784,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <header class="detail-hero">
       <a class="back-link" data-route="home" data-scroll="projects">← Back to projects</a>
       <div class="eyebrow">PROJ-05</div>
-      <h1>MOSFET/Arduino Integration for Vehicle Lighting</h1>
+      <h1>MOSFET Switched Off-Road System</h1>
       <div class="detail-meta">
         <div><strong>2025</strong>Timeline</div>
         <div><strong>Solo Project</strong>Role</div>
@@ -1915,7 +1915,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-body">
       <h2>The Project</h2>
-      <p>I lead the power distribution hardware and flight-controller electronics within our four-person electronics subteam, part of a larger project team of around eight to nine people building the C-130 autonomous RC drone. A multi-engine airframe is hard on its electronics: big motor current draws, voltage spikes when the motor controllers switch, and enough electrical noise to mess with GPS and other sensors if the power system isn't handled carefully. So before touching the flight computer, my first job was a Power Distribution Board (PDB) that takes raw 4S battery power and puts out clean, separate rails for everything downstream.</p>
+      <p>I lead the power distribution hardware and flight-controller electronics within our three-person electronics subteam, part of a larger project team of around six or seven people building an RC airplane inspired by the C-130 Globemaster. A multi-engine airframe is hard on its electronics: big motor current draws, voltage spikes when the motor controllers switch, and enough electrical noise to mess with GPS and other sensors if the power system isn't handled carefully. So before touching the flight computer, my first job was a Power Distribution Board (PDB) that takes raw 4S battery power and puts out clean, separate rails for everything downstream.</p>
 
       <h2>Power Distribution</h2>
       <p>The board splits the battery into four rails: raw power straight to the motor controllers, a 12V rail for video gear and other extras, a 5V rail for the flight controller, servos, and radio receiver, and a clean 3.3V rail just for the IMU and other sensitive sensors.</p>
@@ -1928,7 +1928,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part (it just burns off the extra voltage as heat instead of stepping it down efficiently), so it can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery.</p>
+      <p>I designed and laid out the board myself in Altium Designer, my second real PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part (it just burns off the extra voltage as heat instead of stepping it down efficiently), so it can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and we also figured it would be more convenient to mount detachable XT30 or 60 connectors instead of the big ESC solder pads.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -1939,7 +1939,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       </div>
 
       <h2>What's Changing for V2</h2>
-      <p>Here's what the next board fixes: the 12V regulator swaps from that linear part to a small buck converter, which switches the input voltage down in rapid pulses instead of just resisting it, so it stays regulated even as the battery sags under load and wastes a lot less as heat. I'm adding a diode and a bulk capacitor across the battery input to catch the voltage spikes the motor controllers throw off before they reach anything downstream, plus small decoupling caps right at each regulator's input pins to keep switching noise contained near the source instead of spreading across the board. The output capacitors on that rail are also getting bumped up to a higher voltage rating: ceramic capacitors quietly lose some of their capacitance the closer they run to their rated voltage, so this builds in more margin. And the high-current paths are moving from routed traces to solid copper pours tied together with vias, which spreads the current and the heat out more evenly.</p>
+      <p>Here's what I aim to fix with the next design: the 12V regulator swaps from that linear part to a small buck converter, so it stays regulated even as the battery sags under load and wastes a lot less as heat. I'm adding a diode and a bulk capacitor across the battery input to catch the voltage spikes the motor controllers throw off before they reach anything downstream, plus small decoupling caps right at each regulator's input pins to keep switching noise contained near the source instead of spreading across the board. The output capacitors on that rail are also getting bumped up to a higher voltage rating to have more margin. And the high-current paths are moving from routed traces to solid copper pours tied together with vias, which spreads the current and the heat out more evenly.</p>
 
       <h2>Flight Computer</h2>
       <p>The flight computer is built around an STM32, which will handle the motor and servo outputs, read the IMU and GPS, and run the control logic for autonomous flight. The toolchain is up and running, and I've got the 9-axis IMU wired in and being tested on the bench; next is bringing in the GPS module and building out the actual flight-control code.</p>
@@ -1953,18 +1953,13 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       </div>
 
       <h2>Radio Link</h2>
-      <p>I set up and tested the drone's wireless link myself: a RadioMaster Pocket transmitter talking to a RadioMaster RP4TD receiver over ExpressLRS. It's bound, holding a stable connection, and reading all 16 control channels cleanly. Left to do: mapping which stick and switch drives which channel, soldering permanent wiring, and connecting the channels to actual servo and motor control.</p>
+      <p>I set up and tested the drone's wireless link based on the newest ExpressLRS communication protocol. I chose the RadioMaster Pocket transmitter talking to a RadioMaster RP4TD receiver over ELRS. It's bound, holding a stable connection, and reading all 16 control channels cleanly. Left to do: mapping which stick and switch drives which channel, soldering permanent wiring, and connecting the channels to actual servo and motor control.</p>
 
-      <div class="figure-grid">
+      <div class="figure-grid single">
         <figure class="figure">
           <div class="figure-img screenshot">
-          <img src="assets/images/rc-elrs-tx-radiomaster-pocket.png" alt="RadioMaster Pocket ExpressLRS transmitter"></div>
-          <figcaption class="figure-cap">Fig. 4 — The RadioMaster Pocket transmitter</figcaption>
-        </figure>
-        <figure class="figure">
-          <div class="figure-img screenshot">
-          <img src="assets/images/rc-elrs-rx-rp4td.png" alt="RadioMaster RP4TD ExpressLRS receiver"></div>
-          <figcaption class="figure-cap">Fig. 5 — The RP4TD receiver</figcaption>
+          <img src="assets/images/rc-elrs-radio-testing.jpeg" alt="Testing the RadioMaster Pocket transmitter and RP4TD receiver link"></div>
+          <figcaption class="figure-cap">Fig. 4 — Testing the RadioMaster Pocket / RP4TD radio link</figcaption>
         </figure>
       </div>
 
@@ -2008,7 +2003,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="figure-grid single">
         <figure class="figure">
           <div class="figure-img grad-2 tall">
-          <img src="assets/images/agent-demo.png" alt="hermes telegram bot demo"></div>
+          <img src="assets/images/agent-hermes-demo.png" alt="hermes telegram bot demo"></div>
           <figcaption class="figure-cap">Fig. 1 — The Hermes/Telegram setup from V1, in action</figcaption>
         </figure>
       </div>
@@ -2037,7 +2032,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>Portfolio tracking pulls real prices for 40+ holdings, synced from my own Obsidian notes rather than typed in by hand. The item store gives it actual memory: every email or task carries a state (tracked, snoozed, resolved, and so on) instead of reappearing every refresh. A ranking function scores urgency by deadline pressure and category importance, so the brief is actually sorted by what matters, not just what's newest.</p>
+      <p>Portfolio tracking pulls real prices for 40+ holdings, synced from my own Obsidian notes rather than typed in by hand. I was inspired by the GitHub commit tracking screen and built a portfolio performance tracker with a similar feel. It tracks day moves, streaks, and other stats, which was a lot of fun to see working at first.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -2073,13 +2068,13 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="takeaway-box">
         <h2>Looking Ahead</h2>
-        <p>Built an AI-powered personal secretary that manages my time: it merges Gmail, Calendar, and investment data into a prioritized daily brief on a self-hosted Orange Pi, with persistent memory and a physical LED wall display for real-time updates. I drove the architecture and design decisions; Claude Code and Codex handled the implementation. Next up: confirming the wall is fully wired and running end to end, then a conversational "ask it anything" layer on top.</p>
+        <p>So far I built an AI-powered personal secretary that manages my time by merging Gmail, Calendar, and investment data into actionable info on a self-hosted Orange Pi, with persistent memory and a physical LED wall display for real-time updates. I drove the architecture and design decisions; Claude Code and Codex handled the implementation. My next ambition is adding a conversational "ask it anything" layer on top and continuing to expand the technical features, reliability, and eventually maybe even running my own local LLM to save on API costs and increase security.</p>
       </div>
     </div>
 
     <div class="detail-nav">
       <a data-route="rcplane">← Avionics &amp; Power Distribution PCB for RC Plane</a>
-      <a data-route="mosfet">Next: MOSFET x Off-Road System →</a>
+      <a data-route="mosfet">Next: MOSFET Switched Off-Road System →</a>
     </div>
   </div>
 </main>
