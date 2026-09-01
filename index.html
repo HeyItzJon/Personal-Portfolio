@@ -1474,7 +1474,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
          <div class="project-card theme-green" data-idx="2" tabindex="0">
             <div class="project-thumb">
-              <img src="assets/images/project-c-130-rc-drone.jpg" alt="C-130 Autonomous RC Drone">
+              <img src="assets/images/project-c130-pdb-cover.png" alt="Power distribution board layout for the C-130 drone">
             </div>
             <div class="project-body">
               <div class="project-ref">PROJ-03</div>
@@ -1862,16 +1862,45 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="detail-meta">
         <div><strong>Ongoing</strong>Timeline</div>
         <div><strong>Electronics Team</strong>Role</div>
+        <div><strong>STM32</strong>Flight Computer</div>
+        <div><strong>ExpressLRS</strong>Radio Link</div>
       </div>
     </header>
 
     <div class="detail-body">
       <h2>The Project</h2>
-      <p>I'll be joining the electronics subteam on the C-130 autonomous RC drone build. Our subteam is four people, including me, working within a larger project team of around eight to nine people total. My focus is on designing the flight controller around an STM32, the RF transmission and reception system, and some basic GPS and autonomous flight capability.</p>
+      <p>I lead the power distribution hardware and flight-controller electronics within our four-person electronics subteam, part of a larger project team of around eight to nine people building the C-130 autonomous RC drone. A multi-engine airframe is hard on its electronics: big motor current draws, voltage spikes when the motor controllers switch, and enough electrical noise to mess with GPS and other sensors if the power system isn't handled carefully. So before touching the flight computer, my first job was a Power Distribution Board (PDB) that takes raw 4S battery power and puts out clean, separate rails for everything downstream.</p>
+
+      <h2>Power Distribution</h2>
+      <p>The board splits the battery into four rails: raw power straight to the motor controllers, a 12V rail for video gear and other extras, a 5V rail for the flight controller, servos, and radio receiver, and a clean 3.3V rail just for the IMU and other sensitive sensors.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-drone-pdb-schematic.png" alt="Power distribution board schematic: 12V, 5V, and 3.3V regulator stages"></div>
+          <figcaption class="figure-cap">Fig. 1 — The regulator schematic: three rails plus the battery input</figcaption>
+        </figure>
+      </div>
+
+      <p>I designed and laid out the board myself in Altium Designer, my second PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part that can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and the 3.3V regulator needs to come off the clean 5V rail instead of the raw battery. The next revision swaps that 12V regulator for a buck converter, adds transient protection at the battery input, and tightens up the copper for the high-current paths.</p>
+
+      <div class="figure-grid single">
+        <figure class="figure">
+          <div class="figure-img screenshot">
+          <img src="assets/images/rc-drone-pdb-render.png" alt="3D render of the power distribution board"></div>
+          <figcaption class="figure-cap">Fig. 2 — The board, rendered in Altium</figcaption>
+        </figure>
+      </div>
+
+      <h2>Flight Computer</h2>
+      <p>The flight computer is built around an STM32, which will handle the motor and servo outputs, read the IMU and GPS, and run the control logic for autonomous flight. The toolchain is up and running; next is wiring in the 9-axis IMU and GPS module and building out the actual flight-control code.</p>
+
+      <h2>Radio Link</h2>
+      <p>I set up and tested the drone's wireless link myself: a RadioMaster Pocket transmitter talking to a RadioMaster RP4TD receiver over ExpressLRS. It's bound, holding a stable connection, and reading all 16 control channels cleanly. Left to do: mapping which stick and switch drives which channel, soldering permanent wiring, and connecting the channels to actual servo and motor control.</p>
 
       <div class="takeaway-box">
-        <h2>Looking Ahead</h2>
-        <p>This project is still early, so a lot of the specific component choices and architecture decisions are still ahead of us. The first concrete deliverable will be a full bill of materials, which I'll add here as a photo once it's finalized. From there, I'm hoping to also share some of the flight controller code on GitHub and, if the timeline allows, a 3D model of the PCB itself.</p>
+        <h2>Where It Stands</h2>
+        <p>The power board is close to being sent out for fabrication, pending one more review from a teammate. The flight computer toolchain and the radio link are both working; the sensors and motor/servo control are next. I'm hoping to share the flight-controller firmware on GitHub once there's something worth publishing.</p>
       </div>
     </div>
 
