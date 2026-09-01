@@ -830,6 +830,55 @@ section { padding: 100px 0; }
   transition: background 0.35s var(--ease), width 0.2s;
 }
 
+/* Desktop only: move the prev/next arrows off the bottom control row and
+   out to the sides of the card itself, like a normal carousel, so the
+   card is never partly hidden behind or crowded by its own controls.
+   Below this breakpoint everything stays exactly as it was (arrows next
+   to the dots, under the card) since there isn't reliably enough side
+   gutter on tablet/phone widths, and swipe already covers touch.
+   `.pcarousel-controls` gets `display: contents` so its three children
+   (prev arrow, dots, next arrow) become direct grid items of
+   `.pcarousel-stage.is-single` and can be placed independently instead
+   of only ever moving together as one row. */
+@media (min-width: 1025px) {
+  .pcarousel-stage.is-single {
+    display: grid;
+    grid-template-columns: auto minmax(0, 620px) auto;
+    justify-content: center;
+    align-items: center;
+    column-gap: 28px;
+  }
+  .pcarousel-stage.is-single .pcarousel {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .pcarousel-stage.is-single .pcarousel-controls {
+    display: contents;
+  }
+  .pcarousel-stage.is-single .pcarousel-arrow.prev {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .pcarousel-stage.is-single .pcarousel-arrow.next {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+  }
+  .pcarousel-stage.is-single .pcarousel-dots {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    margin-top: 28px;
+  }
+  .pcarousel-stage.is-single .pcarousel-back {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: center;
+    margin: 16px auto 0;
+  }
+}
+
 /* Project card base (shared) */
 /* ---- Project color theme — one consistent amber accent everywhere
    instead of a distinct hue per project. Classes kept (rather than
