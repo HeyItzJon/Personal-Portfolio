@@ -1793,7 +1793,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="detail-body">
       <h2>The Problem</h2>
-      <p>Earlier this year, I wanted to retrofit some high-powered LED lights onto the roof rack of my vehicle. I researched ways to connect this system to an existing Arduino I already had installed in my dash for modular projects like this. I settled on using MOSFET components to act as quick-response relays for flash patterns, connecting the system to a switched fusebox source through the MOSFETs. The whole system is button-controlled via the Arduino, since using a microcontroller let me build more complex rapid flash patterns based on button presses and switch sequences.</p>
+      <p>I wanted to retrofit some high-powered LED lights onto the roof rack of my vehicle. I researched ways to connect this system to an existing Arduino I already had installed in my dash for modular projects like this. I settled on using MOSFET components to act as quick-response relays for flash patterns, connecting the system to a switched fusebox source through the MOSFETs. The whole system is button-controlled via the Arduino, since using a microcontroller let me build more complex rapid flash patterns based on button presses and switch sequences.</p>
 
       <h2>Initial Design</h2>
       <p>I first designed a rough draft of the circuit on paper based on my research into MOSFETs and Arduino pin control. This served as a template for prototyping the circuit.</p>
@@ -1918,7 +1918,13 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <p>I lead the power distribution hardware and flight-controller electronics within our three-person electronics subteam, part of a larger project team of around six or seven people building an RC airplane inspired by the C-130 Globemaster. A multi-engine airframe is hard on its electronics: big motor current draws, voltage spikes when the motor controllers switch, and enough electrical noise to mess with GPS and other sensors if the power system isn't handled carefully. So before touching the flight computer, my first job was a Power Distribution Board (PDB) that takes raw 4S battery power and puts out clean, separate rails for everything downstream.</p>
 
       <h2>Power Distribution</h2>
-      <p>The board splits the battery into four rails: raw power straight to the motor controllers, a 12V rail for video gear and other extras, a 5V rail for the flight controller, servos, and radio receiver, and a clean 3.3V rail just for the IMU and other sensitive sensors.</p>
+      <p>The board splits the battery into four rails:</p>
+      <ul>
+        <li>Raw power straight to the motor controllers</li>
+        <li>12V rail for video gear and other extras</li>
+        <li>5V rail for the flight controller, servos, and radio receiver</li>
+        <li>3.3V rail just for the IMU and other sensitive sensors.</li>
+      </ul>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -1928,7 +1934,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>I designed and laid out the board myself in Altium Designer, my second real PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part (it just burns off the extra voltage as heat instead of stepping it down efficiently), so it can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and we also figured it would be more convenient to mount detachable XT30 or 60 connectors instead of the big ESC solder pads.</p>
+      <p>I designed and laid out the board in Altium Designer, my second real PCB overall but my first time using Altium. Before sending it off to be made, I had a teammate review it, which turned up a few real problems worth fixing now: the 12V regulator is a linear part (it just burns off the extra voltage as heat instead of stepping it down efficiently), so it can't hold up once the battery sags under heavy motor load, there's nothing yet to absorb the voltage spikes the motor controllers throw off, and we also figured it would be more convenient to mount detachable XT30 or 60 connectors instead of the big ESC solder pads.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -2002,7 +2008,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="figure-grid single">
         <figure class="figure">
-          <div class="figure-img grad-2 tall">
+          <div class="figure-img screenshot">
           <img src="assets/images/agent-hermes-demo.png" alt="hermes telegram bot demo"></div>
           <figcaption class="figure-cap">Fig. 1 — The Hermes/Telegram setup from V1, in action</figcaption>
         </figure>
@@ -2010,8 +2016,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <h2>V2: The Rebuild</h2>
       <p>V2 is a custom system: a Node.js/Express backend on an Orange Pi Zero 3 (4GB) at home, a React dashboard, and, as of the newest round, a physical LED wall display in my room.</p>
-      <p><strong>A note on how this was built:</strong> I designed and iterated the system myself: the architecture, the data sources, how prioritization should work, the hardware. But with the complexity and scope I had in mind, I went all in with Claude Code and Codex to actually write the functional software from my specs. My job was direction, decisions, and testing; theirs was the code. Worth saying plainly rather than implying otherwise, since I'm still early in learning to code myself.</p>
-      <p><strong>Stack:</strong> Node.js 22, Express, and SQLite. I migrated off a flat JSON file once it stopped scaling to the complexity of the different data sources and cache requirements. It pulls from Gmail and Calendar over Google's OAuth, live Yahoo Finance prices for my holdings, and D2L Brightspace deadlines via an .ics feed. The frontend is React 18 + Vite across six pages: Day, Week, Tasks, Portfolio, Stats, and Wall. DeepSeek handles the AI backbone by default, with Claude available as a swappable provider. DeepSeek's developer API won out mainly on cost, weighed against the data-security tradeoffs of that choice for now.</p>
+      <p><strong>A note on how this was built:</strong> I designed and iterated the system myself: the architecture, the data sources, how prioritization should work, the hardware. But with the complexity and scope of this project, I went all in with Claude Code and Codex to actually write the functional software from my specs. My job was direction, decisions, and testing; theirs was the code. Worth saying plainly rather than implying otherwise, since I'm still very early in learning to code this type of system myself.</p>
+      <p><strong>Stack:</strong> Node.js 22, Express, and SQLite. I migrated off a flat JSON file once it stopped scaling to the complexity of the different data sources and cache requirements. It pulls from Gmail and Calendar over Google's OAuth, live Yahoo Finance prices for my holdings, and D2L Brightspace deadlines via an .ics feed. The frontend is React 18 + Vite across six pages: Day, Week, Tasks, Portfolio, Stats, and Wall. DeepSeek handles the AI backbone by default, with Claude available as a swappable provider. DeepSeek's developer API won out mainly on cost, with consideration for the data-security tradeoffs of that choice for now.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -2032,7 +2038,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>Portfolio tracking pulls real prices for 40+ holdings, synced from my own Obsidian notes rather than typed in by hand. I was inspired by the GitHub commit tracking screen and built a portfolio performance tracker with a similar feel. It tracks day moves, streaks, and other stats, which was a lot of fun to see working at first.</p>
+      <p>Portfolio tracking pulls real prices for 40+ holdings, synced from my own Obsidian notes rather than typed in by hand. I was inspired by the GitHub commit tracking screen and built a portfolio performance tracker with a similar feel. It tracks day moves, streaks, and other stats which was a lot of fun to see working at first.</p>
 
       <div class="figure-grid single">
         <figure class="figure">
@@ -2052,7 +2058,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         </figure>
       </div>
 
-      <p>A couple of things didn't survive the first round of real-world use, and I think they're worth mentioning: portfolio prices used to live in a manually-updated config file with zero connection to anything real. I've since wired it to pull live from my Obsidian vault instead, so it can't quietly go stale. Market news started out as raw scraped search queries; I migrated it to a real fetch so it's never faking a headline. Neither was a huge fix, but they're the difference between something that looks like a demo and something I'd actually trust to run unattended and make real decisions with.</p>
+      <p>A couple of things didn't survive the first round of real-world use, and I think they're worth mentioning: portfolio prices used to live in a manually updated config file with zero connection to anything real. I've since wired it to pull live from my Obsidian vault instead, so it can't quietly go stale. Market news started out as raw scraped search queries; I migrated it to a real fetch so it's never faking a headline. Neither was a huge fix, but they're the difference between something that looks like a demo and something I'd actually trust to run unattended and make real decisions with.</p>
 
       <h2>LED Panel Display</h2>
       <p>The newest piece, and the one that turns this from a browser project into something physical: an ESP32-S3 driving three HUB75 LED matrix panels (192×32 px total) that I'm mounting as a wall display in my room, so I don't need to open a tab to see my brief. It polls the backend over WiFi on two separate schedules: a slower one for data and summaries prepared and cached on the Pi by DeepSeek and my sorting algorithms (portfolio, calendar, market moves), and a fast-refresh one just for live control, so pinning a screen or pushing a notification from the dashboard reaches the wall in near real time instead of waiting out the slow data cycle.</p>
@@ -2068,7 +2074,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
       <div class="takeaway-box">
         <h2>Looking Ahead</h2>
-        <p>So far I built an AI-powered personal secretary that manages my time by merging Gmail, Calendar, and investment data into actionable info on a self-hosted Orange Pi, with persistent memory and a physical LED wall display for real-time updates. I drove the architecture and design decisions; Claude Code and Codex handled the implementation. My next ambition is adding a conversational "ask it anything" layer on top and continuing to expand the technical features, reliability, and eventually maybe even running my own local LLM to save on API costs and increase security.</p>
+        <p>So far I built an AI-powered personal secretary that manages my time by merging Gmail, Calendar, and investment data into actionable info on a self-hosted Orange Pi, with persistent memory and a physical LED wall display for real-time updates. I drove the architecture and design decisions; Claude Code and Codex handled the implementation. My next ambition is adding a conversational "ask it anything" layer on top and continuing to expand the technical features, reliability and eventually maybe even running my own local LLM to save on API costs and increase security.</p>
       </div>
     </div>
 
