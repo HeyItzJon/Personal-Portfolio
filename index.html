@@ -1212,6 +1212,7 @@
       .interest-thumb video {
         position: absolute;
         inset: 0;
+        z-index: 2;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -1234,6 +1235,86 @@
         font-size: 14px;
         margin: 0;
         line-height: 1.5;
+      }
+
+      /* ---- Industries (alternating rows) ---- */
+      .industries-list {
+        display: flex;
+        flex-direction: column;
+      }
+      .industry-row {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 28px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .industry-row:last-child {
+        border-bottom: none;
+      }
+      .industry-row.reverse {
+        flex-direction: row-reverse;
+      }
+      .industry-icon {
+        position: relative;
+        flex: 0 0 34%;
+        aspect-ratio: 4/3;
+        border-radius: var(--r-lg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .industry-icon svg {
+        position: relative;
+        z-index: 1;
+        width: 34px;
+        height: 34px;
+        transition: opacity 0.4s var(--ease);
+      }
+      .industry-icon video {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.4s var(--ease);
+        pointer-events: none;
+      }
+      .industry-row:hover .industry-icon video {
+        opacity: 1;
+      }
+      .industry-row:hover .industry-icon svg {
+        opacity: 0.25;
+      }
+      .industry-text {
+        flex: 1;
+      }
+      .industry-text h3 {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .industry-text p {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.5;
+      }
+      @media (max-width: 760px) {
+        .industry-row,
+        .industry-row.reverse {
+          flex-direction: column;
+          text-align: center;
+        }
+        .industry-icon {
+          flex: 0 0 auto;
+          width: 100%;
+        }
       }
 
       /* ---- Contact ---- */
@@ -1891,6 +1972,15 @@
                     <div class="carousel-slide grad-2">
                       <img src="assets/images/about-2.JPEG" alt="Workbench" loading="lazy" decoding="async" />
                     </div>
+                    <div class="carousel-slide grad-3">
+                      <video
+                        src="assets/images/about-led-wall.mp4"
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                      ></video>
+                    </div>
                     <div class="carousel-slide grad-4">
                       <video
                         src="assets/images/about-4.MP4"
@@ -2100,19 +2190,21 @@
             <div class="section-head center reveal">
               <h2>Industries that interest me</h2>
             </div>
-            <div class="interests-grid">
-              <div class="interest-card reveal">
-                <div class="interest-thumb grad-2">
-                  <img src="assets/images/interest-robotics.jpg" alt="Cutting-edge robotics" loading="lazy" decoding="async" />
-                  <video
-                    src="assets/images/interest-robotics.mp4"
-                    muted
-                    loop
-                    playsinline
-                    preload="metadata"
-                  ></video>
+            <div class="industries-list">
+              <div class="industry-row reveal">
+                <div class="industry-icon">
+                  <svg viewBox="0 0 48 48" fill="none" stroke="#22D3EE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="14" y="16" width="20" height="18" rx="3"/>
+                    <circle cx="20" cy="24" r="2" fill="#22D3EE" stroke="none"/>
+                    <circle cx="28" cy="24" r="2" fill="#22D3EE" stroke="none"/>
+                    <path d="M18 30h12"/>
+                    <path d="M24 16v-5"/>
+                    <circle cx="24" cy="9" r="2"/>
+                    <path d="M10 22v8M38 22v8"/>
+                  </svg>
+                  <video muted loop playsinline preload="none"></video>
                 </div>
-                <div class="interest-body">
+                <div class="industry-text">
                   <h3>Cutting-Edge Robotics</h3>
                   <p>
                     Legged and humanoid robots closing the gap between lab demos and real-world
@@ -2121,18 +2213,16 @@
                   </p>
                 </div>
               </div>
-              <div class="interest-card reveal">
-                <div class="interest-thumb grad-4">
-                  <img src="assets/images/interest-rf.jpg" alt="RF and space communications" loading="lazy" decoding="async" />
-                  <video
-                    src="assets/images/interest-rf.mp4"
-                    muted
-                    loop
-                    playsinline
-                    preload="metadata"
-                  ></video>
+              <div class="industry-row reverse reveal">
+                <div class="industry-icon">
+                  <svg viewBox="0 0 48 48" fill="none" stroke="#F0A857" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <ellipse cx="24" cy="24" rx="17" ry="7"/>
+                    <circle cx="24" cy="24" r="4" fill="#F0A857" stroke="none"/>
+                    <circle cx="24" cy="24" r="17"/>
+                  </svg>
+                  <video muted loop playsinline preload="none"></video>
                 </div>
-                <div class="interest-body">
+                <div class="industry-text">
                   <h3>Wireless &amp; Space Communications</h3>
                   <p>
                     6G and IoT requirements are pushing wireless communication to its limits. I have
@@ -2141,18 +2231,19 @@
                   </p>
                 </div>
               </div>
-              <div class="interest-card reveal">
-                <div class="interest-thumb grad-5">
-                  <img src="assets/images/interest-ai.jpg" alt="AI and AGI datacenter" loading="lazy" decoding="async" />
-                  <video
-                    src="assets/images/interest-ai.mp4"
-                    muted
-                    loop
-                    playsinline
-                    preload="metadata"
-                  ></video>
+              <div class="industry-row reveal">
+                <div class="industry-icon">
+                  <svg viewBox="0 0 48 48" fill="none" stroke="#C084FC" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="16" cy="16" r="3"/>
+                    <circle cx="32" cy="16" r="3"/>
+                    <circle cx="24" cy="26" r="3"/>
+                    <circle cx="16" cy="36" r="3"/>
+                    <circle cx="32" cy="36" r="3"/>
+                    <path d="M18 18l4 6M30 18l-4 6M22 28l-4 6M26 28l4 6"/>
+                  </svg>
+                  <video muted loop playsinline preload="none"></video>
                 </div>
-                <div class="interest-body">
+                <div class="industry-text">
                   <h3>Machine Learning &amp; AGI</h3>
                   <p>
                     Looking past the buzzwords, I am excited to see the real use cases for AI
@@ -2891,13 +2982,32 @@
             on the wall, after starting with three panels and adding a fourth.
           </p>
 
+          <div class="figure-grid">
+            <figure class="figure">
+              <div class="figure-img grad-2">
+                <img src="assets/images/led-wall-off.jpg" alt="HUB75 LED matrix panels wired to the ESP32-S3 driver" loading="lazy" decoding="async" />
+              </div>
+              <figcaption class="figure-cap">
+                Fig. 6 — The panels and ESP32-S3 driver, unpowered, before final mounting
+              </figcaption>
+            </figure>
+            <figure class="figure">
+              <div class="figure-img grad-4">
+                <img src="assets/images/led-wall-assembly.jpg" alt="Full LED wall assembly with power supply and driver board" loading="lazy" decoding="async" />
+              </div>
+              <figcaption class="figure-cap">
+                Fig. 7 — Full assembly on the bench: chained panels, power supply, and driver board
+              </figcaption>
+            </figure>
+          </div>
+
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img screenshot">
                 <img src="assets/images/wall-control.png" alt="wall control page" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
-                Fig. 6 — The live control page: enable/pin screens and push notifications straight
+                Fig. 8 — The live control page: enable/pin screens and push notifications straight
                 to the hardware
               </figcaption>
             </figure>
@@ -3257,12 +3367,13 @@
       );
       document.querySelectorAll(".mobile-fade").forEach((el) => mobileFadeObserver.observe(el));
 
-      // ---- Interest card hover videos ----
-      document.querySelectorAll(".interest-card").forEach((card) => {
+      // ---- Interest / industry card hover videos ----
+      document.querySelectorAll(".interest-card, .industry-row").forEach((card) => {
         const video = card.querySelector("video");
         if (!video) return;
 
         card.addEventListener("mouseenter", () => {
+          if (!video.currentSrc) return; // no clip wired up yet
           if (getComputedStyle(video).display === "none") return;
           video.currentTime = 0;
           video.play().catch(() => {});
