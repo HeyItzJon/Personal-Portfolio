@@ -1665,6 +1665,80 @@
           display: none;
         }
       }
+
+      /* ---- Lazy-image loading placeholders ----
+         Every real photo/screenshot on the page (project cards, the About
+         carousel, project-detail figures, interest thumbs) sits inside one
+         of these four container classes and already has position:relative
+         set. A shimmering skeleton (::before, painted underneath the img
+         in normal stacking order) fills that space the instant the
+         container itself renders, before the network has delivered
+         anything — so scrolling to a section never shows a bare gap or a
+         layout jump. The <img> itself starts at opacity:0 and cross-fades
+         in once it actually finishes loading (see the JS lazyImg helpers
+         near the bottom of the page); .img-loaded (added to the
+         container at the same moment) turns the shimmer off so it isn't
+         still animating for no reason under a fully-loaded photo. */
+      @keyframes imgShimmer {
+        0% {
+          background-position: -450px 0;
+        }
+        100% {
+          background-position: 450px 0;
+        }
+      }
+      .project-thumb::before,
+      .figure-img::before,
+      .interest-thumb::before,
+      .carousel-slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-color: rgba(255, 255, 255, 0.03);
+        background-image: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.02) 25%,
+          rgba(255, 255, 255, 0.09) 37%,
+          rgba(255, 255, 255, 0.02) 63%
+        );
+        background-size: 500px 100%;
+        animation: imgShimmer 1.4s ease-in-out infinite;
+      }
+      /* Screenshots (figure-img.screenshot) render at their natural
+         height instead of a fixed aspect-ratio box, so there's nothing
+         to hold the skeleton's shape until the real image loads and sets
+         that height itself — this floor keeps the shimmer from
+         collapsing to a sliver in the meantime. */
+      .figure-img.screenshot {
+        min-height: 160px;
+      }
+      .project-thumb.img-loaded::before,
+      .figure-img.img-loaded::before,
+      .interest-thumb.img-loaded::before,
+      .carousel-slide.img-loaded::before {
+        display: none;
+      }
+      /* z-index only — these images already carry position:absolute
+         from their base rules earlier in the stylesheet (that's what
+         makes them fill the container); repeating "position" here
+         would overwrite that and break the fill. z-index:1 just lifts
+         them above the ::before skeleton, which sits at z-index:0. */
+      .project-thumb img,
+      .figure-img img,
+      .interest-thumb img,
+      .carousel-slide img {
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.45s var(--ease);
+      }
+      .project-thumb img.is-loaded,
+      .figure-img img.is-loaded,
+      .interest-thumb img.is-loaded,
+      .carousel-slide img.is-loaded {
+        opacity: 1;
+      }
     </style>
   </head>
   <body>
@@ -1708,6 +1782,7 @@
             class="hero-video"
             id="heroVideo"
             src="assets/hero-bg.mp4"
+            poster="assets/hero-poster.jpg"
             muted
             loop
             playsinline
@@ -1806,16 +1881,15 @@
                 class="laptop-shell"
                 src="assets/Backgrounds/laptop-image.png"
                 alt=""
-                aria-hidden="true"
-              />
+                aria-hidden="true" loading="lazy" decoding="async" />
               <div class="laptop-screen-overlay">
                 <div class="carousel" id="aboutCarousel">
                   <div class="carousel-track" id="carouselTrack">
                     <div class="carousel-slide grad-1">
-                      <img src="assets/images/about-1.jpg" alt="Lifeguarding" />
+                      <img src="assets/images/about-1.jpg" alt="Lifeguarding" loading="lazy" decoding="async" />
                     </div>
                     <div class="carousel-slide grad-2">
-                      <img src="assets/images/about-2.JPEG" alt="Workbench" />
+                      <img src="assets/images/about-2.JPEG" alt="Workbench" loading="lazy" decoding="async" />
                     </div>
                     <div class="carousel-slide grad-4">
                       <video
@@ -1827,7 +1901,7 @@
                       ></video>
                     </div>
                     <div class="carousel-slide grad-5">
-                      <img src="assets/images/about-5.JPEG" alt="Nexys FPGA Learning Project" />
+                      <img src="assets/images/about-5.JPEG" alt="Nexys FPGA Learning Project" loading="lazy" decoding="async" />
                     </div>
                   </div>
                   <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous photo">
@@ -1874,8 +1948,7 @@
                   <div class="project-thumb">
                     <img
                       src="assets/images/project-pcb-cover.JPEG"
-                      alt="Modular Bicycle Lighting System"
-                    />
+                      alt="Modular Bicycle Lighting System" loading="lazy" decoding="async" />
                   </div>
                   <div class="project-body">
                     <div class="project-ref">PROJ-01</div>
@@ -1894,7 +1967,7 @@
 
                 <div class="project-card theme-red" data-idx="1" tabindex="0">
                   <div class="project-thumb">
-                    <img src="assets/images/project-gokart-cover.JPG" alt="Electric Go-Kart" />
+                    <img src="assets/images/project-gokart-cover.JPG" alt="Electric Go-Kart" loading="lazy" decoding="async" />
                   </div>
                   <div class="project-body">
                     <div class="project-ref">PROJ-02</div>
@@ -1916,8 +1989,7 @@
                   <div class="project-thumb">
                     <img
                       src="assets/images/project-c130-pdb-cover.png"
-                      alt="Power distribution board layout for the RC aircraft"
-                    />
+                      alt="Power distribution board layout for the RC aircraft" loading="lazy" decoding="async" />
                   </div>
                   <div class="project-body">
                     <div class="project-ref">PROJ-03</div>
@@ -1937,7 +2009,7 @@
 
                 <div class="project-card theme-purple" data-idx="3" tabindex="0">
                   <div class="project-thumb">
-                    <img src="assets/images/pi-desk.jpeg" alt="Orange Pi Zero 3 on My Desk" />
+                    <img src="assets/images/pi-desk.jpeg" alt="Orange Pi Zero 3 on My Desk" loading="lazy" decoding="async" />
                   </div>
                   <div class="project-body">
                     <div class="project-ref">PROJ-04</div>
@@ -1960,8 +2032,7 @@
                   <div class="project-thumb">
                     <img
                       src="assets/images/project-mosfet-cover.JPEG"
-                      alt="MOSFET Switched Off-Road System"
-                    />
+                      alt="MOSFET Switched Off-Road System" loading="lazy" decoding="async" />
                   </div>
                   <div class="project-body">
                     <div class="project-ref">PROJ-05</div>
@@ -2032,7 +2103,7 @@
             <div class="interests-grid">
               <div class="interest-card reveal">
                 <div class="interest-thumb grad-2">
-                  <img src="assets/images/interest-robotics.jpg" alt="Cutting-edge robotics" />
+                  <img src="assets/images/interest-robotics.jpg" alt="Cutting-edge robotics" loading="lazy" decoding="async" />
                   <video
                     src="assets/images/interest-robotics.mp4"
                     muted
@@ -2052,7 +2123,7 @@
               </div>
               <div class="interest-card reveal">
                 <div class="interest-thumb grad-4">
-                  <img src="assets/images/interest-rf.jpg" alt="RF and space communications" />
+                  <img src="assets/images/interest-rf.jpg" alt="RF and space communications" loading="lazy" decoding="async" />
                   <video
                     src="assets/images/interest-rf.mp4"
                     muted
@@ -2072,7 +2143,7 @@
               </div>
               <div class="interest-card reveal">
                 <div class="interest-thumb grad-5">
-                  <img src="assets/images/interest-ai.jpg" alt="AI and AGI datacenter" />
+                  <img src="assets/images/interest-ai.jpg" alt="AI and AGI datacenter" loading="lazy" decoding="async" />
                   <video
                     src="assets/images/interest-ai.mp4"
                     muted
@@ -2190,13 +2261,13 @@
           <div class="figure-grid">
             <figure class="figure">
               <div class="figure-img grad-1">
-                <img src="assets/images/prototype-v1.JPEG" alt="prototype v1" />
+                <img src="assets/images/prototype-v1.JPEG" alt="prototype v1" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 1 — Layout V1, first prototype</figcaption>
             </figure>
             <figure class="figure">
               <div class="figure-img grad-2">
-                <img src="assets/images/prototype-v2.JPEG" alt="prototype v2" />
+                <img src="assets/images/prototype-v2.JPEG" alt="prototype v2" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 2 — Layout V2, compact circuit</figcaption>
             </figure>
@@ -2215,13 +2286,13 @@
           <div class="figure-grid">
             <figure class="figure">
               <div class="figure-img grad-3">
-                <img src="assets/images/pcb-raw.JPEG" alt="pcb raw" />
+                <img src="assets/images/pcb-raw.JPEG" alt="pcb raw" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 3 — Raw PCB as received</figcaption>
             </figure>
             <figure class="figure">
               <div class="figure-img grad-4">
-                <img src="assets/images/pcb-populated.JPEG" alt="pcb populated" />
+                <img src="assets/images/pcb-populated.JPEG" alt="pcb populated" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 4 — Components being added</figcaption>
             </figure>
@@ -2239,7 +2310,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-2 wide">
-                <img src="assets/images/final-circuit.JPEG" alt="final circuit" />
+                <img src="assets/images/final-circuit.JPEG" alt="final circuit" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 5 — Final circuit assembly on PCB</figcaption>
             </figure>
@@ -2262,7 +2333,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-3 wide">
-                <img src="assets/images/casings.JPEG" alt="casings" />
+                <img src="assets/images/casings.JPEG" alt="casings" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 6 — Different casing designs (front, rear, compact)
@@ -2324,7 +2395,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-1 xwide">
-                <img src="assets/images/hand-sketch.JPG" alt="hand sketch" />
+                <img src="assets/images/hand-sketch.JPG" alt="hand sketch" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 1 — Hand-drawn sketch of wiring and plan
@@ -2341,7 +2412,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-2 wide">
-                <img src="assets/images/installed-lights.JPEG" alt="installed lights" />
+                <img src="assets/images/installed-lights.JPEG" alt="installed lights" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 2 — Final install, static yellow mode</figcaption>
             </figure>
@@ -2414,7 +2485,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-3">
-                <img src="assets/images/frame-assembly.JPEG" alt="frame assembly" />
+                <img src="assets/images/frame-assembly.JPEG" alt="frame assembly" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 1 — Mostly assembled frame (with a repurposed kid's bike wheel standing in as
@@ -2438,13 +2509,13 @@
           <div class="figure-grid">
             <figure class="figure">
               <div class="figure-img grad-4">
-                <img src="assets/images/battery-pack.JPEG" alt="battery pack" />
+                <img src="assets/images/battery-pack.JPEG" alt="battery pack" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 2 — Assembled battery pack</figcaption>
             </figure>
             <figure class="figure">
               <div class="figure-img grad-1">
-                <img src="assets/images/motor-assembly.JPEG" alt="motor assembly" />
+                <img src="assets/images/motor-assembly.JPEG" alt="motor assembly" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 3 — Motor assembly</figcaption>
             </figure>
@@ -2470,7 +2541,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-2">
-                <img src="assets/images/final-gokart.JPEG" alt="final gokart" />
+                <img src="assets/images/final-gokart.JPEG" alt="final gokart" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 4 — Final construction</figcaption>
             </figure>
@@ -2537,8 +2608,7 @@
               <div class="figure-img screenshot">
                 <img
                   src="assets/images/rc-drone-pdb-schematic.png"
-                  alt="Power distribution board schematic: 12V, 5V, and 3.3V regulator stages"
-                />
+                  alt="Power distribution board schematic: 12V, 5V, and 3.3V regulator stages" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 1 — The regulator schematic: three rails plus the battery input
@@ -2562,8 +2632,7 @@
               <div class="figure-img screenshot">
                 <img
                   src="assets/images/rc-drone-pdb-render.png"
-                  alt="3D render of the power distribution board"
-                />
+                  alt="3D render of the power distribution board" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">Fig. 2 — The board, rendered in Altium</figcaption>
             </figure>
@@ -2597,8 +2666,7 @@
               <div class="figure-img wide">
                 <img
                   src="assets/images/rc-drone-stm32-imu.jpeg"
-                  alt="STM32 dev board wired to a BNO085 9-axis IMU on a breadboard"
-                />
+                  alt="STM32 dev board wired to a BNO085 9-axis IMU on a breadboard" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 3 — Bench-testing the STM32 against the IMU before it goes on the plane
@@ -2621,8 +2689,7 @@
               <div class="figure-img screenshot">
                 <img
                   src="assets/images/rc-elrs-radio-testing.jpeg"
-                  alt="Testing the RadioMaster Pocket transmitter and RP4TD receiver link"
-                />
+                  alt="Testing the RadioMaster Pocket transmitter and RP4TD receiver link" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 4 — Testing the RadioMaster Pocket / RP4TD radio link
@@ -2699,7 +2766,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img screenshot">
-                <img src="assets/images/agent-hermes-demo.png" alt="hermes telegram bot demo" />
+                <img src="assets/images/agent-hermes-demo.png" alt="hermes telegram bot demo" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 1 — The Hermes/Telegram setup from V1, in action
@@ -2736,7 +2803,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img grad-4 wide">
-                <img src="assets/images/pi-closeup.jpeg" alt="orange pi zero 3 close-up" />
+                <img src="assets/images/pi-closeup.jpeg" alt="orange pi zero 3 close-up" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 2 — The Orange Pi Zero 3 the backend actually runs on
@@ -2753,7 +2820,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img screenshot">
-                <img src="assets/images/week-view.png" alt="week dashboard page" />
+                <img src="assets/images/week-view.png" alt="week dashboard page" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 3 — Week page: busy score for the next 7 days, pulled straight from my calendar
@@ -2771,7 +2838,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img screenshot">
-                <img src="assets/images/stats-page.png" alt="stats dashboard page" />
+                <img src="assets/images/stats-page.png" alt="stats dashboard page" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 4 — Stats page: daily portfolio moves and the year in numbers
@@ -2788,7 +2855,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img screenshot">
-                <img src="assets/images/stock-finds.png" alt="worth a look stock idea card" />
+                <img src="assets/images/stock-finds.png" alt="worth a look stock idea card" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 5 — "Worth a look": a real stock idea, sourced from live market data
@@ -2827,7 +2894,7 @@
           <div class="figure-grid single">
             <figure class="figure">
               <div class="figure-img screenshot">
-                <img src="assets/images/wall-control.png" alt="wall control page" />
+                <img src="assets/images/wall-control.png" alt="wall control page" loading="lazy" decoding="async" />
               </div>
               <figcaption class="figure-cap">
                 Fig. 6 — The live control page: enable/pin screens and push notifications straight
@@ -2894,6 +2961,7 @@
         });
 
         initReveals(page);
+        initLazyImages(page);
 
         if (route === "home" && window.recenterProjCarousel) {
           requestAnimationFrame(window.recenterProjCarousel);
@@ -3139,6 +3207,40 @@
         (scope || document).querySelectorAll(".reveal:not(.in)").forEach((el, i) => {
           el.style.transitionDelay = Math.min(i % 4, 3) * 0.08 + "s";
           revealObserver.observe(el);
+        });
+      }
+
+      /* ============================================================
+         LAZY IMAGE PLACEHOLDERS — pairs with the shimmer/::before CSS
+         above. Every real <img> got loading="lazy" decoding="async"
+         added at build time; this just watches each one and, the
+         moment it actually finishes downloading (or fails), fades it
+         in and turns off its container's skeleton. Runs once at
+         load for whatever's already in the DOM, and again from
+         showPage() for the project-detail page that just became
+         active — a page that was display:none doesn't reliably fire
+         "load" the instant it's shown, and some of its images may
+         already be complete (browser cache) by the time we look.
+         ============================================================ */
+      function initLazyImages(scope) {
+        const wrapSelector = ".project-thumb, .figure-img, .interest-thumb, .carousel-slide";
+        (scope || document).querySelectorAll("img[loading='lazy']").forEach((img) => {
+          if (img.dataset.lazyWired) return;
+          img.dataset.lazyWired = "1";
+          const wrap = img.closest(wrapSelector);
+          const markLoaded = () => {
+            img.classList.add("is-loaded");
+            if (wrap) wrap.classList.add("img-loaded");
+          };
+          if (img.complete && img.naturalWidth > 0) {
+            markLoaded();
+          } else {
+            img.addEventListener("load", markLoaded, { once: true });
+            // A broken/missing image still gets its skeleton cleared —
+            // an infinitely shimmering box over a failed image would be
+            // worse than just showing the browser's broken-image icon.
+            img.addEventListener("error", markLoaded, { once: true });
+          }
         });
       }
 
